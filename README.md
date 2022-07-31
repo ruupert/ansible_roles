@@ -1,5 +1,5 @@
-Role Name
-=========
+ruupert.ansible-bootstrap
+=========================
 
 A slightly naive role for creating the ansible user for the standard cloud image based Ubuntu and Centos servers.
 
