@@ -1,0 +1,57 @@
+---
+# tasks file for ruupert.management-users
+
+
+- name: "Management users"
+  when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04" 
+  block:
+ 
+  - name: "Ensure adm group exists"
+    ansible.builtin.group:
+      name: "adm"
+      state: "present"
+  
+  - name: "Create user accounts"
+    user:
+      name: "{{ item['username'] }}"
+      groups:
+        - "adm"
+      shell: /bin/bash
+    with_items: "{{ users | list }}"
+  
+  - name: "Add authorized keys"
+    authorized_key:
+      user: "{{ item['username'] }}"
+      key: "{{ item['public_key'] }}"
+      state: present
+      exclusive: True
+    with_items: "{{ users | list }}"
+  
+  - name: "Allow adm users to sudo without a password"
+    lineinfile:
+      dest: "/etc/sudoers" # path: in version 2.3
+      state: "present"
+      regexp: "^%adm"
+      line: "%adm ALL=(ALL) NOPASSWD: ALL"
+
+
+  - name: "Remove old user accounts in remove_users"
+    user:
+      name: "{{ item }}"
+      state: "absent"
+    with_items: "{{ remove_users }}"
+  
+  - name: Change root password
+    user:
+      name: root
+      update_password: always
+      password: "{{ root_password }}"
+  
+  
+  rescue:
+  - name: feil
+    debug:
+      msg: "Something went wrong" 
+    changed_when: True
+    notify:
+      - send failed message

@@ -1,0 +1,7 @@
+---
+ansible_distribution_d: "{{ ansible_distribution | default('Undefined') }}"
+ansible_distribution_version_d: "{{ ansible_distribution_version | default('Undefined') }}"
+
+users: []
+remove_users: []
+root_password: ""
