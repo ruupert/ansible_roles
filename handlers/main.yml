@@ -1,0 +1,107 @@
+---
+# handlers file for ruupert.reusable-handlers
+
+
+### automatic updates handler for saving stdout into log files.
+
+- name: save result stdout to file
+  local_action: copy content={{ result.stdout }} dest={{ reusable_handlers_logdir }}/{{ ansible_hostname }}.update.log
+
+- name: save package_list stdout to file
+  local_action: copy content={{ package_list.stdout }} dest={{ reusable_handlers_logdir }}/{{ ansible_hostname }}.package_list.log
+
+
+
+
+
+### Messages to slack
+
+- name: send failed message to slack
+  when: disable_slack_handlers == false
+  community.general.slack:
+    token: "{{ slack_token }}"
+    msg: "Ansible failed on *{{ ansible_hostname }} ({{ ansible_host }})* \n
+        *Task*: {{ ansible_failed_task.name }} \n
+        *Action*: {{ ansible_failed_task.action }} \n
+        *Error*: {{ ansible_failed_result.msg }}"
+  delegate_to: localhost
+  listen: "send failed message"
+
+# Summary of unreachable hosts for the play
+- name: send failed unreachable message to slack
+  when: disable_slack_handlers == false
+  community.general.slack:
+    token: "{{ slack_token }}"
+    msg: "Unreachable hosts* \n
+        *Task*: Update \n
+        *Action*: Connect \n
+        *Error*: Unreachable hosts: {{ ansible_play_hosts_all | difference(ansible_play_hosts) }}"
+  delegate_to: localhost
+  listen: "send failed unreachable"
+
+
+### Messages to teams
+
+- name: send failed message to teams
+  when: disable_teams_handlers == false
+  ansible.builtin.uri:
+    url: "{{ teams_webhook }}"
+    method: POST
+    return_content: yes
+    body: '{
+      "@type":"MessageCard",
+      "@context":"http://schema.org/extensions",
+      "themeColor":"0076D7",
+      "summary":"Ansible failed on *{{ ansible_hostname }} ({{ ansible_host }})*",
+      "title": "Ansible failed on {{ ansible_hostname }} ({{ ansible_host }})", 
+      "sections": [{
+        "facts": [{
+          "name": "Task",
+          "value": "{{ ansible_failed_task.name }}"
+        },{
+          "name": "Action",
+          "value": "{{ ansible_failed_task.action }}"
+        },{
+          "name": "Error",
+          "value": "{{ ansible_failed_result.msg }}"
+        }]
+        }]
+      }'
+    body_format: json
+  delegate_to: localhost
+  listen: "send failed message"
+
+
+
+# Send summary of unreachable hosts in the given play
+- name: send failed unreachable message to teams
+  when: disable_teams_handlers == false
+  ansible.builtin.uri:
+    url: "{{ teams_webhook }}"
+    method: POST
+    return_content: yes
+    body: '{
+      "@type":"MessageCard",
+      "@context":"http://schema.org/extensions",
+      "themeColor":"0076D7",
+      "summary":"Automatic update unreachable hosts",
+      "title": "Ansible failed on {{ ansible_play_hosts_all | difference(ansible_play_hosts) }}", 
+      "sections": [{
+        "facts": [{
+          "name": "Task",
+          "value": "Update"
+        },{
+          "name": "Action",
+          "value": "Connect"
+        },{
+          "name": "Error",
+          "value": "Unreachable hosts: {{ ansible_play_hosts_all | difference(ansible_play_hosts) }}"
+        }]
+        }]
+      }'
+    body_format: json  
+  delegate_to: localhost
+  listen: "send failed unreachable"
+
+
+
