@@ -11,28 +11,28 @@ A pile of salt.
 Role Variables
 --------------
 
-reusable_handlers_logdir: "<path to log directory>"
-disable_teams_handlers: true
-disable_slack_handlers: true
-slack_token: ""
-teams_webhook: ""
+    reusable_handlers_logdir: "<path to log directory>"
+    disable_teams_handlers: true
+    disable_slack_handlers: true
+    slack_token: ""
+    teams_webhook: ""
 
 
 Dependencies
 ------------
 
-community.general.slack
+    community.general.slack
 
 Example usage in a role:
 ----------------
 
 Set dependency in your role (meta/main.yml) as follows:
 
-  dependencies:
-    - { role: ruupert.reusable-handlers }
+    dependencies:
+      - { role: ruupert.reusable-handlers }
 
 In your role tasks do a block-rescue where in your rescue in case of failure:
 
-  notify: 
-    - send failed message 
+    notify: 
+        - send failed message 
 
