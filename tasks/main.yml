@@ -13,14 +13,14 @@
       ansible.builtin.iptables:
         rule_num: "{{ item.rulenum }}"
         chain: INPUT
-        protocol: tcp
+        protocol: "{{ item.proto }}"
         destination_port: "{{ item.port }}"
         source: "{{ item.src }}"
         ctstate: NEW
         syn: match
         jump: ACCEPT
         comment: "Accept new connections to port {{ item.port }}."
-      with_items: "{{ hostvars[inventory_hostname]['host_vars_iptables']['allow']['tcp'] | default(omit) }}"
+      with_items: "{{ hostvars[inventory_hostname]['host_vars_iptables'] | default(omit) }}"
 
   rescue:
     - name: "Feil"
@@ -30,21 +30,25 @@
       notify:
         - send failed message
 
-# schange last will have to add above a block that will allow management access
-# only if succesful then change policy here
 - name: "Set default INPUT chain policy to DROP"
   block:
     - name: "Allow management IP"
       ansible.builtin.iptables:
+        rule_num: "{{ item.rulenum }}"
         chain: INPUT
-        protocol: tcp
-        destination_port: 22
-        source: "{{ item }}"
+        protocol: "{{ item.proto }}"
+        destination_port: "{{ item.port }}"
+        source: "{{ item.src }}"
         ctstate: NEW
         syn: match
         jump: ACCEPT
         comment: Accept management SSH connections.
-      with_items: "{{ hostvars[inventory_hostname]['host_vars_mgmt_src_ip'] }}"
+      register: reg_mgmt
+      with_items: "{{ hostvars[inventory_hostname]['mgmt_iptables'] | default(omit) }}"
+
+    - name: "Print reg_mgmt"
+      ansible.builtin.debug:
+        msg: "{{ reg_mgmt }}"
 
     - name: "Set the policy for the INPUT chain to DROP"
       ansible.builtin.iptables:
