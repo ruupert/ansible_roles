@@ -21,20 +21,29 @@ Dependencies
 Example
 -------
 
-Have your hostvars set
+Have your default mgmt ip set in group_vars/all.yml 
 
+```
+mgmt_iptables:
+  - port: 22
+    src: "1.2.3.4/32"
+    proto: tcp
+    rulenum: 1
+
+host_vars_iptables:
+```
+
+Override default mgmt ip in host_vars/<host>.yml
+
+And then per host allows in similarly in host_vars/<host>.yml:
 ```
 host_vars_iptables:
   allow:
     tcp:
       - port: 22
         src: "1.2.3.4"
-        rulenum: 1
+        rulenum: 2
       - port: 80
         src: "2.3.4.5"
-        rulenum: 2
+        rulenum: 3
 ```
-
-I dare you to just run against a set of inventory hosts.
-
-Non working defaults for now
