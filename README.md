@@ -28,7 +28,6 @@ mgmt_iptables:
   - port: 22
     src: "1.2.3.4/32"
     proto: tcp
-    rulenum: 1
 
 host_vars_iptables:
 ```
@@ -42,8 +41,6 @@ host_vars_iptables:
     tcp:
       - port: 22
         src: "1.2.3.4"
-        rulenum: 2
       - port: 80
         src: "2.3.4.5"
-        rulenum: 3
 ```
