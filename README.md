@@ -28,8 +28,6 @@ mgmt_iptables:
   - port: 22
     src: "1.2.3.4/32"
     proto: tcp
-
-host_vars_iptables:
 ```
 
 Override default mgmt ip in host_vars/<host>.yml

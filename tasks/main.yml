@@ -19,7 +19,8 @@
         syn: match
         jump: ACCEPT
         comment: "Accept new connections to port {{ item.port }}."
-      with_items: "{{ hostvars[inventory_hostname]['host_vars_iptables'] | default(omit) }}"
+      with_items: "{{ hostvars[inventory_hostname]['host_vars_iptables'] }}"
+      when: hostvars[inventory_hostname]['host_vars_iptables'] is defined
 
   rescue:
     - name: "Feil"
@@ -42,16 +43,13 @@
         jump: ACCEPT
         comment: Accept management SSH connections.
       register: reg_mgmt
-      with_items: "{{ hostvars[inventory_hostname]['mgmt_iptables'] | default(omit) }}"
-
-    - name: "Print reg_mgmt"
-      ansible.builtin.debug:
-        msg: "{{ reg_mgmt }}"
+      with_items: "{{ hostvars[inventory_hostname]['mgmt_iptables'] }}"
 
     - name: "Set the policy for the INPUT chain to DROP"
       ansible.builtin.iptables:
         chain: INPUT
         policy: DROP
+      when: not reg_mgmt.results[0].failed
   rescue:
     - name: "Feil"
       ansible.builtin.debug:
