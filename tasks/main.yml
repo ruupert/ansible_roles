@@ -1,0 +1,58 @@
+---
+# tasks file for ruupert.rtorrent
+
+- name: "Install and configure rtorrent"
+  block:
+## changing later rtorrent to run on its own user
+#    - name: "Ensure rtorrent user exists"
+#      ansible.builtin.user:
+#        name: "{{ hostvars[inventory_hostname]['rtorrent_user'] | default(rtorrent_user) }}"
+#        home: "{{ hostvars[inventory_hostname]['rtorrent_home'] | default(rtorrent_home) }}"
+#        shell: "/usr/sbin/nologin"
+#        create_home: true
+
+    - name: "Install dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - "rtorrent"
+          - "tmux"
+        state: "present"
+
+    - name: "Copy rtorrentrc to target"
+      ansible.builtin.template:
+        src: "templates/dotrtorrentrc.j2"
+        dest: "{{ hostvars[inventory_hostname]['rtorrent_home'] | default(rtorrent_home) }}/.rtorrent.rc"
+        owner: "ruupert"
+        group: "ruupert"
+        mode: "0600"
+      register: rtorrentrc_reg
+
+    - name: "Write or update systemd rtorrent.service unit file"
+      ansible.builtin.template:
+        src: "templates/rtorrent_systemd_service.j2"
+        dest: "/etc/systemd/system/rtorrent.service"
+        owner: "root"
+        group: "root"
+        mode: "0755"
+      register: systemd_unit_reg
+
+    - name: "Start service rtorrent.service"
+      ansible.builtin.systemd:
+        state: started
+        daemon_reload: true
+        name: rtorrent
+
+    - name: "Reload daemon, enable rtorrent.service" # noqa: no-handler
+      ansible.builtin.systemd:
+        state: restarted
+        name: rtorrent
+      when: systemd_unit_reg.changed or rtorrentrc_reg.changed
+
+
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
