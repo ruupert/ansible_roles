@@ -17,14 +17,14 @@
         shell: "/usr/sbin/nologin"
         state: present
 
-    - name: "User dir permissions"
+    - name: "User home dir permissions"
       ansible.builtin.file:
         path: "{{ hostvars[inventory_hostname]['electricity_costs_home'] }}"
         state: directory
-        recurse: true
+        recurse: false
         owner: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
         group: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
-        mode: "go-rwx"
+        mode: "0700"
 
     - name: "Git pull"
       ansible.builtin.git:
