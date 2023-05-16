@@ -8,9 +8,9 @@ Type=oneshot
 KillMode=none
 User=ruupert
 RemainAfterExit=yes
-ExecStart=/usr/bin/tmux -S /tmp/rtorrent.sock new-session -d -s rtorrent 'rtorrent -n -O import={{ hostvars[inventory_hostname]['rtorrent_home'] | default(rtorrent_home) }}/.rtorrent.rc'
+ExecStart=/usr/bin/tmux -S /tmp/rtorrent.sock new-session -d -s rtorrent 'rtorrent -n -O import={{ rtorrent_home }}/.rtorrent.rc'
 ExecStop=/usr/bin/tmux -S /tmp/rtorrent.sock send-keys -t rtorrent C-q
-WorkingDirectory={{ hostvars[inventory_hostname]['rtorrent_home'] | default(rtorrent_home) }}
+WorkingDirectory={{ rtorrent_home }}
 
 [Install]
 WantedBy=default.target

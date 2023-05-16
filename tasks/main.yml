@@ -21,7 +21,7 @@
     - name: "Copy rtorrentrc to target"
       ansible.builtin.template:
         src: "templates/dotrtorrentrc.j2"
-        dest: "{{ hostvars[inventory_hostname]['rtorrent_home'] | default(rtorrent_home) }}/.rtorrent.rc"
+        dest: "{{ rtorrent_home }}/.rtorrent.rc"
         owner: "ruupert"
         group: "ruupert"
         mode: "0600"
