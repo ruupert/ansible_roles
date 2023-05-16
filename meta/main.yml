@@ -1,0 +1,15 @@
+galaxy_info:
+  author: Raul Becker
+  description: Deploys electiricty_costs fetcher
+  license: "MIT"
+  min_ansible_version: "2.1"
+  platforms:
+    - name: "Ubuntu"
+      versions:
+        - "bionic"
+    - name: "Debian"
+      versions:
+        - "bullseye"
+  galaxy_tags: []
+dependencies:
+  - { role: ruupert_reusable_handlers }

@@ -1,0 +1,7 @@
+---
+# defaults file for ruupert_deploy_electricity_costs
+electricity_costs_user_def: "electiricity_costs"
+electricity_costs_home_def: "/opt/electricity_costs"
+electiricty_costs_repo_def: "https://github.com/ruupert/electricity_costs.git"
+electiricty_costs_branch_def: "main"
+electiricty_costs_pyver_def: "python3.9"

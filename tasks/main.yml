@@ -1,0 +1,63 @@
+---
+# tasks file for ruupert_deploy_electricity_costs
+
+- name: "Deploy electricity_costs"
+  block:
+    - name: "Install dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - "git"
+          - "python3-virtualenv"
+        state: "present"
+
+    - name: "Create user"
+      ansible.builtin.user:
+        name: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
+        home: "{{ hostvars[inventory_hostname]['electricity_costs_home'] }}"
+        shell: "/usr/sbin/nologin"
+        state: present
+
+    - name: "User dir permissions"
+      ansible.builtin.file:
+        path: "{{ hostvars[inventory_hostname]['electricity_costs_home'] }}"
+        state: directory
+        recurse: true
+        owner: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
+        group: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
+        mode: "go-rwx"
+
+    - name: "Git pull"
+      ansible.builtin.git:
+        repo: "{{ hostvars[inventory_hostname]['electiricty_costs_repo'] }}"
+        dest: "{{ hostvars[inventory_hostname]['electricity_costs_home'] }}/app"
+        version: "{{ hostvars[inventory_hostname]['electiricty_costs_branch'] }}"
+        force: true
+        single_branch: true
+      become_user: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
+      become: true
+
+    - name: "Install python-venv"
+      ansible.builtin.pip:
+        requirements: "{{ hostvars[inventory_hostname]['electricity_costs_home'] }}/app/requirements.txt"
+        virtualenv: "{{ hostvars[inventory_hostname]['electricity_costs_home'] }}/venv"
+        virtualenv_python: "{{ hostvars[inventory_hostname]['electiricty_costs_pyver'] }}"
+      become_user: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
+      become: true
+
+    - name: "Add cronjob"
+      ansible.builtin.cron:
+        name: Fetch electiricty_costs
+        weekday: "*"
+        minute: "5"
+        hour: "15"
+        user: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
+        job: "cd {{ hostvars[inventory_hostname]['electricity_costs_home'] }}/app && {{ hostvars[inventory_hostname]['electricity_costs_home'] }}/venv/bin/{{ hostvars[inventory_hostname]['electiricty_costs_pyver'] }} main.py --apikey {{ hostvars[inventory_hostname]['electiricty_costs_app_entsoe_apikey'] }} --username {{ hostvars[inventory_hostname]['electiricty_costs_app_username'] }} --password {{ hostvars[inventory_hostname]['electiricty_costs_app_password'] }} --delivery-site {{ hostvars[inventory_hostname]['electiricty_costs_app_delivery_site'] }}"
+        cron_file: electricity_costs_cron
+
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "FeilFail"
+      changed_when: true
+      notify:
+        - send failed message
