@@ -12,36 +12,36 @@
 
     - name: "Create user"
       ansible.builtin.user:
-        name: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
-        home: "{{ hostvars[inventory_hostname]['electricity_costs_home'] }}"
+        name: "{{ electricity_costs_user }}"
+        home: "{{ electricity_costs_home }}"
         shell: "/usr/sbin/nologin"
         state: present
 
     - name: "User home dir permissions"
       ansible.builtin.file:
-        path: "{{ hostvars[inventory_hostname]['electricity_costs_home'] }}"
+        path: "{{ electricity_costs_home }}"
         state: directory
         recurse: false
-        owner: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
-        group: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
+        owner: "{{ electricity_costs_user }}"
+        group: "{{ electricity_costs_user }}"
         mode: "0700"
 
     - name: "Git pull"
       ansible.builtin.git:
-        repo: "{{ hostvars[inventory_hostname]['electiricty_costs_repo'] }}"
-        dest: "{{ hostvars[inventory_hostname]['electricity_costs_home'] }}/app"
-        version: "{{ hostvars[inventory_hostname]['electiricty_costs_branch'] }}"
+        repo: "{{ electiricty_costs_repo }}"
+        dest: "{{ electricity_costs_home }}/app"
+        version: "{{ electiricty_costs_branch }}"
         force: true
         single_branch: true
-      become_user: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
+      become_user: "{{ electricity_costs_user }}"
       become: true
 
     - name: "Install python-venv"
       ansible.builtin.pip:
-        requirements: "{{ hostvars[inventory_hostname]['electricity_costs_home'] }}/app/requirements.txt"
-        virtualenv: "{{ hostvars[inventory_hostname]['electricity_costs_home'] }}/venv"
-        virtualenv_python: "{{ hostvars[inventory_hostname]['electiricty_costs_pyver'] }}"
-      become_user: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
+        requirements: "{{ electricity_costs_home }}/app/requirements.txt"
+        virtualenv: "{{ electricity_costs_home }}/venv"
+        virtualenv_python: "{{ electiricty_costs_pyver }}"
+      become_user: "{{ electricity_costs_user }}"
       become: true
 
     - name: "Add cronjob"
@@ -50,8 +50,8 @@
         weekday: "*"
         minute: "5"
         hour: "15"
-        user: "{{ hostvars[inventory_hostname]['electricity_costs_user'] }}"
-        job: "cd {{ hostvars[inventory_hostname]['electricity_costs_home'] }}/app && {{ hostvars[inventory_hostname]['electricity_costs_home'] }}/venv/bin/{{ hostvars[inventory_hostname]['electiricty_costs_pyver'] }} main.py --apikey {{ hostvars[inventory_hostname]['electiricty_costs_app_entsoe_apikey'] }} --username {{ hostvars[inventory_hostname]['electiricty_costs_app_username'] }} --password {{ hostvars[inventory_hostname]['electiricty_costs_app_password'] }} --delivery-site {{ hostvars[inventory_hostname]['electiricty_costs_app_delivery_site'] }}"
+        user: "{{ electricity_costs_user }}"
+        job: "cd {{ electricity_costs_home }}/app && {{ electricity_costs_home }}/venv/bin/{{ electiricty_costs_pyver }} main.py --apikey {{ electiricty_costs_app_entsoe_apikey }} --username {{ electiricty_costs_app_username }} --password {{ electiricty_costs_app_password }} --delivery-site {{ electiricty_costs_app_delivery_site }}"
         cron_file: electricity_costs_cron
 
   rescue:
