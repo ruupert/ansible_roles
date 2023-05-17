@@ -1,0 +1,5 @@
+---
+# vars file for ruupert.ansible-bootstrap
+
+# id_rsa.pub string here:
+ansible_public_key: ""
