@@ -1,0 +1,65 @@
+---
+# tasks file for ruupert.apt_dist_upgrade
+
+- name: "Update packages and reboot if needed."
+  block:
+    - name: "Update APT package manager repositories cache"
+      become: false
+      ansible.builtin.apt:
+        update_cache: true
+      register: apt_result
+
+    - name: "Get upgradeable packages"
+      become: false
+      ansible.builtin.shell: |
+        set -o pipefail
+        apt list --upgradeable | awk '{print $1"\t"$2"\t"$6}' | tr -d "]"|sed 's/\/[a-zA-Z0-9]*-[a-zA-Z0-9]*//g'
+      args:
+        executable: /bin/bash
+      register: package_list
+      notify: save package_list stdout to file
+      changed_when: package_list.rc != 0
+
+    - name: "Update all packages to the latest version"
+      become: false
+      ansible.builtin.apt:
+        upgrade: dist
+      register: result
+      changed_when: true
+      notify: save result stdout to file
+
+    - name: "Check if a reboot is required"
+      ansible.builtin.stat:
+        path: "/var/run/reboot-required"
+      register: p
+
+    - name: Reboot
+      become: false
+      ansible.builtin.reboot:
+        reboot_timeout: 600
+      when: p.stat.exists
+
+    - name: Notify handlers
+      ansible.builtin.meta: flush_handlers
+
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "apt dist-upgrade failed"
+      changed_when: true
+      notify:
+        - save package_list stdout to file
+        - save result stdout to file
+        - send failed message
+
+    - name: "Notify handlers"
+      ansible.builtin.meta: flush_handlers
+
+- name: "Send failed message about unreachable hosts"
+  ansible.builtin.debug:
+    msg: "{{ ansible_play_hosts_all | difference(ansible_play_hosts) }}"
+  when: ansible_play_hosts != ansible_play_hosts_all
+  run_once: true
+  changed_when: true
+  notify:
+    - send failed unreachable
