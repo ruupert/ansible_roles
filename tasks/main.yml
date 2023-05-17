@@ -1,0 +1,63 @@
+---
+# tasks file for ruupert_deploy_electricity_costs
+
+- name: "Deploy electricity_costs"
+  block:
+    - name: "Install dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - "git"
+          - "python3-virtualenv"
+        state: "present"
+
+    - name: "Create user"
+      ansible.builtin.user:
+        name: "{{ electricity_costs_user }}"
+        home: "{{ electricity_costs_home }}"
+        shell: "/usr/sbin/nologin"
+        state: present
+
+    - name: "User home dir permissions"
+      ansible.builtin.file:
+        path: "{{ electricity_costs_home }}"
+        state: directory
+        recurse: false
+        owner: "{{ electricity_costs_user }}"
+        group: "{{ electricity_costs_user }}"
+        mode: "0700"
+
+    - name: "Git pull"
+      ansible.builtin.git:
+        repo: "{{ electiricty_costs_repo }}"
+        dest: "{{ electricity_costs_home }}/app"
+        version: "{{ electiricty_costs_branch }}"
+        force: true
+        single_branch: true
+      become_user: "{{ electricity_costs_user }}"
+      become: true
+
+    - name: "Install python-venv"
+      ansible.builtin.pip:
+        requirements: "{{ electricity_costs_home }}/app/requirements.txt"
+        virtualenv: "{{ electricity_costs_home }}/venv"
+        virtualenv_python: "{{ electiricty_costs_pyver }}"
+      become_user: "{{ electricity_costs_user }}"
+      become: true
+
+    - name: "Add cronjob"
+      ansible.builtin.cron:
+        name: Fetch electiricty_costs
+        weekday: "*"
+        minute: "5"
+        hour: "15"
+        user: "{{ electricity_costs_user }}"
+        job: "cd {{ electricity_costs_home }}/app && {{ electricity_costs_home }}/venv/bin/{{ electiricty_costs_pyver }} main.py --apikey {{ electiricty_costs_app_entsoe_apikey }} --username {{ electiricty_costs_app_username }} --password {{ electiricty_costs_app_password }} --delivery-site {{ electiricty_costs_app_delivery_site }}"
+        cron_file: electricity_costs_cron
+
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "FeilFail"
+      changed_when: true
+      notify:
+        - send failed message
