@@ -1,4 +1,4 @@
-ruupert.cis
+ruupert_cis
 ===========
 
 An ansible role for applying partially CIS recommended hardenings. Basing on the Ubuntu 18.04 PDF. 
@@ -16,13 +16,9 @@ Role Variables
 Dependencies
 ------------
 
-    ruupert.reusable-handlers
+    ruupert_reusable_handlers
 
 Example
 -------
 
-In your role meta/main.yml:
-
-    dependencies:
-      - { role: ruupert.reusable-handlers }
-
+Just run against a set of inventory hosts.
