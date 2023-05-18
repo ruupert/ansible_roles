@@ -4,7 +4,7 @@
 
 
 ## Instance layout (base paths) #/home/ruupert/rtorrent/
-method.insert = cfg.basedir,  private|const|string, (cat,"{{ rtorrent_directory }}/")
+method.insert = cfg.basedir,  private|const|string, (cat,"{{ rtorrent.dir }}/")
 method.insert = cfg.download, private|const|string, (cat,(cfg.basedir),"download/")
 method.insert = cfg.logs,     private|const|string, (cat,(cfg.basedir),"log/")
 method.insert = cfg.logfile,  private|const|string, (cat,(cfg.logs),"rtorrent-",(system.time),".log")
@@ -22,12 +22,12 @@ execute.throw = sh, -c, (cat,\
 
 
 ## Listening port for incoming peer traffic (fixed; you can also randomize it)
-network.port_range.set = {{ rtorrent_port_range }}
+network.port_range.set = {{ rtorrent.port_range }}
 network.port_random.set = no
 
 ## Tracker-less torrent and UDP tracker support
 ## (conservative settings for 'private' trackers, change for 'public')
-dht.mode.set = {{ rtorrent_dht }}
+dht.mode.set = {{ rtorrent.dht }}
 protocol.pex.set = no
 
 trackers.use_udp.set = no

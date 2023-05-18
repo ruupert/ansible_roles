@@ -1,7 +1,8 @@
 ---
 # defaults file for ruupert.rtorrent
-rtorrent_directory: "/opt/rtorrent/rt"
-rtorrent_user: "rtorrent"
-rtorrent_home: "/opt/rtorrent"
-rtorrent_port_range: "45000-50000"
-rtorrent_dht: "disable"
+rtorrent:
+  user: "rtorrent"
+  home: "/opt/rtorrent"
+  dir: "/opt/rtorrent/rt"
+  port_range: "45000-50000"
+  dht: "disable"

@@ -6,11 +6,11 @@ After=network.target local-fs.target
 [Service]
 Type=oneshot
 KillMode=none
-User=ruupert
+User={{ rtorrent.user}}
 RemainAfterExit=yes
-ExecStart=/usr/bin/tmux -S /tmp/rtorrent.sock new-session -d -s rtorrent 'rtorrent -n -O import={{ rtorrent_home }}/.rtorrent.rc'
+ExecStart=/usr/bin/tmux -S /tmp/rtorrent.sock new-session -d -s rtorrent 'rtorrent -n -O import={{ rtorrent.home }}/.rtorrent.rc'
 ExecStop=/usr/bin/tmux -S /tmp/rtorrent.sock send-keys -t rtorrent C-q
-WorkingDirectory={{ rtorrent_home }}
+WorkingDirectory={{ rtorrent.home }}
 
 [Install]
 WantedBy=default.target

@@ -23,9 +23,10 @@ Example
 
 For the host the role is applied on define its vars. E.g.
 ```
-rtorrent_directory: "/home/user/rtorrent"
-rtorrent_user: "user"
-rtorrent_home: "/home/user"
-rtorrent_port_range: "45123-45123" (optional, default:"45000-50000")
-rtorrent_dht: "enable"   (optional, default: "disable")
+rtorrent:
+  user: "rtorrent"
+  home: "/opt/rtorrent"
+  dir: "/opt/rtorrent/rt"
+  port_range: "45000-50000"
+  dht: "enable/disable"   
 ```
