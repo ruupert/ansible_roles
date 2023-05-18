@@ -8,6 +8,7 @@
         pkg:
           - "git"
           - "python3-virtualenv"
+          - "sqlite3"
         state: "present"
 
     - name: "Create user"
@@ -44,6 +45,22 @@
       become_user: "{{ electricity_costs_user }}"
       become: true
 
+    - name: "Install github.com/ojarva/python-helen-electricity-usage"
+      ansible.builtin.pip:
+        name: "git+https://github.com/ojarva/python-helen-electricity-usage"
+        virtualenv: "{{ electricity_costs_home }}/venv"
+        virtualenv_python: "{{ electiricty_costs_pyver }}"
+      become: true
+      become_user: "{{ electricity_costs_user }}"
+
+    - name: "Create config file"
+      ansible.builtin.template:
+        src: "templates/dotconfig.yaml.j2"
+        dest: "{{ electricity_costs_home }}/app/.config.yaml"
+        mode: "0700"
+        owner: "{{ electricity_costs_user }}"
+        group: "{{ electricity_costs_user }}"
+
     - name: "Add cronjob"
       ansible.builtin.cron:
         name: Fetch electiricty_costs
@@ -51,7 +68,7 @@
         minute: "5"
         hour: "15"
         user: "{{ electricity_costs_user }}"
-        job: "cd {{ electricity_costs_home }}/app && {{ electricity_costs_home }}/venv/bin/{{ electiricty_costs_pyver }} main.py --apikey {{ electiricty_costs_app_entsoe_apikey }} --username {{ electiricty_costs_app_username }} --password {{ electiricty_costs_app_password }} --delivery-site {{ electiricty_costs_app_delivery_site }}"
+        job: "cd {{ electricity_costs_home }}/app && {{ electricity_costs_home }}/venv/bin/{{ electiricty_costs_pyver }} main.py --config {{ electricity_costs_home }}/app/.config.yaml"
         cron_file: electricity_costs_cron
 
   rescue:
