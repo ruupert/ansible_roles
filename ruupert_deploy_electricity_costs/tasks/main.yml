@@ -29,9 +29,9 @@
 
     - name: "Git pull"
       ansible.builtin.git:
-        repo: "{{ electiricty_costs_repo }}"
+        repo: "{{ electricity_costs_repo }}"
         dest: "{{ electricity_costs_home }}/app"
-        version: "{{ electiricty_costs_branch }}"
+        version: "{{ electricity_costs_branch }}"
         force: true
         single_branch: true
       become_user: "{{ electricity_costs_user }}"
@@ -41,7 +41,7 @@
       ansible.builtin.pip:
         requirements: "{{ electricity_costs_home }}/app/requirements.txt"
         virtualenv: "{{ electricity_costs_home }}/venv"
-        virtualenv_python: "{{ electiricty_costs_pyver }}"
+        virtualenv_python: "{{ electricity_costs_pyver }}"
       become_user: "{{ electricity_costs_user }}"
       become: true
 
@@ -49,7 +49,7 @@
       ansible.builtin.pip:
         name: "git+https://github.com/ojarva/python-helen-electricity-usage"
         virtualenv: "{{ electricity_costs_home }}/venv"
-        virtualenv_python: "{{ electiricty_costs_pyver }}"
+        virtualenv_python: "{{ electricity_costs_pyver }}"
       become: true
       become_user: "{{ electricity_costs_user }}"
 
@@ -63,12 +63,12 @@
 
     - name: "Add cronjob"
       ansible.builtin.cron:
-        name: Fetch electiricty_costs
+        name: Fetch electricity_costs
         weekday: "*"
         minute: "5"
         hour: "15"
         user: "{{ electricity_costs_user }}"
-        job: "cd {{ electricity_costs_home }}/app && {{ electricity_costs_home }}/venv/bin/{{ electiricty_costs_pyver }} main.py --config {{ electricity_costs_home }}/app/.config.yaml"
+        job: "cd {{ electricity_costs_home }}/app && {{ electricity_costs_home }}/venv/bin/{{ electricity_costs_pyver }} main.py --config {{ electricity_costs_home }}/app/.config.yaml"
         cron_file: electricity_costs_cron
 
   rescue:
