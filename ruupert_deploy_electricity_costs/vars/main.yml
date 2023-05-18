@@ -1,11 +1,2 @@
 ---
 # vars file for ruupert_deploy_electricity_costs
-electricity_costs_user: "electiricity_costs"
-electricity_costs_home: "/opt/electricity_costs"
-electiricty_costs_repo: "https://github.com/ruupert/electricity_costs.git"
-electiricty_costs_branch: "main"
-electiricty_costs_pyver: "python3.9"
-electiricty_costs_app_delivery_site: "{{ hostvars[inventory_hostname]['electiricty_costs_app_delivery_site'] }}"
-electiricty_costs_app_entsoe_apikey: "{{ hostvars[inventory_hostname]['electiricty_costs_app_entsoe_apikey'] }}"
-electiricty_costs_app_username: "{{ hostvars[inventory_hostname]['electiricty_costs_app_username'] }}"
-electiricty_costs_app_password: "{{ hostvars[inventory_hostname]['electiricty_costs_app_password'] }}"
