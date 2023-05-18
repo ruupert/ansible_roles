@@ -11,8 +11,6 @@ Deploys https://github.com/ruupert/electricity_costs onto a server.
 - writes a config file
 - creates a cron schedule to run daily
 
-ToDo: modify ruupert/electricity_costs to accept config file alternatively -> add task here to create the config file and modify the cron definition.
-
 Requirements
 ------------
 

@@ -2,6 +2,11 @@
 # tasks file for ruupert_deploy_electricity_costs
 
 - name: "Deploy electricity_costs"
+  when:
+    - electricity_costs_helen_username is defined
+    - electricity_costs_helen_password is defined
+    - electricity_costs_entsoe_apikey is defined
+    - electricity_costs_delivery_site is defined
   block:
     - name: "Install dependencies"
       ansible.builtin.apt:
