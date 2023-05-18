@@ -1,0 +1,48 @@
+---
+# defaults file for ruupert_debian11_cis
+ruupert_debian11_cis:
+  ## 1.1 Filesystem Configuration - page 21
+  # enable aide
+  filesystem:
+    aide: false
+  ## 2.1 Configure Time Synchronization - page 203
+  timesynch:
+    # ntp software options: chrony, timesynchd, ntp
+    ntp_software: "timesynchd"
+    # ntp server or ntp pool
+    ntp_pool: "europe.pool.ntp.org"
+  ## 2.2 Special Purpose Services - page 237
+  special:
+    xorg: false
+    avahi: false
+    cups: false
+    dhcpd: false
+    ldapd: false
+    nfsd: false
+    dns: false
+    nginx: false
+    apache2: false
+    imap: false
+    pop3: false
+    samba: false
+    nisd: false
+    mta_local_mode: true
+    rsyncd: false
+  ## 2.3 Service Clients - page 269
+  service_clients:
+    nis: false
+    rsh: false
+    talk: false
+    telnet: false
+    ldap: false
+    rpc: false
+  # 3 Network Configuration - page 284
+  # iptables or ufw
+  network:
+    ipv6: true
+    wireless: false
+    dccp: false
+    sctp: false
+    rds: false
+    tipc: false
+    firewall: "iptables"

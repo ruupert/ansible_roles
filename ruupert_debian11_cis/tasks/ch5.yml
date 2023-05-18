@@ -1,0 +1,162 @@
+---
+# 5 Access, Authentication and Authorization - page 609
+
+# - name: "5.1 Configure time-based job schedulers - page 610"
+#   block:
+#     - name: "5.1.1 Ensure cron daemon is enabled and running (Automated) - page 611"
+#       ansible:
+#     - name: "5.1.2 Ensure permissions on /etc/crontab are configured (Automated) - page 612"
+#       ansible:
+#     - name: "5.1.3 Ensure permissions on /etc/cron.hourly are configured (Automated) - page 614"
+#       ansible:
+#     - name: "5.1.4 Ensure permissions on /etc/cron.daily are configured (Automated) - page 616"
+#       ansible:
+#     - name: "5.1.5 Ensure permissions on /etc/cron.weekly are configured (Automated) - page 618"
+#       ansible:
+#     - name: "5.1.6 Ensure permissions on /etc/cron.monthly are configured (Automated) - page 620"
+#       ansible:
+#     - name: "5.1.7 Ensure permissions on /etc/cron.d are configured (Automated) - page 622"
+#       ansible:
+#     - name: "5.1.8 Ensure cron is restricted to authorized users (Automated) - page 624"
+#       ansible:
+#     - name: "5.1.9 Ensure at is restricted to authorized users (Automated) - page 626"
+#       ansible:
+
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+# - name: "5.2 Configure SSH Server - page 628"
+#   block:
+#     - name: "5.2.1 Ensure permissions on /etc/ssh/sshd_config are configured (Automated) - page 629"
+#       ansible:
+#     - name: "5.2.2 Ensure permissions on SSH private host key files are configured (Automated) - page 631"
+#       ansible:
+#     - name: "5.2.3 Ensure permissions on SSH public host key files are configured (Automated) - page 635"
+#       ansible:
+#     - name: "5.2.4 Ensure SSH access is limited (Automated) - page 638"
+#       ansible:
+#     - name: "5.2.5 Ensure SSH LogLevel is appropriate (Automated) - page 641"
+#       ansible:
+#     - name: "5.2.6 Ensure SSH PAM is enabled (Automated) - page 643"
+#       ansible:
+#     - name: "5.2.7 Ensure SSH root login is disabled (Automated) - page 645"
+#       ansible:
+#     - name: "5.2.8 Ensure SSH HostbasedAuthentication is disabled (Automated) - page 647"
+#       ansible:
+#     - name: "5.2.9 Ensure SSH PermitEmptyPasswords is disabled (Automated) - page 649"
+#       ansible:
+#     - name: "5.2.10 Ensure SSH PermitUserEnvironment is disabled (Automated) - page 651"
+#       ansible:
+#     - name: "5.2.11 Ensure SSH IgnoreRhosts is enabled (Automated) - page 653"
+#       ansible:
+#     - name: "5.2.12 Ensure SSH X11 forwarding is disabled (Automated) - page 655"
+#       ansible:
+#     - name: "5.2.13 Ensure only strong Ciphers are used (Automated) - page 657"
+#       ansible:
+#     - name: "5.2.14 Ensure only strong MAC algorithms are used (Automated) - page 660"
+#       ansible:
+#     - name: "5.2.15 Ensure only strong Key Exchange algorithms are used (Automated) - page 663"
+#       ansible:
+#     - name: "5.2.16 Ensure SSH AllowTcpForwarding is disabled (Automated) - page 666"
+#       ansible:
+#     - name: "5.2.17 Ensure SSH warning banner is configured (Automated) - page 668"
+#       ansible:
+#     - name: "5.2.18 Ensure SSH MaxAuthTries is set to 4 or less (Automated) - page 670"
+#       ansible:
+#     - name: "5.2.19 Ensure SSH MaxStartups is configured (Automated) - page 672"
+#       ansible:
+#     - name: "5.2.20 Ensure SSH MaxSessions is set to 10 or less (Automated) - page 674"
+#       ansible:
+#     - name: "5.2.21 Ensure SSH LoginGraceTime is set to one minute or less (Automated) - page 676"
+#       ansible:
+#     - name: "5.2.22 Ensure SSH Idle Timeout Interval is configured (Automated) - page 678"
+#       ansible:
+
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "5.3 Configure privilege escalation - page 681"
+#   block:
+#     - name: "5.3.1 Ensure sudo is installed (Automated) - page 682"
+#       ansible:
+#     - name: "5.3.2 Ensure sudo commands use pty (Automated) - page 684"
+#       ansible:
+#     - name: "5.3.3 Ensure sudo log file exists (Automated) - page 686"
+#       ansible:
+#     - name: "5.3.4 Ensure users must provide password for privilege escalation (Automated) - page 688"
+#       ansible:
+#     - name: "5.3.5 Ensure re-authentication for privilege escalation is not disabled globally (Automated) - page 690"
+#       ansible:
+#     - name: "5.3.6 Ensure sudo authentication timeout is configured correctly (Automated) - page 692"
+#       ansible:
+#     - name: "5.3.7 Ensure access to the su command is restricted (Automated) - page 694"
+#       ansible:
+
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "5.4 Configure PAM - page 696"
+#   block:
+#     - name: "5.4.1 Ensure password creation requirements are configured (Automated) - page 697"
+#       ansible:
+#     - name: "5.4.2 Ensure lockout for failed password attempts is configured (Automated) - page 701"
+#       ansible:
+#     - name: "5.4.3 Ensure password reuse is limited (Automated) - page 705"
+#       ansible:
+#     - name: "5.4.4 Ensure password hashing algorithm is up to date with the latest standards (Automated) - page 707"
+#       ansible:
+#     - name: "5.4.5 Ensure all current passwords uses the configured hashing algorithm (Manual) - page 710"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# # 5.5 User Accounts and Environment - page 712
+
+# - name: "5.5.1 Set Shadow Password Suite Parameters - page 713"
+#   block:
+#     - name: "5.5.1 Set Shadow Password Suite Parameters - page 713"
+#       ansible:
+#     - name: "5.5.1.1 Ensure minimum days between password changes is configured (Automated) - page 714"
+#       ansible:
+#     - name: "5.5.1.2 Ensure password expiration is 365 days or less (Automated) - page 716"
+#       ansible:
+#     - name: "5.5.1.3 Ensure password expiration warning days is 7 or more (Automated) - page 718"
+#       ansible:
+#     - name: "5.5.1.4 Ensure inactive password lock is 30 days or less (Automated) - page 720"
+#       ansible:
+#     - name: "5.5.1.5 Ensure all users last password change date is in the past (Automated) - page 722"
+#       ansible:
+#     - name: "5.5.2 Ensure system accounts are secured (Automated) - page 724"
+#       ansible:
+#     - name: "5.5.3 Ensure default group for the root account is GID 0 (Automated) - page 726"
+#       ansible:
+#     - name: "5.5.4 Ensure default user umask is 027 or more restrictive (Automated) - page 728"
+#       ansible:
+#     - name: "5.5.5 Ensure default user shell timeout is 900 seconds or less (Automated) - page 733"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message

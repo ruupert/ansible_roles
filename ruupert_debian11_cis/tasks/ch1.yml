@@ -1,0 +1,311 @@
+---
+# 1 Initial Setup - page 20
+# 1.1 Filesystem Configuration - page 21
+
+- name: "1.1.1 Disable unused filesystems - page 22"
+  block:
+    - name: "Copy modprobe blacklist file over"
+      ansible.builtin.copy:
+        src: files/1.1.1/modprobe-CIS.conf
+        dest: /etc/modprobe.d/CIS.conf
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: "1.1.1.1 Ensure mounting of cramfs filesystems is disabled (Automated) - page 23"
+      community.general.modprobe:
+        name: cramfs
+        state: absent
+
+    - name: "1.1.1.2 Ensure mounting of squashfs filesystems is disabled (Automated) - page 27"
+      community.general.modprobe:
+        name: squashfs
+        state: absent
+
+    - name: "1.1.1.3 Ensure mounting of udf filesystems is disabled (Automated) - page 31"
+      community.general.modprobe:
+        name: udf
+        state: absent
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
+# - name: "1.1.2 Configure /tmp - page 35"
+#   block:
+#     - name: "1.1.2.1 Ensure /tmp is a separate partition (Automated) - page 36"
+#       ansible:
+#     - name: "1.1.2.2 Ensure nodev option set on /tmp partition (Automated) - page 39"
+#       ansible:
+#     - name: "1.1.2.3 Ensure noexec option set on /tmp partition (Automated) - page 41"
+#       ansible:
+#     - name: "1.1.2.4 Ensure nosuid option set on /tmp partition (Automated) - page 43"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.1.3 Configure /var - page 45"
+#   block:
+#     - name: "1.1.3.1 Ensure separate partition exists for /var (Automated) - page 46"
+#       ansible:
+#     - name: "1.1.3.2 Ensure nodev option set on /var partition (Automated) - page 49"
+#       ansible:
+#     - name: "1.1.3.3 Ensure nosuid option set on /var partition (Automated) - page 51"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.1.4 Configure /var/tmp - page 53"
+#   block:
+#     - name: "1.1.4.1 Ensure separate partition exists for /var/tmp (Automated) - page 54"
+#       ansible:
+#     - name: "1.1.4.2 Ensure noexec option set on /var/tmp partition (Automated) - page 57"
+#       ansible:
+#     - name: "1.1.4.3 Ensure nosuid option set on /var/tmp partition (Automated) - page 59"
+#       ansible:
+#     - name: "1.1.4.4 Ensure nodev option set on /var/tmp partition (Automated) - page 61"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.1.5 Configure /var/log - page 63"
+#   block:
+#     - name: "1.1.5.1 Ensure separate partition exists for /var/log (Automated) - page 64"
+#       ansible:
+#     - name: "1.1.5.2 Ensure nodev option set on /var/log partition (Automated) - page 66"
+#       ansible:
+#     - name: "1.1.5.3 Ensure noexec option set on /var/log partition (Automated) - page 68"
+#       ansible:
+#     - name: "1.1.5.4 Ensure nosuid option set on /var/log partition (Automated) - page 70"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.1.6 Configure /var/log/audit - page 72"
+#   block:
+#     - name: "1.1.6.1 Ensure separate partition exists for /var/log/audit (Automated) - page 73"
+#       ansible:
+#     - name: "1.1.6.2 Ensure noexec option set on /var/log/audit partition (Automated) - page 75"
+#       ansible:
+#     - name: "1.1.6.3 Ensure nodev option set on /var/log/audit partition (Automated) - page 77"
+#       ansible:
+#     - name: "1.1.6.4 Ensure nosuid option set on /var/log/audit partition (Automated) - page 79"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.1.7 Configure /home - page 81"
+#   block:
+#     - name: "1.1.7.1 Ensure separate partition exists for /home (Automated) - page 82"
+#       ansible:
+#     - name: "1.1.7.2 Ensure nodev option set on /home partition (Automated) - page 85"
+#       ansible:
+#     - name: "1.1.7.3 Ensure nosuid option set on /home partition (Automated) - page 87"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.1.8 Configure /dev/shm - page 89"
+#   block:
+#     - name: "1.1.8.1 Ensure nodev option set on /dev/shm partition (Automated) - page 90"
+#       ansible:
+#     - name: "1.1.8.2 Ensure noexec option set on /dev/shm partition (Automated) - page 92"
+#       ansible:
+#     - name: "1.1.8.3 Ensure nosuid option set on /dev/shm partition (Automated) - page 94"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.1.9 and 1.1.10 - page 96-98"
+#   block:
+#     - name: "1.1.9 Disable Automounting (Automated) - page 96"
+#       ansible:
+#     - name: "1.1.10 Disable USB Storage (Automated) - page 98"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.2 Configure Software Updates - page 102"
+#   block:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.2 Configure Software Updates - page 102"
+#   block:
+#     - name: "1.2.1 Ensure package manager repositories are configured (Manual) - page 103"
+#       ansible:
+#     - name: "1.2.2 Ensure GPG keys are configured (Manual) - page 105"
+#       ansible:
+
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.3 Filesystem Integrity Checking - page 107"
+#   block:
+#     - name: "1.3.1 Ensure AIDE is installed (Automated) - page 108"
+#       ansible:
+#     - name: "1.3.2 Ensure filesystem integrity is regularly checked (Automated) - page 110"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.4 Secure Boot Settings page - 113"
+#   block:
+#     - name: "1.4.1 Ensure bootloader password is set (Automated) - page 114"
+#       ansible:
+#     - name: "1.4.2 Ensure permissions on bootloader config are configured (Automated) - page 117"
+#       ansible:
+#     - name: "1.4.3 Ensure authentication required for single user mode (Automated) - page 119"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.5 Additional Process Hardening - page 121"
+#   block:
+#     - name: "1.5.1 Ensure address space layout randomization (ASLR) is enabled (Automated) - page 122"
+#       ansible:
+#     - name: "1.5.2 Ensure prelink is not installed (Automated) - page 126"
+#       ansible:
+#     - name: "1.5.3 Ensure Automatic Error Reporting is not enabled (Automated) - page 128"
+#       ansible:
+#     - name: "1.5.4 Ensure core dumps are restricted (Automated) - page 130"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.6 Mandatory Access Control - page 132"
+#   block:
+#     - name: "1.6.1.1 Ensure AppArmor is installed (Automated) - page 134"
+#       ansible:
+#     - name: "1.6.1.2 Ensure AppArmor is enabled in the bootloader configuration (Automated) - page 136"
+#       ansible:
+#     - name: "1.6.1.3 Ensure all AppArmor Profiles are in enforce or complain mode (Automated) - page 138"
+#       ansible:
+#     - name: "1.6.1.4 Ensure all AppArmor Profiles are enforcing (Automated) - page 140"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.7 Command Line Warning Banners - page 142"
+#   block:
+#     - name: "1.7.1 Ensure message of the day is configured properly (Automated) - page 143"
+#       ansible:
+#     - name: "1.7.2 Ensure local login warning banner is configured properly (Automated) - page 145"
+#       ansible:
+#     - name: "1.7.3 Ensure remote login warning banner is configured properly (Automated) - page 147"
+#       ansible:
+#     - name: "1.7.4 Ensure permissions on /etc/motd are configured (Automated) - page 149"
+#       ansible:
+#     - name: "1.7.5 Ensure permissions on /etc/issue are configured (Automated) - page 151"
+#       ansible:
+#     - name: "1.7.6 Ensure permissions on /etc/issue.net are configured (Automated) - page 153"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "1.8 GNOME Display Manager - page 155"
+#   block:
+#     - name: "1.8.1 Ensure GNOME Display Manager is removed (Automated) - page 156"
+#       ansible:
+#     - name: "1.8.2 Ensure GDM login banner is configured (Automated) - page 158"
+#       ansible:
+#     - name: "1.8.3 Ensure GDM disable-user-list option is enabled (Automated) - page 163"
+#       ansible:
+#     - name: "1.8.4 Ensure GDM screen locks when the user is idle (Automated) - page 167"
+#       ansible:
+#     - name: "1.8.5 Ensure GDM screen locks cannot be overridden (Automated) - page 172"
+#       ansible:
+#     - name: "1.8.6 Ensure GDM automatic mounting of removable media is disabled (Automated) - page 177"
+#       ansible:
+#     - name: "1.8.7 Ensure GDM disabling automatic mounting of removable media is not overridden (Automated) - page 183"
+#       ansible:
+#     - name: "1.8.8 Ensure GDM autorun-never is enabled (Automated) - page 188"
+#       ansible:
+#     - name: "1.8.9 Ensure GDM autorun-never is not overridden (Automated) - page 193"
+#       ansible:
+#     - name: "1.8.10 Ensure XDCMP is not enabled (Automated) - page 198"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message

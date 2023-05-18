@@ -1,0 +1,171 @@
+---
+# 3 Network Configuration - page 284
+
+# - name: "3.1 Disable unused network protocols and devices - page 285"
+#   block:
+#     - name: "3.1.1 Ensure system is checked to determine if IPv6 is enabled (Manual) - page 286"
+#       ansible:
+#     - name: "3.1.2 Ensure wireless interfaces are disabled (Automated) - page 290"
+#       ansible:
+#     - name: "3.1.3 Ensure DCCP is disabled (Automated) - page 293"
+#       ansible:
+#     - name: "3.1.4 Ensure SCTP is disabled (Automated) - page 297"
+#       ansible:
+#     - name: "3.1.5 Ensure RDS is disabled (Automated) - page 301"
+#       ansible:
+#     - name: "3.1.6 Ensure TIPC is disabled (Automated) - page 305"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+# - name: "3.2 Network Parameters (Host Only) - page 309"
+#   block:
+#     - name: "3.2.1 Ensure packet redirect sending is disabled (Automated) - page 310"
+#       ansible:
+#     - name: "3.2.2 Ensure IP forwarding is disabled (Automated) - page 314"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+# - name: "3.3 Network Parameters (Host and Router) - page 320"
+#   block:
+#     - name: "3.3.1 Ensure source routed packets are not accepted (Automated) - page 321"
+#       ansible:
+#     - name: "3.3.2 Ensure ICMP redirects are not accepted (Automated) - page 327"
+#       ansible:
+#     - name: "3.3.3 Ensure secure ICMP redirects are not accepted (Automated) - page 333"
+#       ansible:
+#     - name: "3.3.4 Ensure suspicious packets are logged (Automated) - page 337"
+#       ansible:
+#     - name: "3.3.5 Ensure broadcast ICMP requests are ignored (Automated) - page 341"
+#       ansible:
+#     - name: "3.3.6 Ensure bogus ICMP responses are ignored (Automated) - page 345"
+#       ansible:
+#     - name: "3.3.7 Ensure Reverse Path Filtering is enabled (Automated) - page 349"
+#       ansible:
+#     - name: "3.3.8 Ensure TCP SYN Cookies is enabled (Automated) - page 353"
+#       ansible:
+#     - name: "3.3.9 Ensure IPv6 router advertisements are not accepted (Automated) - page 357"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+# # 3.5 Firewall Configuration - page 363
+# - name: "3.5.1 Configure UncomplicatedFirewall - page 364"
+#   block:
+#     - name: "3.5.1.1 Ensure ufw is installed (Automated) - page 365"
+#       ansible:
+#     - name: "3.5.1.2 Ensure iptables-persistent is not installed with ufw (Automated) - page 367"
+#       ansible:
+#     - name: "3.5.1.3 Ensure ufw service is enabled (Automated) - page 369"
+#       ansible:
+#     - name: "3.5.1.4 Ensure ufw loopback traffic is configured (Automated) - page 372"
+#       ansible:
+#     - name: "3.5.1.5 Ensure ufw outbound connections are configured (Manual) - page 374"
+#       ansible:
+#     - name: "3.5.1.6 Ensure ufw firewall rules exist for all open ports (Automated) - page 376"
+#       ansible:
+#     - name: "3.5.1.7 Ensure ufw default deny firewall policy (Automated) - page 378"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+# - name: "3.5.2 Configure nftables - page 380"
+#   block:
+#     - name: "3.5.2.1 Ensure nftables is installed (Automated) - page 383"
+#       ansible:
+#     - name: "3.5.2.2 Ensure ufw is uninstalled or disabled with nftables (Automated) - page 385"
+#       ansible:
+#     - name: "3.5.2.3 Ensure iptables are flushed with nftables (Manual) - page 387"
+#       ansible:
+#     - name: "3.5.2.4 Ensure a nftables table exists (Automated) - page 389"
+#       ansible:
+#     - name: "3.5.2.5 Ensure nftables base chains exist (Automated) - page 391"
+#       ansible:
+#     - name: "3.5.2.6 Ensure nftables loopback traffic is configured (Automated) - page 393"
+#       ansible:
+#     - name: "3.5.2.7 Ensure nftables outbound and established connections are configured (Manual) - page 395"
+#       ansible:
+#     - name: "3.5.2.8 Ensure nftables default deny firewall policy (Automated) - page 397"
+#       ansible:
+#     - name: "3.5.2.9 Ensure nftables service is enabled (Automated) - page 399"
+#       ansible:
+#     - name: "3.5.2.10 Ensure nftables rules are permanent (Automated) - page 401"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# # 3.5.3 Configure iptables - page 405
+
+# - name: "3.5.3.1 Configure iptables software - page 406"
+#   block:
+#     - name: "3.5.3.1.1 Ensure iptables packages are installed (Automated) - page 407"
+#       ansible:
+#     - name: "3.5.3.1.2 Ensure nftables is not installed with iptables (Automated) - page 409"
+#       ansible:
+#     - name: "3.5.3.1.3 Ensure ufw is uninstalled or disabled with iptables (Automated) - page 411"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "3.5.3.2 Configure IPv4 iptables - page 413"
+#   block:
+#     - name: "3.5.3.2.1 Ensure iptables default deny firewall policy (Automated) - page 414"
+#       ansible:
+#     - name: "3.5.3.2.2 Ensure iptables loopback traffic is configured (Automated) - page 416"
+#       ansible:
+#     - name: "3.5.3.2.3 Ensure iptables outbound and established connections are configured (Manual) - page 418"
+#       ansible:
+#     - name: "3.5.3.2.4 Ensure iptables firewall rules exist for all open ports (Automated) - page 420"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "3.5.3.3 Configure IPv6 ip6tables - page 423"
+#   block:
+#     - name: "3.5.3.3.1 Ensure ip6tables default deny firewall policy (Automated) - page 424"
+#       ansible:
+#     - name: "3.5.3.3.2 Ensure ip6tables loopback traffic is configured (Automated) - page 427"
+#       ansible:
+#     - name: "3.5.3.3.3 Ensure ip6tables outbound and established connections are configured (Manual) - page 430"
+#       ansible:
+#     - name: "3.5.3.3.4 Ensure ip6tables firewall rules exist for all open ports (Automated) - page 433"
+#       ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
