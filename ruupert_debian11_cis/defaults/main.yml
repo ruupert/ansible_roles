@@ -6,28 +6,30 @@ ruupert_debian11_cis:
   filesystem:
     aide: false
   ## 2.1 Configure Time Synchronization - page 203
-  timesynch:
+  ntp:
     # ntp software options: chrony, timesynchd, ntp
-    ntp_software: "timesynchd"
+    software: "timesyncd"
     # ntp server or ntp pool
-    ntp_pool: "europe.pool.ntp.org"
+    server: "0.debian.pool.ntp.org"
+    pool: "0.debian.pool.ntp.org 1.debian.pool.ntp.org 2.debian.pool.ntp.org 3.debian.pool.ntp.org"
   ## 2.2 Special Purpose Services - page 237
   special:
     xorg: false
     avahi: false
     cups: false
     dhcpd: false
-    ldapd: false
+    slapd: false
     nfsd: false
-    dns: false
+    bind: false
+    ftpd: false
     nginx: false
     apache2: false
-    imap: false
-    pop3: false
+    imappop3: false
     samba: false
+    snmp: false
     nisd: false
     mta_local_mode: true
-    rsyncd: false
+    rsync: false
   ## 2.3 Service Clients - page 269
   service_clients:
     nis: false
@@ -46,3 +48,4 @@ ruupert_debian11_cis:
     rds: false
     tipc: false
     firewall: "iptables"
+apt_debian: "http://ftp.debian.org"

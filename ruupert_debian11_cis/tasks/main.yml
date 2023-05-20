@@ -1,2 +1,37 @@
 ---
 # tasks file for ruupert_debian11_cis
+- name: "1. Initial setup"
+  tags:
+    - cis
+  ansible.builtin.include_tasks:
+    file: "tasks/ch1.yml"
+
+- name: "2. Setup"
+  tags:
+    - cis
+  ansible.builtin.include_tasks:
+    file: "tasks/ch2.yml"
+
+- name: "3. Setup"
+  tags:
+    - cis
+  ansible.builtin.include_tasks:
+    file: "tasks/ch3.yml"
+
+- name: "4. Setup"
+  tags:
+    - cis
+  ansible.builtin.include_tasks:
+    file: "tasks/ch4.yml"
+
+- name: "5. Setup"
+  tags:
+    - cis
+  ansible.builtin.include_tasks:
+    file: "tasks/ch5.yml"
+
+- name: "6. Setup"
+  tags:
+    - cis
+  ansible.builtin.include_tasks:
+    file: "tasks/ch6.yml"

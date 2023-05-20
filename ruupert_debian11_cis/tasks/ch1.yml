@@ -3,6 +3,8 @@
 # 1.1 Filesystem Configuration - page 21
 
 - name: "1.1.1 Disable unused filesystems - page 22"
+  tags:
+    - cis
   block:
     - name: "Copy modprobe blacklist file over"
       ansible.builtin.copy:
@@ -34,6 +36,8 @@
       notify:
         - send failed message
 # - name: "1.1.2 Configure /tmp - page 35"
+#   tags:
+#     - cis
 #   block:
 #     - name: "1.1.2.1 Ensure /tmp is a separate partition (Automated) - page 36"
 #       ansible:
@@ -52,6 +56,8 @@
 #         - send failed message
 
 # - name: "1.1.3 Configure /var - page 45"
+#   tags:
+#     - cis
 #   block:
 #     - name: "1.1.3.1 Ensure separate partition exists for /var (Automated) - page 46"
 #       ansible:
@@ -68,6 +74,8 @@
 #         - send failed message
 
 # - name: "1.1.4 Configure /var/tmp - page 53"
+#   tags:
+#     - cis
 #   block:
 #     - name: "1.1.4.1 Ensure separate partition exists for /var/tmp (Automated) - page 54"
 #       ansible:
@@ -86,6 +94,8 @@
 #         - send failed message
 
 # - name: "1.1.5 Configure /var/log - page 63"
+#   tags:
+#     - cis
 #   block:
 #     - name: "1.1.5.1 Ensure separate partition exists for /var/log (Automated) - page 64"
 #       ansible:
@@ -104,6 +114,8 @@
 #         - send failed message
 
 # - name: "1.1.6 Configure /var/log/audit - page 72"
+#   tags:
+#     - cis
 #   block:
 #     - name: "1.1.6.1 Ensure separate partition exists for /var/log/audit (Automated) - page 73"
 #       ansible:
@@ -122,6 +134,8 @@
 #         - send failed message
 
 # - name: "1.1.7 Configure /home - page 81"
+#   tags:
+#     - cis
 #   block:
 #     - name: "1.1.7.1 Ensure separate partition exists for /home (Automated) - page 82"
 #       ansible:
@@ -137,62 +151,139 @@
 #       notify:
 #         - send failed message
 
-# - name: "1.1.8 Configure /dev/shm - page 89"
-#   block:
-#     - name: "1.1.8.1 Ensure nodev option set on /dev/shm partition (Automated) - page 90"
-#       ansible:
-#     - name: "1.1.8.2 Ensure noexec option set on /dev/shm partition (Automated) - page 92"
-#       ansible:
-#     - name: "1.1.8.3 Ensure nosuid option set on /dev/shm partition (Automated) - page 94"
-#       ansible:
-#   rescue:
-#     - name: "Fail"
-#       ansible.builtin.debug:
-#         msg: "Something went wrong"
-#       changed_when: true
-#       notify:
-#         - send failed message
+- name: "1.1.8 Configure /dev/shm - page 89"
+  tags:
+    - cis
+  block:
+    - name: "Configure /dev/shm"
+      ansible.posix.mount:
+        path: /dev/shm
+        opts: "nodev,noexec,nosuid"
+        state: present
+        src: tmpfs
+        fstype: tmpfs
+      register: devshm_reg
+      notify:
+        - remount shm
 
-# - name: "1.1.9 and 1.1.10 - page 96-98"
-#   block:
-#     - name: "1.1.9 Disable Automounting (Automated) - page 96"
-#       ansible:
-#     - name: "1.1.10 Disable USB Storage (Automated) - page 98"
-#       ansible:
-#   rescue:
-#     - name: "Fail"
-#       ansible.builtin.debug:
-#         msg: "Something went wrong"
-#       changed_when: true
-#       notify:
-#         - send failed message
+    - name: "Invoke handlers"
+      ansible.builtin.meta: flush_handlers
 
-# - name: "1.2 Configure Software Updates - page 102"
-#   block:
-#   rescue:
-#     - name: "Fail"
-#       ansible.builtin.debug:
-#         msg: "Something went wrong"
-#       changed_when: true
-#       notify:
-#         - send failed message
+    - name: "Debug print"
+      ansible.builtin.debug:
+        msg: "{{ devshm_reg }}"
 
-# - name: "1.2 Configure Software Updates - page 102"
-#   block:
-#     - name: "1.2.1 Ensure package manager repositories are configured (Manual) - page 103"
-#       ansible:
-#     - name: "1.2.2 Ensure GPG keys are configured (Manual) - page 105"
-#       ansible:
+    - name: "Invoke handlers"
+      ansible.builtin.meta: flush_handlers
 
-#   rescue:
-#     - name: "Fail"
-#       ansible.builtin.debug:
-#         msg: "Something went wrong"
-#       changed_when: true
-#       notify:
-#         - send failed message
+    # - name: "Findmnt findmnt -l --kernel /dev/shm -J"
+    #   ansible.builtin.command: "findmnt -l --kernel /dev/shm -J"
+    #   changed_when: findmnt_reg.rc == -1
+    #   register: findmt_reg
+
+    # - name: "Debug print"
+    #   ansible.builtin.debug:
+    #     msg: "{{ findmt_reg }}"
+    #   when: findmt_reg is defined
+
+
+#################################### CHECK THESE LATER SOMEHOW
+
+#    - name: "1.1.8.1 Ensure nodev option set on /dev/shm partition (Automated) - page 90"
+#      ansible.builtin.command: "findmnt -l --kernel /dev/shm -J"
+#      when: devshm_reg.change
+#      register: find_nodev_reg
+#
+#    - name: "1.1.8.2 Ensure noexec option set on /dev/shm partition (Automated) - page 92"
+#      ansible.builtin.shell: "set -o pipefail && findmnt --kernel /dev/shm|grep nodev|wc -l"
+#      when: devshm_reg.change
+#      register: find_noexec_reg
+#
+#    - name: "1.1.8.3 Ensure nosuid option set on /dev/shm partition (Automated) - page 94"
+#      ansible.builtin.shell: "set -o pipefail && findmnt --kernel /dev/shm|grep nodev|wc -l"
+#      when: devshm_reg.change
+#      register: find_nosuid_reg
+#
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: "1.1.9 and 1.1.10 - page 96-98"
+  tags:
+    - cis
+  block:
+    - name: "1.1.9 Disable Automounting (Automated) - page 96"
+      ansible.builtin.apt:
+        name: autofs
+        state: absent
+    - name: "1.1.10 Disable USB Storage (Automated) - page 98"
+      ansible.builtin.debug:
+        msg: "Unimplemented - perhaps instead use USBGuard here"
+      changed_when: true
+
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: "1.2 Configure Software Updates - page 102"
+  tags:
+    - cis
+  block:
+    - name: "Ensure software update policies are set"
+      ansible.builtin.debug:
+        msg: "Unimplemented - perhaps instead use USBGuard here"
+      changed_when: true
+
+    # This is using my hello module at the moment.
+    # Problem: Supposedly manually check apt-cache policy repos for unapproved domains
+    # Solve: By regex matching all domains found in apt-cache policy output for any repo that is not ending debian.org.
+   # - name: "Ensure software update policies are set"
+   #   my_info:
+   #     apt_policy: "check"
+   #     new: false
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: "1.2 Configure Software Updates - page 102"
+  tags:
+    - cis
+  block:
+    - name: "1.2.1 Ensure package manager repositories are configured (Manual) - page 103"
+      ansible.builtin.template:
+        src: "templates/apt.sources.list.j2"
+        dest: "/etc/apt/sources.list"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      when: "'debian' in group_names"
+
+   # - name: "1.2.2 Ensure GPG keys are configured (Manual) - page 105"
+   #   ansible:
+
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
 
 # - name: "1.3 Filesystem Integrity Checking - page 107"
+#   tags:
+#     - cis
 #   block:
 #     - name: "1.3.1 Ensure AIDE is installed (Automated) - page 108"
 #       ansible:
@@ -207,6 +298,8 @@
 #         - send failed message
 
 # - name: "1.4 Secure Boot Settings page - 113"
+#   tags:
+#     - cis
 #   block:
 #     - name: "1.4.1 Ensure bootloader password is set (Automated) - page 114"
 #       ansible:
@@ -222,90 +315,142 @@
 #       notify:
 #         - send failed message
 
-# - name: "1.5 Additional Process Hardening - page 121"
-#   block:
-#     - name: "1.5.1 Ensure address space layout randomization (ASLR) is enabled (Automated) - page 122"
-#       ansible:
-#     - name: "1.5.2 Ensure prelink is not installed (Automated) - page 126"
-#       ansible:
-#     - name: "1.5.3 Ensure Automatic Error Reporting is not enabled (Automated) - page 128"
-#       ansible:
-#     - name: "1.5.4 Ensure core dumps are restricted (Automated) - page 130"
-#       ansible:
-#   rescue:
-#     - name: "Fail"
-#       ansible.builtin.debug:
-#         msg: "Something went wrong"
-#       changed_when: true
-#       notify:
-#         - send failed message
+- name: "1.5 Additional Process Hardening - page 121"
+  tags:
+    - cis
+  block:
+    - name: "1.5.1 Ensure address space layout randomization (ASLR) is enabled (Automated) - page 122"
+      ansible.posix.sysctl:
+        name: "kernel.randomize_va_space"
+        value: "2"
+    - name: "1.5.2 Ensure prelink is not installed (Automated) - page 126"
+      ansible.builtin.apt:
+        name: prelink
+        state: absent
+    - name: "1.5.3 Ensure Automatic Error Reporting is not enabled (Automated) - page 128"
+      ansible.builtin.copy:
+        src: "files/1.5.3/apport"
+        dest: /etc/default/apport
+        mode: "0644"
+        owner: "root"
+        group: "root"
+    - name: "1.5.4 Ensure core dumps are restricted (Automated) - page 130"
+      ansible.posix.sysctl:
+        name: "fs.suid_dumpable"
+        value: "0"
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
 
-# - name: "1.6 Mandatory Access Control - page 132"
-#   block:
-#     - name: "1.6.1.1 Ensure AppArmor is installed (Automated) - page 134"
-#       ansible:
-#     - name: "1.6.1.2 Ensure AppArmor is enabled in the bootloader configuration (Automated) - page 136"
-#       ansible:
-#     - name: "1.6.1.3 Ensure all AppArmor Profiles are in enforce or complain mode (Automated) - page 138"
-#       ansible:
-#     - name: "1.6.1.4 Ensure all AppArmor Profiles are enforcing (Automated) - page 140"
-#       ansible:
-#   rescue:
-#     - name: "Fail"
-#       ansible.builtin.debug:
-#         msg: "Something went wrong"
-#       changed_when: true
-#       notify:
-#         - send failed message
+- name: "1.6 Mandatory Access Control - page 132"
+  tags:
+    - cis
+  block:
+    - name: "1.6.1.1 Ensure AppArmor is installed (Automated) - page 134"
+      ansible.builtin.apt:
+        pkg:
+          - apparmor
+          - apparmor-utils
+        state: "present"
+    - name: "1.6.1.2 Ensure AppArmor is enabled in the bootloader configuration (Automated) - page 136"
+      ansible.builtin.debug:
+        msg: "------------Unimplemented--------------"
+      changed_when: true
+    - name: "1.6.1.3 Ensure all AppArmor Profiles are in enforce or complain mode (Automated) - page 138"
+      ansible.builtin.debug:
+        msg: "------------Unimplemented--------------"
+      changed_when: true
+    - name: "1.6.1.4 Ensure all AppArmor Profiles are enforcing (Automated) - page 140"
+      ansible.builtin.debug:
+        msg: "------------Unimplemented--------------"
+      changed_when: true
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
 
-# - name: "1.7 Command Line Warning Banners - page 142"
-#   block:
-#     - name: "1.7.1 Ensure message of the day is configured properly (Automated) - page 143"
-#       ansible:
-#     - name: "1.7.2 Ensure local login warning banner is configured properly (Automated) - page 145"
-#       ansible:
-#     - name: "1.7.3 Ensure remote login warning banner is configured properly (Automated) - page 147"
-#       ansible:
-#     - name: "1.7.4 Ensure permissions on /etc/motd are configured (Automated) - page 149"
-#       ansible:
-#     - name: "1.7.5 Ensure permissions on /etc/issue are configured (Automated) - page 151"
-#       ansible:
-#     - name: "1.7.6 Ensure permissions on /etc/issue.net are configured (Automated) - page 153"
-#       ansible:
-#   rescue:
-#     - name: "Fail"
-#       ansible.builtin.debug:
-#         msg: "Something went wrong"
-#       changed_when: true
-#       notify:
-#         - send failed message
+- name: "1.7 Command Line Warning Banners - page 142"
+  tags:
+    - cis
+  block:
+    - name: "1.7.1 Ensure message of the day is configured properly (Automated) - page 143"
+      ansible.builtin.template:
+        src: "files/1.7.4/motd.j2"
+        dest: "/etc/motd"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+    - name: "1.7.2 Ensure local login warning banner is configured properly (Automated) - page 145"
+      ansible.builtin.file:
+        path: "/etc/issue"
+        state: absent
+    - name: "1.7.3 Ensure remote login warning banner is configured properly (Automated) - page 147"
+      ansible.builtin.file:
+        path: "/etc/motd.net"
+        state: absent
+    - name: "1.7.4 Ensure permissions on /etc/motd are configured (Automated) - page 149"
+      ansible.builtin.file:
+        path: "/etc/motd"
+        state: file
+        mode: "0644"
+        owner: "root"
+        group: "root"
+    - name: "1.7.5 Ensure permissions on /etc/issue are configured (Automated) - page 151"
+      ansible.builtin.file:
+        path: "/etc/issue"
+        state: absent
+        mode: "0644"
+        owner: "root"
+        group: "root"
+    - name: "1.7.6 Ensure permissions on /etc/issue.net are configured (Automated) - page 153"
+      ansible.builtin.file:
+        path: "/etc/issue.net"
+        state: absent
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
 
-# - name: "1.8 GNOME Display Manager - page 155"
-#   block:
-#     - name: "1.8.1 Ensure GNOME Display Manager is removed (Automated) - page 156"
-#       ansible:
-#     - name: "1.8.2 Ensure GDM login banner is configured (Automated) - page 158"
-#       ansible:
-#     - name: "1.8.3 Ensure GDM disable-user-list option is enabled (Automated) - page 163"
-#       ansible:
-#     - name: "1.8.4 Ensure GDM screen locks when the user is idle (Automated) - page 167"
-#       ansible:
-#     - name: "1.8.5 Ensure GDM screen locks cannot be overridden (Automated) - page 172"
-#       ansible:
-#     - name: "1.8.6 Ensure GDM automatic mounting of removable media is disabled (Automated) - page 177"
-#       ansible:
-#     - name: "1.8.7 Ensure GDM disabling automatic mounting of removable media is not overridden (Automated) - page 183"
-#       ansible:
-#     - name: "1.8.8 Ensure GDM autorun-never is enabled (Automated) - page 188"
-#       ansible:
-#     - name: "1.8.9 Ensure GDM autorun-never is not overridden (Automated) - page 193"
-#       ansible:
-#     - name: "1.8.10 Ensure XDCMP is not enabled (Automated) - page 198"
-#       ansible:
-#   rescue:
-#     - name: "Fail"
-#       ansible.builtin.debug:
-#         msg: "Something went wrong"
-#       changed_when: true
-#       notify:
-#         - send failed message
+- name: "1.8 GNOME Display Manager - page 155"
+  tags:
+    - cis
+  block:
+    - name: "1.8.1 Ensure GNOME Display Manager is removed (Automated) - page 156"
+      ansible.builtin.apt:
+        name: gdm3
+        state: absent
+  #  - name: "1.8.2 Ensure GDM login banner is configured (Automated) - page 158"
+  #    ansible:
+  #  - name: "1.8.3 Ensure GDM disable-user-list option is enabled (Automated) - page 163"
+  #    ansible:
+  #  - name: "1.8.4 Ensure GDM screen locks when the user is idle (Automated) - page 167"
+  #    ansible:
+  #  - name: "1.8.5 Ensure GDM screen locks cannot be overridden (Automated) - page 172"
+  #    ansible:
+  #  - name: "1.8.6 Ensure GDM automatic mounting of removable media is disabled (Automated) - page 177"
+  #    ansible:
+  #  - name: "1.8.7 Ensure GDM disabling automatic mounting of removable media is not overridden (Automated) - page 183"
+  #    ansible:
+  #  - name: "1.8.8 Ensure GDM autorun-never is enabled (Automated) - page 188"
+  #    ansible:
+  #  - name: "1.8.9 Ensure GDM autorun-never is not overridden (Automated) - page 193"
+  #    ansible:
+  #  - name: "1.8.10 Ensure XDCMP is not enabled (Automated) - page 198"
+  #    ansible:
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message

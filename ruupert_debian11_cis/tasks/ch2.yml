@@ -2,6 +2,8 @@
 # 2 Services - page 202
 
 # - name: "2.1 Configure Time Synchronization - page 203"
+#   tags:
+#     - cis
 #   block:
 #     - name: "2.1.1 Ensure time synchronization is in use - page 204"
 #       ansible:
@@ -15,6 +17,8 @@
 #       notify:
 #         - send failed message
 # - name: "2.1.2 Configure chrony - page 209"
+#   tags:
+#     - cis
 #   block:
 #     - name: "2.1.2.1 Ensure chrony is configured with authorized timeserver (Manual) - page 210"
 #       ansible:
@@ -29,20 +33,32 @@
 #       changed_when: true
 #       notify:
 #         - send failed message
-# - name: "2.1.3 Configure systemd-timesyncd - page 217"
-#   block:
-#     - name: "2.1.3.1 Ensure systemd-timesyncd configured with authorized timeserver (Manual) - page 219"
-#       ansible:
-#     - name: "2.1.3.2 Ensure systemd-timesyncd is enabled and running (Automated) - page 223"
-#       ansible:
-#   rescue:
-#     - name: "Fail"
-#       ansible.builtin.debug:
-#         msg: "Something went wrong"
-#       changed_when: true
-#       notify:
-#         - send failed message
+- name: "2.1.3 Configure systemd-timesyncd - page 217"
+  tags:
+    - cis
+  block:
+    - name: "2.1.3.1 Ensure systemd-timesyncd configured with authorized timeserver (Manual) - page 219"
+      ansible.builtin.template:
+        src: "files/2.1.3/timesyncd.conf.j2"
+        dest: "/etc/systemd/timesyncd.conf"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify: restart timesyncd-service
+    - name: "2.1.3.2 Ensure systemd-timesyncd is enabled and running (Automated) - page 223"
+      ansible.builtin.service:
+        name: "systemd-timesyncd"
+        state: started
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
 # - name: "2.1.4 Configure ntp - page 225"
+#   tags:
+#     - cis
 #   block:
 #     - name: "2.1.4.1 Ensure ntp access control is configured (Automated) - page 226"
 #       ansible:
@@ -59,65 +75,143 @@
 #       changed_when: true
 #       notify:
 #         - send failed message
-# - name: "2.2 Special Purpose Services - page 237"
-#   block:
-#     - name: "2.2.1 Ensure X Window System is not installed (Automated) - page 238"
-#       ansible:
-#     - name: "2.2.2 Ensure Avahi Server is not installed (Automated) - page 240"
-#       ansible:
-#     - name: "2.2.3 Ensure CUPS is not installed (Automated) - page 242"
-#       ansible:
-#     - name: "2.2.4 Ensure DHCP Server is not installed (Automated) - page 244"
-#       ansible:
-#     - name: "2.2.5 Ensure LDAP server is not installed (Automated) - page 246"
-#       ansible:
-#     - name: "2.2.6 Ensure NFS is not installed (Automated) - page 248"
-#       ansible:
-#     - name: "2.2.7 Ensure DNS Server is not installed (Automated) - page 249"
-#       ansible:
-#     - name: "2.2.8 Ensure FTP Server is not installed (Automated) - page 251"
-#       ansible:
-#     - name: "2.2.9 Ensure HTTP server is not installed (Automated) - page 253"
-#       ansible:
-#     - name: "2.2.10 Ensure IMAP and POP3 server are not installed (Automated) - page 255"
-#       ansible:
-#     - name: "2.2.11 Ensure Samba is not installed (Automated) - page 257"
-#       ansible:
-#     - name: "2.2.12 Ensure HTTP Proxy Server is not installed (Automated) - page 259"
-#       ansible:
-#     - name: "2.2.13 Ensure SNMP Server is not installed (Automated) - page 261"
-#       ansible:
-#     - name: "2.2.14 Ensure NIS Server is not installed (Automated) - page 263"
-#       ansible:
-#     - name: "2.2.15 Ensure mail transfer agent is configured for local-only mode (Automated) - page 265"
-#       ansible:
-#     - name: "2.2.16 Ensure rsync service is either not installed or masked (Automated) - page 267"
-#       ansible:
-#   rescue:
-#     - name: "Fail"
-#       ansible.builtin.debug:
-#         msg: "Something went wrong"
-#       changed_when: true
-#       notify:
-#         - send failed message
-# - name: "2.3 Service Clients - page 269"
-#   block:
-#     - name: "2.3.1 Ensure NIS Client is not installed (Automated) - page 270"
-#       ansible:
-#     - name: "2.3.2 Ensure rsh client is not installed (Automated) - page 272"
-#       ansible:
-#     - name: "2.3.3 Ensure talk client is not installed (Automated) - page 274"
-#       ansible:
-#     - name: "2.3.4 Ensure telnet client is not installed (Automated) - page 276"
-#       ansible:
-#     - name: "2.3.5 Ensure LDAP client is not installed (Automated) - page 278"
-#       ansible:
-#     - name: "2.3.6 Ensure RPC is not installed (Automated) - page 280"
-#       ansible:
-#   rescue:
-#     - name: "Fail"
-#       ansible.builtin.debug:
-#         msg: "Something went wrong"
-#       changed_when: true
-#       notify:
-#         - send failed message
+- name: "2.2 Special Purpose Services - page 237"
+  tags:
+    - cis
+  block:
+    - name: "2.2.1 Ensure X Window System is not installed (Automated) - page 238"
+      when: not ruupert_debian11_cis.special.xorg
+      ansible.builtin.apt:
+        name: "xorg"
+        state: absent
+    - name: "2.2.2 Ensure Avahi Server is not installed (Automated) - page 240"
+      when: not ruupert_debian11_cis.special.avahi
+      ansible.builtin.apt:
+        name: "avahi-daemon"
+        state: absent
+    - name: "2.2.3 Ensure CUPS is not installed (Automated) - page 242"
+      when: not ruupert_debian11_cis.special.cups
+      ansible.builtin.apt:
+        name: "cups"
+        state: absent
+    - name: "2.2.4 Ensure DHCP Server is not installed (Automated) - page 244"
+      when: not ruupert_debian11_cis.special.dhcpd
+      ansible.builtin.apt:
+        name: "isc-dhcp-server"
+        state: absent
+    - name: "2.2.5 Ensure LDAP server is not installed (Automated) - page 246"
+      when: not ruupert_debian11_cis.special.slapd
+      ansible.builtin.apt:
+        name: "slapd"
+        state: absent
+    - name: "2.2.6 Ensure NFS is not installed (Automated) - page 248"
+      when: not ruupert_debian11_cis.special.nfsd
+      ansible.builtin.apt:
+        name: "nfs-kernel-server"
+        state: absent
+    - name: "2.2.7 Ensure DNS Server is not installed (Automated) - page 249"
+      when: not ruupert_debian11_cis.special.bind
+      ansible.builtin.apt:
+        name: "bind9"
+        state: absent
+    - name: "2.2.8 Ensure FTP Server is not installed (Automated) - page 251"
+      when: not ruupert_debian11_cis.special.ftpd
+      ansible.builtin.apt:
+        name: "vsftpd"
+        state: absent
+    - name: "2.2.9 Ensure HTTP (Apache2) server is not installed (Automated) - page 253"
+      when: not ruupert_debian11_cis.special.apache2
+      ansible.builtin.apt:
+        name: "apache2"
+        state: absent
+    - name: "2.2.9 Ensure HTTP (Nginx) server is not installed (Automated) - page 253"
+      when: not ruupert_debian11_cis.special.nginx
+      ansible.builtin.apt:
+        pkg:
+          - nginx
+          - nginx-full
+          - nginx-light
+          - nginx-extras
+          - nginx-core
+        state: absent
+    - name: "2.2.10 Ensure IMAP and POP3 server are not installed (Automated) - page 255"
+      when: not ruupert_debian11_cis.special.imappop3
+      ansible.builtin.apt:
+        pkg:
+          - dovecot-imapd
+          - dovecot-pop3d
+        state: absent
+    - name: "2.2.11 Ensure Samba is not installed (Automated) - page 257"
+      when: not ruupert_debian11_cis.special.samba
+      ansible.builtin.apt:
+        name: "samba"
+        state: absent
+    - name: "2.2.12 Ensure HTTP Proxy Server is not installed (Automated) - page 259"
+      when: not ruupert_debian11_cis.special.nisd
+      ansible.builtin.apt:
+        name: "squid"
+        state: absent
+    - name: "2.2.13 Ensure SNMP Server is not installed (Automated) - page 261"
+      when: not ruupert_debian11_cis.special.snmp
+      ansible.builtin.apt:
+        pkg:
+          - snmp
+          - snmpd
+        state: absent
+    - name: "2.2.14 Ensure NIS Server is not installed (Automated) - page 263"
+      when: not ruupert_debian11_cis.special.nisd
+      ansible.builtin.apt:
+        name: "nis"
+        state: absent
+    - name: "2.2.15 Ensure mail transfer agent is configured for local-only mode (Automated) - page 265"
+      when: not ruupert_debian11_cis.special.mta_local_mode
+      ansible.builtin.debug:
+        msg: "------------Unimplemented--------------"
+      changed_when: true
+    - name: "2.2.16 Ensure rsync service is either not installed or masked (Automated) - page 267"
+      when: not ruupert_debian11_cis.special.rsync
+      ansible.builtin.apt:
+        name: "rsync"
+        state: absent
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
+- name: "2.3 Service Clients - page 269"
+  tags:
+    - cis
+  block:
+    - name: "2.3.1 Ensure NIS Client is not installed (Automated) - page 270"
+      ansible.builtin.apt:
+        name: "nis"
+        state: absent
+    - name: "2.3.2 Ensure rsh client is not installed (Automated) - page 272"
+      ansible.builtin.apt:
+        name: "rsh-client"
+        state: absent
+    - name: "2.3.3 Ensure talk client is not installed (Automated) - page 274"
+      ansible.builtin.apt:
+        name: "talk"
+        state: absent
+    - name: "2.3.4 Ensure telnet client is not installed (Automated) - page 276"
+      ansible.builtin.apt:
+        name: "telnet"
+        state: absent
+    - name: "2.3.5 Ensure LDAP client is not installed (Automated) - page 278"
+      ansible.builtin.apt:
+        name: "ldap-utils"
+        state: absent
+    - name: "2.3.6 Ensure RPC is not installed (Automated) - page 280"
+      ansible.builtin.apt:
+        name: "rpcbind"
+        state: absent
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
