@@ -10,196 +10,199 @@
 # that by default have configuration for ipv6
 #
 ####################################
- - name: "EXCEPTION: Enable IPv6"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure that /etc/default/grub does not disable ipv6"
-      ansible.builtin.replace:
-        path: /etc/default/grub
-        regexp: '^GRUB_CMDLINE_LINUX="ipv6.disable=1"$'
-        replace: 'GRUB_CMDLINE_LINUX=""'
-      register: grub_config_update
-
-    - name: "Update grub"
-      ansible.builtin.command: "update-grub"
-      register: grub_updated
-      when: grub_config_update.changed
-      
-    - name: "Reboot and wait"
-      ansible.builtin.reboot:
-        reboot_timeout: 600 # default
-        test_command: "sysctl net.ipv6"
-      when: grub_updated.changed
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
-
-
-# # "1 Initial Setup ...... 18"
-# # "1.1 Filesystem Configuration ...... 19"
-
- - name: "1.1.1 Disable unused filesystems . 20"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Copy modprobe blacklist file over"
+# - name: 'EXCEPTION: Enable IPv6'
+#   tags:
+#     - cis
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#     - name: 'Ensure that /etc/default/grub does not disable ipv6'
+#       ansible.builtin.replace:
+#         path: '/etc/default/grub'
+#         regexp: '^GRUB_CMDLINE_LINUX="ipv6.disable=1"$'
+#         replace: 'GRUB_CMDLINE_LINUX=""'
+#       register: grub_config_update
+# 
+#     - name: 'Update grub' # noqa: no-handler
+#       ansible.builtin.command: 'update-grub'
+#       register: grub_updated
+#       when: grub_config_update.changed
+#     - name: 'Reboot and wait' # noqa: no-handler
+#       ansible.builtin.reboot:
+#         reboot_timeout: 600
+#         test_ansible.builtin.command: 'sysctl net.ipv6'
+#       when: grub_updated.changed
+#   rescue:
+#     - name: 'Send failure message'
+#       ansible.builtin.debug:
+#         msg: 'fail'
+#       changed_when: true
+#       notify:
+#         - send failed message
+# 
+  # "1 Initial Setup ...... 18"
+  # "1.1 Filesystem Configuration ...... 19"
+- name: '1.1.1 Disable unused filesystems . 20'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Copy modprobe blacklist file over'
       ansible.builtin.copy:
         src: files/1.1.1/modprobe-CIS.conf
         dest: /etc/modprobe.d/CIS.conf
         owner: root
         group: root
-        mode: 0644
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
- - name: "1.1.1.1 Ensure mounting of cramfs filesystems is disabled (Automated) .. 21"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure cramfs module is not present"
+        mode: '0644'
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+- name: '1.1.1.1 Ensure mounting of cramfs filesystems is disabled (Automated) .. 21'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure cramfs module is not present'
       community.general.modprobe:
         name: cramfs
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
- - name: "1.1.1.2 Ensure mounting of freevxfs filesystems is disabled (Automated)  23"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure freevxfs module is not present"
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+- name: '1.1.1.2 Ensure mounting of freevxfs filesystems is disabled (Automated)  23'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure freevxfs module is not present'
       community.general.modprobe:
         name: freevxfs
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
-
- - name: "1.1.1.3 Ensure mounting of jffs2 filesystems is disabled (Automated). 25"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure jffs2 module is not present"
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+- name: '1.1.1.3 Ensure mounting of jffs2 filesystems is disabled (Automated). 25'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure jffs2 module is not present'
       community.general.modprobe:
         name: jffs2
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
-
- - name: "1.1.1.4 Ensure mounting of hfs filesystems is disabled (Automated) ... 27"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure hfs is module not present"
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+- name: '1.1.1.4 Ensure mounting of hfs filesystems is disabled (Automated) ... 27'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure hfs is module not present'
       community.general.modprobe:
         name: hfs
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
- - name: "1.1.1.5 Ensure mounting of hfsplus filesystems is disabled (Automated) .. 29"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure hfsplus module is not present"
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+- name: '1.1.1.5 Ensure mounting of hfsplus filesystems is disabled (Automated) .. 29'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure hfsplus module is not present'
       community.general.modprobe:
         name: hfsplus
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
- - name: "1.1.1.6 Ensure mounting of udf filesystems is disabled (Automated) ... 31"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure udf module is not present"
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+- name: '1.1.1.6 Ensure mounting of udf filesystems is disabled (Automated) ... 31'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure udf module is not present'
       community.general.modprobe:
         name: udf
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 #
 #   /tmp points unapplicable in current setup. Too much work for reaching this compliance. 
 #
 # - name: "1.1.2 Ensure /tmp is configured (Automated) ..... 33"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.3 Ensure nodev option set on /tmp partition (Automated)  36"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.4 Ensure nosuid option set on /tmp partition (Automated) ...... 38"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.5 Ensure noexec option set on /tmp partition (Automated) ...... 40"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 
 
@@ -208,160 +211,160 @@
 #   tmpfs /dev/shm tmpfs defaults,noexec,nodev,nosuid,seclabel 0 0
 #
 # - name: "1.1.6 Ensure /dev/shm is configured (Automated) .. 42"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.7 Ensure nodev option set on /dev/shm partition (Automated) .... 44"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.8 Ensure nosuid option set on /dev/shm partition (Automated) ... 45"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.9 Ensure noexec option set on /dev/shm partition (Automated) ... 46"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 
 #
 #  /var points unapplicable in current setup. Too much work for reaching this compliance. 
 #
 # - name: "1.1.10 Ensure separate partition exists for /var (Automated) .. 47"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.11 Ensure separate partition exists for /var/tmp (Automated) ...... 49"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.12 Ensure /var/tmp partition includes the nodev option (Automated) .... 51"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.13 Ensure /var/tmp partition includes the nosuid option (Automated) ... 52"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.14 Ensure /var/tmp partition includes the noexec option (Automated) ... 53"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 #
 #  /var/log points unapplicable in current setup. Too much work for reaching this compliance. 
 #
 # - name: "1.1.15 Ensure separate partition exists for /var/log (Automated) . 54"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.16 Ensure separate partition exists for /var/log/audit (Automated) .. 56"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 #
 #   /home points unapplicable in current setup. Too much work for reaching this compliance. 
 #  
 # - name: "1.1.17 Ensure separate partition exists for /home (Automated)..... 58"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.18 Ensure /home partition includes the nodev option (Automated) ... 60"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 
 
@@ -369,211 +372,216 @@
 #   No removable media devices available so not applicable. Only if virtual devices are counted as removable media then yes:
 #
 # - name: "1.1.19 Ensure nodev option set on removable media partitions (Manual) ...... 61"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.20 Ensure nosuid option set on removable media partitions (Manual) ..... 62"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.1.21 Ensure noexec option set on removable media partitions (Manual) ..... 63"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 
 # - name: "1.1.22 Ensure sticky bit is set on all world-writable directories (Automated) ...... 64"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 #
 #  TODO at least the check that automounting is disabled. May require shm and other tempfs to be in fstab
 #
- - name: "1.1.23 Disable Automounting (Automated) ... 65"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-## the following is unnecessary as the package is made sure to be removed in the task after  
-#    - name: "Ensure autofs service is disabled"
-#      ansible.builtin.systemd:
-#        name: autofs
-#        enabled: no
-    - name: "Ensure autofs is not installed"
+- name: '1.1.23 Disable Automounting (Automated) ... 65'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    ## the following is unnecessary as the package is made sure to be removed in the task after
+    #    - name: "Ensure autofs service is disabled"
+    #      ansible.builtin.systemd:
+    #        name: autofs
+    #        enabled: no
+    - name: 'Ensure autofs is not installed'
       ansible.builtin.apt:
         name: autofs
-        state: absent     
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
-
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 #
 #   In cloud environments you rarely have have USB media.
 #
- - name: "1.1.24 Disable USB Storage (Automated) . 67"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Copy modprobe blacklist file over"
+- name: '1.1.24 Disable USB Storage (Automated) . 67'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Copy modprobe blacklist file over'
       ansible.builtin.copy:
         src: files/1.1.24/usb-storage.conf
         dest: /etc/modprobe.d/usb-storage.conf
         owner: root
         group: root
-        mode: 0644
-    - name: "Ensure usb-storage module is not present"
+        mode: "0644"
+    - name: 'Ensure usb-storage module is not present'
       community.general.modprobe:
         name: usb-storage
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 # # "1.2 Configure Software Updates  69"
 
- - name: "1.2.1 Ensure package manager repositories are configured (Manual) . 70"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "copy the apt.sources list in case change"
+- name: '1.2.1 Ensure package manager repositories are configured (Manual) . 70'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Copy the apt.sources list in case change'
       ansible.builtin.copy:
         src: files/1.2.1/sources.list.18.04
         dest: /etc/apt/sources.list
         owner: root
         group: root
-        mode: 0644
-        backup: yes
+        mode: "0644"
+        backup: true
       register: file_updated
-    - name: update cache
+    - name: "Update cache" # no-handler
       ansible.builtin.apt:
-        update_cache: yes
+        update_cache: true
       when: file_updated.changed
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 #
 #  ToDo:  - get gpg keys from ubuntu and possible others and loop over same task comparing remote gpg keys and fail if mismatch
 #         
 # - name: "1.2.2 Ensure GPG keys are configured (Manual) . 71"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
-
-
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # # "1.3 Filesystem Integrity Checking .... 72"
 
- - name: "1.3.1 Ensure AIDE is installed (Automated) ... 73"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04" and enable_aide == true
-   block:
-    - name: "Ensure AIDE is installed"
-      apt:
+- name: '1.3.1 Ensure AIDE is installed (Automated) ... 73'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04" and enable_aide == true
+  block:
+    - name: 'Ensure AIDE is installed'
+      ansible.builtin.apt:
         name: aide
         state: present
       register: aide_presence
-    - name: "Copy aide.conf to remote with /mnt/prometheus ignored"
+    - name: 'Copy aide.conf to remote with /mnt/prometheus ignored'
       ansible.builtin.copy:
         src: files/1.3.1/aide.conf
         dest: /etc/aide/aide.conf
         owner: root
         group: root
-        mode: 0644
-        backup: yes
+        mode: "0644"
+        backup: true
       register: aide_copy_conf
-    - name: "Check /var/lib/aide/aide.db existence"
-      ansible.builtin.stat: 
+    - name: 'Check /var/lib/aide/aide.db existence'
+      ansible.builtin.stat:
         path: /var/lib/aide/aide.db
       register: aide_db_presence
-    - name: "Initialize AIDE local database"
-      command: aideinit
+    - name: 'Initialize AIDE local database' # no-handler
+      ansible.builtin.command: aideinit
       when: aide_db_presence.stat.exists
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
- - name: "1.3.1 Ensure AIDE is not installed. Disabled as AIDE should be configured too (Automated) ... 73"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04" and enable_aide == false
-   block:
-    - name: "Ensure AIDE is not installed"
-      apt:
+- name: '1.3.1 Ensure AIDE is not installed. Disabled as AIDE should be configured too (Automated) ... 73'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04" and enable_aide == false
+  block:
+    - name: 'Ensure AIDE is not installed'
+      ansible.builtin.apt:
         name: aide
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
-
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 #
-#  May not be an acceptable solution to just check that the file exists. 
+#  May not be an acceptable solution to just check that the file exists.
 #
- - name: "1.3.2 Ensure filesystem integrity is regularly checked (Automated) .... 75"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04" and enable_aide == true
-   block:
-    - name: "Check that /etc/cron.daily/aide path exists - crude solution, may need attention"
+- name: '1.3.2 Ensure filesystem integrity is regularly checked (Automated) .... 75'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04" and enable_aide == true
+  block:
+    - name: 'Check that /etc/cron.daily/aide path exists - crude solution, may need attention'
       ansible.builtin.stat:
         path: /etc/cron.daily/aide
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 # # "1.4 Secure Boot Settings . 78"
 
@@ -581,122 +589,123 @@
 #   Needs a bit of thought of the implications. basicly changing grub.cfg mode to 0400
 #
 # - name: "1.4.1 Ensure permissions on bootloader config are not overridden (Automated) 79"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # - name: "1.4.2 Ensure bootloader password is set (Automated)... 81"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.4.3 Ensure permissions on bootloader config are configured (Automated) . 83"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.4.4 Ensure authentication required for single user mode (Automated) . 85"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "1.5 Additional Process Hardening ... 86"
 
 # - name: "1.5.1 Ensure XD/NX support is enabled (Manual) ..... 87"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
-
-
- - name: "1.5.2 Ensure address space layout randomization (ASLR) is enabled (Automated) ...... 89"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Set sysctl kernel.randomize_va_space = 2"
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
+- name: '1.5.2 Ensure address space layout randomization (ASLR) is enabled (Automated) ...... 89'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Set sysctl kernel.randomize_va_space = 2'
       ansible.posix.sysctl:
         name: kernel.randomize_va_space
         value: '2'
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
- - name: "1.5.3 Ensure prelink is disabled (Automated) ...... 92"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure prelink is not installed"
-      apt:
+- name: '1.5.3 Ensure prelink is disabled (Automated) ...... 92'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure prelink is not installed'
+      ansible.builtin.apt:
         name: prelink
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
-
- - name: "1.5.4 Ensure core dumps are restricted (Automated) ..... 94"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Copy coredump.conf to limit.d"
+- name: '1.5.4 Ensure core dumps are restricted (Automated) ..... 94'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Copy coredump.conf to limit.d'
       ansible.builtin.copy:
         src: files/1.5.4/coredump.conf
         dest: /etc/security/limits.d/coredump.conf
         owner: root
         group: root
-        mode: 0644
-        backup: yes
-    - name: "Ensure core dumps are restricted (fs.suid_dumpable = 0)"
+        mode: "0644"
+        backup: true
+    - name: 'Ensure core dumps are restricted (fs.suid_dumpable = 0)'
       ansible.posix.sysctl:
         name: fs.suid_dumpable
         value: '0'
-   # - name: placeholder one task after
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
-
+  # - name: placeholder one task after
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 
 # # "1.6 Mandatory Access Control .... 96"
@@ -706,212 +715,217 @@
 #
 
 # - name: "1.6.1 Configure AppArmor ...... 97"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.6.1.1 Ensure AppArmor is installed (Automated) .. 98"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.6.1.2 Ensure AppArmor is enabled in the bootloader configuration (Automated) ...... 99"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.6.1.3 Ensure all AppArmor Profiles are in enforce or complain mode (Automated) ...... 101"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.6.1.4 Ensure all AppArmor Profiles are enforcing (Automated)  103"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "1.7 Command Line Warning Banners .. 105"
-
-
- - name: "1.7.1 Ensure message of the day is configured properly (Automated) ...... 106"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Set the message of the day"
+- name: '1.7.1 Ensure message of the day is configured properly (Automated) ...... 106'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Set the message of the day'
       ansible.builtin.copy:
         src: files/1.7.1/motd
         dest: /etc/motd
         owner: root
         group: root
-        mode: 0644
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+        mode: "0644"
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
-
- - name: "1.7.2 Ensure permissions on /etc/issue.net are configured (Automated) ...... 108"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Set owner and permissions of /etc/issue.net"
+- name: '1.7.2 Ensure permissions on /etc/issue.net are configured (Automated) ...... 108'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Set owner and permissions of /etc/issue.net'
       ansible.builtin.file:
         owner: root
         group: root
-        mode: 0644
+        mode: "0644"
         path: /etc/issue.net
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
- - name: "1.7.3 Ensure permissions on /etc/issue are configured (Automated) ...... 109"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Set owner and permissions of /etc/issue"
+- name: '1.7.3 Ensure permissions on /etc/issue are configured (Automated) ...... 109'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Set owner and permissions of /etc/issue'
       ansible.builtin.file:
         owner: root
         group: root
-        mode: 0644
+        mode: "0644"
         path: /etc/issue
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 #
 #  This is being configured in 1.7.1. 
 #
 # - name: "1.7.4 Ensure permissions on /etc/motd are configured (Automated) ...... 110"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #   - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify:
+#     changed_when: true
+#     ansible.builtin.notify:
 #       -  send failed message to slack
 #       
 
 # - name: "1.7.5 Ensure remote login warning banner is configured properly (Automated) .... 112"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.7.6 Ensure local login warning banner is configured properly (Automated) .... 114"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 
 
 
 # # "1.8 GNOME Display Manager .... 116"
 
- - name: "1.8.1 Ensure GNOME Display Manager is removed (Manual) .. 117"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure gdm3 is not installed"
+- name: '1.8.1 Ensure GNOME Display Manager is removed (Manual) .. 117'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure gdm3 is not installed'
       ansible.builtin.apt:
         name: gdm3
-        state: absent    
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 #
+
 #  No gnome display manager on any hosts as configured above
 #
 # - name: "1.8.2 Ensure GDM login banner is configured (Automated) ..... 118"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.8.3 Ensure disable-user-list is enabled (Automated) . 120"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "1.8.4 Ensure XDCMP is not enabled (Automated) .... 122"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "1.9 Ensure updates, patches, and additional security software are installed (Manual) ...... 124"
 # #
@@ -923,306 +937,319 @@
 # "2.1 Special Purpose Services ..... 127"
 
 # - name: "2.1.1 Time Synchronization .. 128"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "2.1.1.1 Ensure time synchronization is in use (Automated) ..... 129"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "2.1.1.2 Ensure systemd-timesyncd is configured (Manual) ...... 131"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "2.1.1.3 Ensure chrony is configured (Automated) ... 134"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "2.1.1.4 Ensure ntp is configured (Automated) ... 136"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
-
- - name: "2.1.2 Ensure X Window System is not installed (Automated) .. 139"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure xserver-xorg* packages are not installed"
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
+- name: '2.1.2 Ensure X Window System is not installed (Automated) .. 139'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure xserver-xorg* packages are not installed'
       ansible.builtin.apt:
         name: xserver-xorg*
-        state: absent    
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
- - name: "2.1.3 Ensure Avahi Server is not installed (Automated) ..... 140"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure avahi-daemon is not installed"
-      apt:
+- name: '2.1.3 Ensure Avahi Server is not installed (Automated) ..... 140'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure avahi-daemon is not installed'
+      ansible.builtin.apt:
         name: avahi-deamon
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
- - name: "2.1.4 Ensure CUPS is not installed (Automated)  141"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure cups is not installed"
-      apt:
+- name: '2.1.4 Ensure CUPS is not installed (Automated)  141'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure cups is not installed'
+      ansible.builtin.apt:
         name: cups
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
- - name: "2.1.5 Ensure DHCP Server is not installed (Automated) ..... 143"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure isc-dhcp-server is not installed"
-      apt:
+- name: '2.1.5 Ensure DHCP Server is not installed (Automated) ..... 143'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure isc-dhcp-server is not installed'
+      ansible.builtin.apt:
         name: isc-dhcp-server
         state: absent
-   # other dhcp servers in this section same way
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  # other dhcp servers in this section same way
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 #
 #   Potentially issue, likelihood very low: there may be cases when LDAP server is needed.
-# 
- - name: "2.1.6 Ensure LDAP server is not installed (Automated) ...... 144"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure LDAP is not installed"
-      apt:
+#
+- name: '2.1.6 Ensure LDAP server is not installed (Automated) ...... 144'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure LDAP is not installed'
+      ansible.builtin.apt:
         name: slapd
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 #
 #   Actually an issue because some projects use NFS.
 # 
 # - name: "2.1.7 Ensure NFS is not installed (Automated) .. 145"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 #  We have DNS servers, need to tag them in openstack metadata and ignore them in this:
 #  
 # - name: "2.1.8 Ensure DNS Server is not installed (Automated) . 146"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
-
- - name: "2.1.9 Ensure FTP Server is not installed (Automated) .. 147"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure vsftpd is not installed"
-      apt:
+- name: '2.1.9 Ensure FTP Server is not installed (Automated) .. 147'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure vsftpd is not installed'
+      ansible.builtin.apt:
         name: vsftpd
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 #
+
 #  We have nginxes nad apaches... so this one should not be done as such... except if tagging in openstack
 #  the servers with nginxorr apache to be ingored
 #
 # - name: "2.1.10 Ensure HTTP server is not installed (Automated) ... 148"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 #
 #  Postfix_present in some projects...
 #
 # - name: "2.1.11 Ensure IMAP and POP3 server are not installed (Automated) . 149"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 #
 #   Should remove... but need to check the use first. there is at least one server with samba installed
 #
 # - name: "2.1.12 Ensure Samba is not installed (Automated) . 151"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
-
-
- - name: "2.1.13 Ensure HTTP Proxy Server is not installed (Automated) .... 152"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure squid is not installed"
-      apt:
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
+- name: '2.1.13 Ensure HTTP Proxy Server is not installed (Automated) .... 152'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure squid is not installed'
+      ansible.builtin.apt:
         name: squid
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-     
- - name: "2.1.14 Ensure SNMP Server is not installed (Automated) .. 153"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure snmpd is not installed"
-      apt:
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: '2.1.14 Ensure SNMP Server is not installed (Automated) .. 153'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure snmpd is not installed'
+      ansible.builtin.apt:
         name: snmpd
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 
 # - name: "2.1.15 Ensure mail transfer agent is configured for local-only mode (Automated) .... 155"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 #
 #  We use rsync
 #
 # - name: "2.1.16 Ensure rsync service is not installed (Automated) .. 157"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
+#     changed_when: true
+#     ansible.builtin.notify: 
 #       - send failed message to slack§§
 #       
 
-
- - name: "2.1.17 Ensure NIS Server is not installed (Automated)  158"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure NIS is not installed"
-      apt:
+- name: '2.1.17 Ensure NIS Server is not installed (Automated)  158'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure NIS is not installed'
+      ansible.builtin.apt:
         name: nis
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 # # "2.2 Service Clients .... 159"
 
@@ -1230,104 +1257,106 @@
 #   ISSUE: NFS is used in some projects. Do not implement or mitigate the problem. 
 #
 # - name: "2.2.1 Ensure NIS Client is not installed (Automated) .... 160"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
-
-
- - name: "2.2.2 Ensure rsh client is not installed (Automated) ..... 162"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure remote shell is not installed"
-      apt:
+- name: '2.2.2 Ensure rsh client is not installed (Automated) ..... 162'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure remote shell is not installed'
+      ansible.builtin.apt:
         name: rsh-client
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
-
- - name: "2.2.3 Ensure talk client is not installed (Automated) .... 164"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure talk is not installed"
-      apt:
+- name: '2.2.3 Ensure talk client is not installed (Automated) .... 164'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure talk is not installed'
+      ansible.builtin.apt:
         name: talk
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
-
- - name: "2.2.4 Ensure telnet client is not installed (Automated)  165"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure telnet is not installed"
-      apt:
+- name: '2.2.4 Ensure telnet client is not installed (Automated)  165'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure telnet is not installed'
+      ansible.builtin.apt:
         name: telnet
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 #
 #  Maybe in some projects in use....  so not going to be implemented at this time.
 #    
 # - name: "2.2.5 Ensure LDAP client is not installed (Automated) . 167"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 
 # - name: "2.2.6 Ensure RPC is not installed (Automated) .. 169"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "2.3 Ensure nonessential services are removed or masked (Manual) .. 170"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 
 # # "3 Network Configuration... 172"
@@ -1338,662 +1367,674 @@
 
 
 # - name: "3.1.1 Disable IPv6 (Manual) .... 174"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 #
 #  Not applicable as there are no wireless interfaces in openstack
 #
 # - name: "3.1.2 Ensure wireless interfaces are disabled (Automated) ..... 176"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # # "3.2 Network Parameters (Host Only) .. 178"
-
- - name: "3.2.1 Ensure packet redirect sending is disabled (Automated) ...... 179"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Disable ICMP redirects (net.ipv4.conf.all.send_redirects = 0)"
+- name: '3.2.1 Ensure packet redirect sending is disabled (Automated) ...... 179'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Disable ICMP redirects (net.ipv4.conf.all.send_redirects = 0)'
       ansible.posix.sysctl:
         name: net.ipv4.conf.all.send_redirects
         value: '0'
-    - name: "Disable ICMP redirects (net.ipv4.conf.default.send_redirects = 0)"
+    - name: 'Disable ICMP redirects (net.ipv4.conf.default.send_redirects = 0)'
       ansible.posix.sysctl:
         name: net.ipv4.conf.default.send_redirects
         value: '0'
-   #- name: placeholder for if needed:
-   # sysctl -w net.ipv4.conf.all.send_redirects=0
-   # sysctl -w net.ipv4.conf.default.send_redirects=0
-   # sysctl -w net.ipv4.route.flush=1
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  #- name: placeholder for if needed:
+  # sysctl -w net.ipv4.conf.all.send_redirects=0
+  # sysctl -w net.ipv4.conf.default.send_redirects=0
+  # sysctl -w net.ipv4.route.flush=1
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
-
- - name: "3.2.2 Ensure IP forwarding is disabled (Automated) .... 181"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Disable IPv4 forwarding (net.ipv4.ip_forward = 0)"
+- name: '3.2.2 Ensure IP forwarding is disabled (Automated) .... 181'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Disable IPv4 forwarding (net.ipv4.ip_forward = 0)'
       ansible.posix.sysctl:
         name: net.ipv4.ip_forward
         value: '0'
-    - name: "Disable IPv6 forwarding (net.ipv6.conf.all.forwarding = 0)"
+    - name: 'Disable IPv6 forwarding (net.ipv6.conf.all.forwarding = 0)'
       ansible.posix.sysctl:
         name: net.ipv6.conf.all.forwarding
         value: '0'
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 # # "3.3 Network Parameters (Host and Router) ... 183"
 
 
 # - name: "3.3.1 Ensure source routed packets are not accepted (Automated) .... 184"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #   - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify:
+#     changed_when: true
+#     ansible.builtin.notify:
 #       -  send failed message to slack
 #       
-
-
- - name: "3.3.2 Ensure ICMP redirects are not accepted (Automated) .... 188"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Disable ICMP redirects (net.ipv4.conf.all.accept_redirects = 0)"
+- name: '3.3.2 Ensure ICMP redirects are not accepted (Automated) .... 188'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Disable ICMP redirects (net.ipv4.conf.all.accept_redirects = 0)'
       ansible.posix.sysctl:
         name: net.ipv4.conf.all.accept_redirects
         value: '0'
-    - name: "Disable ICMP redirects (net.ipv4.conf.default.accept_redirects = 0)"
+    - name: 'Disable ICMP redirects (net.ipv4.conf.default.accept_redirects = 0)'
       ansible.posix.sysctl:
         name: net.ipv4.conf.default.accept_redirects
         value: '0'
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify:
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
- - name: "3.3.2 Ensure ICMP6 redirects are not accepted (Automated) .... 188"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Disable ICMP redirects (net.ipv6.conf.all.accept_redirects = 0)"
+- name: '3.3.2 Ensure ICMP6 redirects are not accepted (Automated) .... 188'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Disable ICMP redirects (net.ipv6.conf.all.accept_redirects = 0)'
       ansible.posix.sysctl:
         name: net.ipv6.conf.all.accept_redirects
         value: '0'
-    - name: "Disable ICMP redirects (net.ipv6.conf.default.accept_redirects = 0)"
+    - name: 'Disable ICMP redirects (net.ipv6.conf.default.accept_redirects = 0)'
       ansible.posix.sysctl:
         name: net.ipv6.conf.default.accept_redirects
         value: '0'
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
 
- - name: "3.3.3 Ensure secure ICMP redirects are not accepted (Automated) .... 191"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Disable secure ICMP redirects (net.ipv4.conf.all.secure_redirects = 0)"
+- name: '3.3.3 Ensure secure ICMP redirects are not accepted (Automated) .... 191'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Disable secure ICMP redirects (net.ipv4.conf.all.secure_redirects = 0)'
       ansible.posix.sysctl:
         name: net.ipv4.conf.all.secure_redirects
         value: '0'
-    - name: "Disable secure ICMP redirects (net.ipv4.conf.default.secure_redirects = 0)"
+    - name: 'Disable secure ICMP redirects (net.ipv4.conf.default.secure_redirects = 0)'
       ansible.posix.sysctl:
         name: net.ipv4.conf.default.secure_redirects
         value: '0'
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 # - name: "3.3.4 Ensure suspicious packets are logged (Automated) .. 193"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
-
-
- - name: "3.3.5 Ensure broadcast ICMP requests are ignored (Automated) . 195"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ignore broacast echo requests (net.ipv4.icmp_echo_ignore_broadcasts = 1)"
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
+- name: '3.3.5 Ensure broadcast ICMP requests are ignored (Automated) . 195'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ignore broacast echo requests (net.ipv4.icmp_echo_ignore_broadcasts = 1)'
       ansible.posix.sysctl:
         name: net.ipv4.icmp_echo_ignore_broadcasts
         value: '1'
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
- - name: "3.3.6 Ensure bogus ICMP responses are ignored (Automated) ...... 197"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ignore bogus echo error responses (net.ipv4.icmp_ignore_bogus_error_responses = 1)"
+- name: '3.3.6 Ensure bogus ICMP responses are ignored (Automated) ...... 197'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ignore bogus echo error responses (net.ipv4.icmp_ignore_bogus_error_responses = 1)'
       ansible.posix.sysctl:
         name: net.ipv4.icmp_ignore_bogus_error_responses
         value: '1'
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 #
 #   TEST THIS FIRST
 #
 # - name: "3.3.7 Ensure Reverse Path Filtering is enabled (Automated)... 199"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
-
-
- - name: "3.3.8 Ensure TCP SYN Cookies is enabled (Automated) ...... 201"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Enable TCP SYN cookies (net.ipv4.tcp_syncookies = 1)"
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
+- name: '3.3.8 Ensure TCP SYN Cookies is enabled (Automated) ...... 201'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Enable TCP SYN cookies (net.ipv4.tcp_syncookies = 1)'
       ansible.posix.sysctl:
         name: net.ipv4.tcp_syncookies
         value: '1'
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 # - name: "3.3.9 Ensure IPv6 router advertisements are not accepted (Automated)  203"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "3.4 Uncommon Network Protocols ...... 205"
-
- - name: "3.4.0 Copy uncommon protocols modprobe blacklist 205"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Copy modprobe blacklist file over"
+- name: '3.4.0 Copy uncommon protocols modprobe blacklist 205'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Copy modprobe blacklist file over'
       ansible.builtin.copy:
         src: files/3.4/uncommon.conf
         dest: /etc/modprobe.d/uncommon.conf
         owner: root
         group: root
-        mode: 0644
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+        mode: "0644"
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
-
-
- - name: "3.4.1 Ensure DCCP is disabled (Automated)  206"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure DCCP module is not present"
+- name: '3.4.1 Ensure DCCP is disabled (Automated)  206'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure DCCP module is not present'
       community.general.modprobe:
         name: dccp
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
- - name: "3.4.2 Ensure SCTP is disabled (Automated) . 208"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure SCTP module is not present"
+- name: '3.4.2 Ensure SCTP is disabled (Automated) . 208'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure SCTP module is not present'
       community.general.modprobe:
         name: sctp
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
-
- - name: "3.4.3 Ensure RDS is disabled (Automated) ... 210"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure rds module is not present"
+- name: '3.4.3 Ensure RDS is disabled (Automated) ... 210'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure rds module is not present'
       community.general.modprobe:
         name: rds
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
- - name: "3.4.4 Ensure TIPC is disabled (Automated) .. 211"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure TIPC module is not present"
+- name: '3.4.4 Ensure TIPC is disabled (Automated) .. 211'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure TIPC module is not present'
       community.general.modprobe:
         name: tipc
         state: absent
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 
 # # "3.5 Firewall Configuration .. 212"
 
 # - name: "3.5.1 Configure UncomplicatedFirewall ...... 213"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.1.1 Ensure ufw is installed (Automated)  214"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.1.2 Ensure iptables-persistent is not installed with ufw (Automated) ..... 216"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.1.3 Ensure ufw service is enabled (Automated)  217"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.1.4 Ensure ufw loopback traffic is configured (Automated) ..... 219"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.1.5 Ensure ufw outbound connections are configured (Manual) .. 221"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.1.6 Ensure ufw firewall rules exist for all open ports (Manual) ..... 222"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.1.7 Ensure ufw default deny firewall policy (Automated) . 224"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.2 Configure nftables .. 226"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.2.1 Ensure nftables is installed (Automated) ..... 229"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.2.2 Ensure ufw is uninstalled or disabled with nftables (Automated) ...... 231"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.2.3 Ensure iptables are flushed with nftables (Manual)...... 233"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.2.4 Ensure a nftables table exists (Automated) . 235"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.2.5 Ensure nftables base chains exist (Automated)  237"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.2.6 Ensure nftables loopback traffic is configured (Automated) ... 239"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.2.7 Ensure nftables outbound and established connections are configured (Manual) ...... 241"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.2.8 Ensure nftables default deny firewall policy (Automated)  243"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.2.9 Ensure nftables service is enabled (Automated) ..... 245"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.2.10 Ensure nftables rules are permanent (Automated) .... 246"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3 Configure iptables... 249"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3.1.1 Ensure iptables packages are installed (Automated)  251"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3.1.2 Ensure nftables is not installed with iptables (Automated) . 252"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3.1.3 Ensure ufw is uninstalled or disabled with iptables (Automated) ... 253"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3.2.1 Ensure iptables default deny firewall policy (Automated) ... 256"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3.2.2 Ensure iptables loopback traffic is configured (Automated)  258"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3.2.3 Ensure iptables outbound and established connections are configured (Manual) ...... 260"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3.2.4 Ensure iptables firewall rules exist for all open ports (Automated) ...... 262"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3.3.1 Ensure ip6tables default deny firewall policy (Automated) . 265"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3.3.2 Ensure ip6tables loopback traffic is configured (Automated) .... 267"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3.3.3 Ensure ip6tables outbound and established connections are configured (Manual) ...... 269"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "3.5.3.3.4 Ensure ip6tables firewall rules exist for all open ports (Automated).... 271"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "4 Logging and Auditing ...... 273"
 
@@ -2007,404 +2048,404 @@
 
 
 # - name: "4.1.1 Ensure auditing is enabled  275"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.1.1 Ensure auditd is installed (Automated).. 276"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.1.2 Ensure auditd service is enabled (Automated) . 277"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.1.3 Ensure auditing for processes that start prior to auditd is enabled (Automated) ...... 278"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.1.4 Ensure audit_backlog_limit is sufficient (Automated) .. 280"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.2 Configure Data Retention .. 282"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.2.1 Ensure audit log storage size is configured (Automated) .. 283"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.2.2 Ensure audit logs are not automatically deleted (Automated) ...... 285"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.2.3 Ensure system is disabled when audit logs are full (Automated) . 286"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.3 Ensure events that modify date and time information are collected (Automated) ...... 287"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.4 Ensure events that modify user/group information are collected (Automated) ...... 290"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.5 Ensure events that modify the system's network environment are collected (Automated) ...... 292"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.6 Ensure events that modify the system's Mandatory Access Controls are collected (Automated)  295"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.7 Ensure login and logout events are collected (Automated) .. 297"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.8 Ensure session initiation information is collected (Automated) 299"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.9 Ensure discretionary access control permission modification events are collected (Automated)  301"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.10 Ensure unsuccessful unauthorized file access attempts are collected (Automated) ...... 305"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.11 Ensure use of privileged commands is collected (Automated)  308"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.12 Ensure successful file system mounts are collected (Automated) . 311"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.13 Ensure file deletion events by users are collected (Automated) .... 314"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.14 Ensure changes to system administration scope (sudoers) is collected (Automated) ...... 317"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.15 Ensure system administrator command executions (sudo) are collected (Automated) ...... 319"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.16 Ensure kernel module loading and unloading is collected (Automated) .. 322"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.1.17 Ensure the audit configuration is immutable (Automated) 325"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "4.2 Configure Logging .... 327"
 
 # - name: "4.2.1 Configure rsyslog .... 328"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.2.1.1 Ensure rsyslog is installed (Automated)  329"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.2.1.2 Ensure rsyslog Service is enabled (Automated) 330"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.2.1.3 Ensure logging is configured (Manual) ... 331"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.2.1.4 Ensure rsyslog default file permissions configured (Automated)  333"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.2.1.5 Ensure rsyslog is configured to send logs to a remote log host (Automated) .... 335"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.2.1.6 Ensure remote rsyslog messages are only accepted on designated log hosts. (Manual)  338"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.2.2 Configure journald.. 340"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.2.2.1 Ensure journald is configured to send logs to rsyslog (Automated) ... 341"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.2.2.2 Ensure journald is configured to compress large log files (Automated) .. 343"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.2.2.3 Ensure journald is configured to write logfiles to persistent disk (Automated) ...... 345"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "4.2.3 Ensure permissions on all logfiles are configured (Automated)  347"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "4.3 Ensure logrotate is configured (Manual) ...... 348"
 
@@ -2413,932 +2454,931 @@
 # # "5 Access, Authentication and Authorization . 350"
 
 # # "5.1 Configure time-based job schedulers .. 351"
-
- - name: "5.1.1 Ensure cron daemon is enabled and running (Automated) .. 352"
-   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
-   block:
-    - name: "Ensure cron service is enabled and started"
+- name: '5.1.1 Ensure cron daemon is enabled and running (Automated) .. 352'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure cron service is enabled and started'
       ansible.builtin.systemd:
         name: cron
         state: started
-        enabled: yes
-   rescue:
-   - name: "Send failure message"
-     debug:
-       msg: "fail"
-     changed_when: True
-     notify: 
-       - send failed message       
-
+        enabled: true
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
 # - name: "5.1.2 Ensure permissions on /etc/crontab are configured (Automated) . 354"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # - name: "5.1.3 Ensure permissions on /etc/cron.hourly are configured (Automated)  356"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.1.4 Ensure permissions on /etc/cron.daily are configured (Automated) .... 358"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.1.5 Ensure permissions on /etc/cron.weekly are configured (Automated) ...... 360"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.1.6 Ensure permissions on /etc/cron.monthly are configured (Automated) ... 362"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.1.7 Ensure permissions on /etc/cron.d are configured (Automated) .... 364"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.1.8 Ensure cron is restricted to authorized users (Automated) . 366"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.1.9 Ensure at is restricted to authorized users (Automated) 368"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "5.2 Configure sudo ... 370"
 
 # - name: "5.2.1 Ensure sudo is installed (Automated) . 371"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.2.2 Ensure sudo commands use pty (Automated) ...... 373"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.2.3 Ensure sudo log file exists (Automated) .... 375"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # # "5.3 Configure SSH Server ..... 376"
 
 # - name: "5.3.1 Ensure permissions on /etc/ssh/sshd_config are configured (Automated) .... 377"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.2 Ensure permissions on SSH private host key files are configured (Automated) ...... 379"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.3 Ensure permissions on SSH public host key files are configured (Automated) .... 381"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.4 Ensure SSH access is limited (Automated) ...... 383"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.5 Ensure SSH LogLevel is appropriate (Automated) ..... 386"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.6 Ensure SSH X11 forwarding is disabled (Automated) ...... 388"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.7 Ensure SSH MaxAuthTries is set to 4 or less (Automated) .... 390"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.8 Ensure SSH IgnoreRhosts is enabled (Automated) .... 392"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.9 Ensure SSH HostbasedAuthentication is disabled (Automated)  394"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.10 Ensure SSH root login is disabled (Automated) . 396"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.11 Ensure SSH PermitEmptyPasswords is disabled (Automated)  398"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.12 Ensure SSH PermitUserEnvironment is disabled (Automated) ...... 400"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.13 Ensure only strong Ciphers are used (Automated).. 402"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.14 Ensure only strong MAC algorithms are used (Automated)...... 405"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.15 Ensure only strong Key Exchange algorithms are used (Automated) . 408"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.16 Ensure SSH Idle Timeout Interval is configured (Automated) . 410"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.17 Ensure SSH LoginGraceTime is set to one minute or less (Automated) .... 413"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.18 Ensure SSH warning banner is configured (Automated) ..... 415"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.19 Ensure SSH PAM is enabled (Automated) ..... 416"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.20 Ensure SSH AllowTcpForwarding is disabled (Automated) ...... 418"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.21 Ensure SSH MaxStartups is configured (Automated) .... 420"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.3.22 Ensure SSH MaxSessions is limited (Automated) ..... 422"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "5.4 Configure PAM.... 424"
 
 # - name: "5.4.1 Ensure password creation requirements are configured (Automated)  425"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.4.2 Ensure lockout for failed password attempts is configured (Automated) .. 428"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.4.3 Ensure password reuse is limited (Automated) ... 430"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.4.4 Ensure password hashing algorithm is SHA-512 (Automated) .. 431"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # # "5.5 User Accounts and Environment ... 433"
 
 # - name: "5.5.1 Set Shadow Password Suite Parameters . 434"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.5.1.1 Ensure minimum days between password changes is configured (Automated) ...... 435"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.5.1.2 Ensure password expiration is 365 days or less (Automated)  437"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.5.1.3 Ensure password expiration warning days is 7 or more (Automated) ..... 439"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.5.1.4 Ensure inactive password lock is 30 days or less (Automated) ..... 441"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.5.1.5 Ensure all users last password change date is in the past (Automated) .. 443"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.5.2 Ensure system accounts are secured (Automated) .... 444"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.5.3 Ensure default group for the root account is GID 0 (Automated) ..... 446"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.5.4 Ensure default user umask is 027 or more restrictive (Automated) ...... 447"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.5.5 Ensure default user shell timeout is 900 seconds or less (Automated)  452"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "5.6 Ensure root login is restricted to system console (Manual) ..... 455"   # should be automatable
 
 # - name: "5.6.1 Ensure root login is restricted to system console (Manual) ..... 455"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "5.7 Ensure access to the su command is restricted (Automated) .. 456"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "6 System Maintenance. 458"
 
 # # "6.1 System File Permissions ...... 459"
 
 # - name: "6.1.1 Audit system file permissions (Manual) .... 460"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.2 Ensure permissions on /etc/passwd are configured (Automated) . 462"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.3 Ensure permissions on /etc/passwd- are configured (Automated)  463"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.4 Ensure permissions on /etc/group are configured (Automated) ..... 464"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.5 Ensure permissions on /etc/group- are configured (Automated) ... 465"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.6 Ensure permissions on /etc/shadow are configured (Automated) . 466"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.7 Ensure permissions on /etc/shadow- are configured (Automated) ...... 468"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.8 Ensure permissions on /etc/gshadow are configured (Automated)...... 470"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.9 Ensure permissions on /etc/gshadow- are configured (Automated) .... 472"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.10 Ensure no world writable files exist (Automated) ... 474"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.11 Ensure no unowned files or directories exist (Automated) ...... 476"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.12 Ensure no ungrouped files or directories exist (Automated) ... 478"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.13 Audit SUID executables (Manual)  480"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.1.14 Audit SGID executables (Manual)  482"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 
 # # "6.2 User and Group Settings ...... 484"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.1 Ensure accounts in /etc/passwd use shadowed passwords (Automated) . 485"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.2 Ensure password fields are not empty (Automated) . 487"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.3 Ensure all groups in /etc/passwd exist in /etc/group (Automated) ..... 488"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.4 Ensure all users' home directories exist (Automated) ..... 490"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.5 Ensure users own their home directories (Automated) .. 492"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.6 Ensure users' home directories permissions are 750 or more restrictive (Automated) ...... 494"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.7 Ensure users' dot files are not group or world writable (Automated) .. 496"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.8 Ensure no users have .netrc files (Automated) ..... 498"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.9 Ensure no users have .forward files (Automated) ...... 501"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.10 Ensure no users have .rhosts files (Automated)  503"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.11 Ensure root is the only UID 0 account (Automated) 505"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.12 Ensure root PATH Integrity (Automated) ..... 506"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.13 Ensure no duplicate UIDs exist (Automated) ...... 508"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.14 Ensure no duplicate GIDs exist (Automated) ...... 509"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.15 Ensure no duplicate user names exist (Automated) ...... 510"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.16 Ensure no duplicate group names exist (Automated) ... 511"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message
 # - name: "6.2.17 Ensure shadow group is empty (Automated) ..... 512"
-#   when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:
 #    - name: placeholder
 #   rescue:
 #   - name: "Send failure message"
 #     debug:
 #       msg: "fail"
-#     changed_when: True
-#     notify: 
-#       - send failed message       
-
+#     changed_when: true
+#     ansible.builtin.notify: 
+#       - send failed message

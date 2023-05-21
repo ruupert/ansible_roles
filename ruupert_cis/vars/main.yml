@@ -1,5 +1,3 @@
 ---
 # vars file for ruupert.cis
-ansible_distribution_d: "{{ ansible_distribution | default('Undefined') }}"
-ansible_distribution_version_d: "{{ ansible_distribution_version | default('Undefined') }}"
 enable_aide: false
