@@ -1,6 +1,6 @@
 ---
 # defaults file for ruupert_debian11_cis
-ruupert_debian11_cis:
+ruupert_debian11_cis_def:
   ## 1.1 Filesystem Configuration - page 21
   # enable aide
   filesystem:

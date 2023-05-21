@@ -239,7 +239,7 @@
   block:
     - name: "Ensure software update policies are set"
       ansible.builtin.debug:
-        msg: "Unimplemented - perhaps instead use USBGuard here"
+        msg: "------------Unimplemented--------------"
       changed_when: true
 
     # This is using my hello module at the moment.
@@ -269,6 +269,7 @@
         owner: "root"
         group: "root"
       when: "'debian' in group_names"
+      notify: update apt cache
 
    # - name: "1.2.2 Ensure GPG keys are configured (Manual) - page 105"
    #   ansible:

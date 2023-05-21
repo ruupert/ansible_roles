@@ -25,3 +25,8 @@
     src: tmpfs
     fstype: tmpfs
   listen: mount shm
+
+- name: "APT update"
+  ansible.builtin.apt:
+    update_cache: true
+  listen: update apt cache
