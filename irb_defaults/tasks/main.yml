@@ -1,0 +1,18 @@
+---
+# tasks file for irb_defaults
+- name: "Install packages"
+  when: "'linux' in group_names"
+  block:
+    - name: "Install"
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      with_items: "{{ packages }}"
+
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "FeilFail"
+      changed_when: true
+      notify:
+        - send failed message
