@@ -2,12 +2,15 @@
 # tasks file for ruupert.apt_dist_upgrade
 
 - name: "Update packages and reboot if needed."
+  tags:
+    - never
+    - update
   block:
     - name: "Update APT package manager repositories cache"
       become: false
       ansible.builtin.apt:
         update_cache: true
-      register: apt_result
+      register: ruupert_apt_upgrade_apt_result
 
     - name: "Get upgradeable packages"
       become: false
@@ -16,9 +19,9 @@
         apt list --upgradeable | awk '{print $1"\t"$2"\t"$6}' | tr -d "]"|sed 's/\/[a-zA-Z0-9]*-[a-zA-Z0-9]*//g'
       args:
         executable: /bin/bash
-      register: package_list
+      register: ruupert_apt_upgrade_package_list
       notify: save package_list stdout to file
-      changed_when: package_list.rc != 0
+      changed_when: ruupert_apt_upgrade_package_list.rc != 0
 
     - name: "Update all packages to the latest version"
       become: false
@@ -31,13 +34,13 @@
     - name: "Check if a reboot is required"
       ansible.builtin.stat:
         path: "/var/run/reboot-required"
-      register: p
+      register: ruupert_apt_upgrade_p
 
     - name: Reboot
       become: false
       ansible.builtin.reboot:
         reboot_timeout: 600
-      when: p.stat.exists
+      when: ruupert_apt_upgrade_p.stat.exists
 
     - name: Notify handlers
       ansible.builtin.meta: flush_handlers
@@ -56,6 +59,9 @@
       ansible.builtin.meta: flush_handlers
 
 - name: "Send failed message about unreachable hosts"
+  tags:
+    - update
+    - never
   ansible.builtin.debug:
     msg: "{{ ansible_play_hosts_all | difference(ansible_play_hosts) }}"
   when: ansible_play_hosts != ansible_play_hosts_all
