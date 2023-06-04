@@ -1,0 +1,425 @@
+# # "2 Services ..... 126"
+
+# "2.1 Special Purpose Services ..... 127"
+
+# - name: "2.1.1 Time Synchronization .. 128"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "2.1.1.1 Ensure time synchronization is in use (Automated) ..... 129"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "2.1.1.2 Ensure systemd-timesyncd is configured (Manual) ...... 131"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "2.1.1.3 Ensure chrony is configured (Automated) ... 134"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "2.1.1.4 Ensure ntp is configured (Automated) ... 136"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+- name: '2.1.2 Ensure X Window System is not installed (Automated) .. 139'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure xserver-xorg* packages are not installed'
+      ansible.builtin.apt:
+        name: xserver-xorg*
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: '2.1.3 Ensure Avahi Server is not installed (Automated) ..... 140'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure avahi-daemon is not installed'
+      ansible.builtin.apt:
+        name: avahi-deamon
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: '2.1.4 Ensure CUPS is not installed (Automated)  141'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure cups is not installed'
+      ansible.builtin.apt:
+        name: cups
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: '2.1.5 Ensure DHCP Server is not installed (Automated) ..... 143'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure isc-dhcp-server is not installed'
+      ansible.builtin.apt:
+        name: isc-dhcp-server
+        state: absent
+  # other dhcp servers in this section same way
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+#
+#   Potentially issue, likelihood very low: there may be cases when LDAP server is needed.
+#
+- name: '2.1.6 Ensure LDAP server is not installed (Automated) ...... 144'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure LDAP is not installed'
+      ansible.builtin.apt:
+        name: slapd
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+#
+#   Actually an issue because some projects use NFS.
+#
+# - name: "2.1.7 Ensure NFS is not installed (Automated) .. 145"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+
+#  We have DNS servers, need to tag them in openstack metadata and ignore them in this:
+#
+# - name: "2.1.8 Ensure DNS Server is not installed (Automated) . 146"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+
+- name: '2.1.9 Ensure FTP Server is not installed (Automated) .. 147'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure vsftpd is not installed'
+      ansible.builtin.apt:
+        name: vsftpd
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+#
+
+#  We have nginxes nad apaches... so this one should not be done as such... except if tagging in openstack
+#  the servers with nginxorr apache to be ingored
+#
+# - name: "2.1.10 Ensure HTTP server is not installed (Automated) ... 148"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+
+#
+#  Postfix_present in some projects...
+#
+# - name: "2.1.11 Ensure IMAP and POP3 server are not installed (Automated) . 149"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+
+#
+#   Should remove... but need to check the use first. there is at least one server with samba installed
+#
+# - name: "2.1.12 Ensure Samba is not installed (Automated) . 151"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+- name: '2.1.13 Ensure HTTP Proxy Server is not installed (Automated) .... 152'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure squid is not installed'
+      ansible.builtin.apt:
+        name: squid
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: '2.1.14 Ensure SNMP Server is not installed (Automated) .. 153'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure snmpd is not installed'
+      ansible.builtin.apt:
+        name: snmpd
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+
+# - name: "2.1.15 Ensure mail transfer agent is configured for local-only mode (Automated) .... 155"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+
+#
+#  We use rsync
+#
+# - name: "2.1.16 Ensure rsync service is not installed (Automated) .. 157"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message to slack§§
+#
+
+- name: '2.1.17 Ensure NIS Server is not installed (Automated)  158'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure NIS is not installed'
+      ansible.builtin.apt:
+        name: nis
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+# # "2.2 Service Clients .... 159"
+
+#
+#   ISSUE: NFS is used in some projects. Do not implement or mitigate the problem.
+#
+# - name: "2.2.1 Ensure NIS Client is not installed (Automated) .... 160"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+
+- name: '2.2.2 Ensure rsh client is not installed (Automated) ..... 162'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure remote shell is not installed'
+      ansible.builtin.apt:
+        name: rsh-client
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: '2.2.3 Ensure talk client is not installed (Automated) .... 164'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure talk is not installed'
+      ansible.builtin.apt:
+        name: talk
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: '2.2.4 Ensure telnet client is not installed (Automated)  165'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure telnet is not installed'
+      ansible.builtin.apt:
+        name: telnet
+        state: absent
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+
+#
+#  Maybe in some projects in use....  so not going to be implemented at this time.
+#
+# - name: "2.2.5 Ensure LDAP client is not installed (Automated) . 167"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+
+
+# - name: "2.2.6 Ensure RPC is not installed (Automated) .. 169"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "2.3 Ensure nonessential services are removed or masked (Manual) .. 170"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message

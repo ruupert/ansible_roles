@@ -1,3 +1,0 @@
----
-# vars file for ruupert_debian11_cis
-ruupert_debian11_cis: "{{ ruupert_debian11_cis_def | ansible.builtin.combine(hostvars[inventory_hostname]['ruupert_debian_11_cis_settings'],recursive=true) }}"

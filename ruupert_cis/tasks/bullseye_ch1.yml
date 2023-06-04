@@ -8,7 +8,7 @@
   block:
     - name: "Copy modprobe blacklist file over"
       ansible.builtin.copy:
-        src: files/1.1.1/modprobe-CIS.conf
+        src: files/{{ ansible_distribution_release }}/1.1.1/modprobe-CIS.conf
         dest: /etc/modprobe.d/CIS.conf
         owner: root
         group: root
@@ -263,7 +263,7 @@
   block:
     - name: "1.2.1 Ensure package manager repositories are configured (Manual) - page 103"
       ansible.builtin.template:
-        src: "templates/apt.sources.list.j2"
+        src: "files/{{ ansible_distribution_release }}/1.2.1/apt.sources.list.j2"
         dest: "/etc/apt/sources.list"
         mode: "0644"
         owner: "root"
@@ -330,7 +330,7 @@
         state: absent
     - name: "1.5.3 Ensure Automatic Error Reporting is not enabled (Automated) - page 128"
       ansible.builtin.copy:
-        src: "files/1.5.3/apport"
+        src: "files/{{ ansible_distribution_release }}/1.5.3/apport"
         dest: /etc/default/apport
         mode: "0644"
         owner: "root"
@@ -383,7 +383,7 @@
   block:
     - name: "1.7.1 Ensure message of the day is configured properly (Automated) - page 143"
       ansible.builtin.template:
-        src: "files/1.7.4/motd.j2"
+        src: "files/{{ ansible_distribution_release }}/1.7.4/motd.j2"
         dest: "/etc/motd"
         mode: "0644"
         owner: "root"

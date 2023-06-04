@@ -1,0 +1,573 @@
+# # "5 Access, Authentication and Authorization . 350"
+
+# # "5.1 Configure time-based job schedulers .. 351"
+- name: '5.1.1 Ensure cron daemon is enabled and running (Automated) .. 352'
+  tags:
+    - cis
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  block:
+    - name: 'Ensure cron service is enabled and started'
+      ansible.builtin.systemd:
+        name: cron
+        state: started
+        enabled: true
+  rescue:
+    - name: 'Send failure message'
+      ansible.builtin.debug:
+        msg: 'fail'
+      changed_when: true
+      notify:
+        - send failed message
+# - name: "5.1.2 Ensure permissions on /etc/crontab are configured (Automated) . 354"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+
+# - name: "5.1.3 Ensure permissions on /etc/cron.hourly are configured (Automated)  356"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.1.4 Ensure permissions on /etc/cron.daily are configured (Automated) .... 358"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.1.5 Ensure permissions on /etc/cron.weekly are configured (Automated) ...... 360"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.1.6 Ensure permissions on /etc/cron.monthly are configured (Automated) ... 362"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.1.7 Ensure permissions on /etc/cron.d are configured (Automated) .... 364"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.1.8 Ensure cron is restricted to authorized users (Automated) . 366"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.1.9 Ensure at is restricted to authorized users (Automated) 368"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+
+# # "5.2 Configure sudo ... 370"
+
+# - name: "5.2.1 Ensure sudo is installed (Automated) . 371"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.2.2 Ensure sudo commands use pty (Automated) ...... 373"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.2.3 Ensure sudo log file exists (Automated) .... 375"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# # "5.3 Configure SSH Server ..... 376"
+
+# - name: "5.3.1 Ensure permissions on /etc/ssh/sshd_config are configured (Automated) .... 377"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.2 Ensure permissions on SSH private host key files are configured (Automated) ...... 379"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.3 Ensure permissions on SSH public host key files are configured (Automated) .... 381"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.4 Ensure SSH access is limited (Automated) ...... 383"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.5 Ensure SSH LogLevel is appropriate (Automated) ..... 386"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.6 Ensure SSH X11 forwarding is disabled (Automated) ...... 388"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.7 Ensure SSH MaxAuthTries is set to 4 or less (Automated) .... 390"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.8 Ensure SSH IgnoreRhosts is enabled (Automated) .... 392"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.9 Ensure SSH HostbasedAuthentication is disabled (Automated)  394"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.10 Ensure SSH root login is disabled (Automated) . 396"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.11 Ensure SSH PermitEmptyPasswords is disabled (Automated)  398"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.12 Ensure SSH PermitUserEnvironment is disabled (Automated) ...... 400"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.13 Ensure only strong Ciphers are used (Automated).. 402"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.14 Ensure only strong MAC algorithms are used (Automated)...... 405"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.15 Ensure only strong Key Exchange algorithms are used (Automated) . 408"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.16 Ensure SSH Idle Timeout Interval is configured (Automated) . 410"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.17 Ensure SSH LoginGraceTime is set to one minute or less (Automated) .... 413"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.18 Ensure SSH warning banner is configured (Automated) ..... 415"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.19 Ensure SSH PAM is enabled (Automated) ..... 416"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.20 Ensure SSH AllowTcpForwarding is disabled (Automated) ...... 418"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.21 Ensure SSH MaxStartups is configured (Automated) .... 420"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.3.22 Ensure SSH MaxSessions is limited (Automated) ..... 422"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+
+# # "5.4 Configure PAM.... 424"
+
+# - name: "5.4.1 Ensure password creation requirements are configured (Automated)  425"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.4.2 Ensure lockout for failed password attempts is configured (Automated) .. 428"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.4.3 Ensure password reuse is limited (Automated) ... 430"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.4.4 Ensure password hashing algorithm is SHA-512 (Automated) .. 431"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# # "5.5 User Accounts and Environment ... 433"
+
+# - name: "5.5.1 Set Shadow Password Suite Parameters . 434"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.5.1.1 Ensure minimum days between password changes is configured (Automated) ...... 435"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.5.1.2 Ensure password expiration is 365 days or less (Automated)  437"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.5.1.3 Ensure password expiration warning days is 7 or more (Automated) ..... 439"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.5.1.4 Ensure inactive password lock is 30 days or less (Automated) ..... 441"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.5.1.5 Ensure all users last password change date is in the past (Automated) .. 443"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.5.2 Ensure system accounts are secured (Automated) .... 444"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.5.3 Ensure default group for the root account is GID 0 (Automated) ..... 446"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.5.4 Ensure default user umask is 027 or more restrictive (Automated) ...... 447"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.5.5 Ensure default user shell timeout is 900 seconds or less (Automated)  452"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+
+# # "5.6 Ensure root login is restricted to system console (Manual) ..... 455"   # should be automatable
+
+# - name: "5.6.1 Ensure root login is restricted to system console (Manual) ..... 455"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message
+# - name: "5.7 Ensure access to the su command is restricted (Automated) .. 456"
+#   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+#   block:
+#    - name: placeholder
+#   rescue:
+#   - name: "Send failure message"
+#     debug:
+#       msg: "fail"
+#     changed_when: true
+#     ansible.builtin.notify:
+#       - send failed message

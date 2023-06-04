@@ -39,7 +39,7 @@
   block:
     - name: "2.1.3.1 Ensure systemd-timesyncd configured with authorized timeserver (Manual) - page 219"
       ansible.builtin.template:
-        src: "files/2.1.3/timesyncd.conf.j2"
+        src: "files/{{ ansible_distribution_release }}/2.1.3/timesyncd.conf.j2"
         dest: "/etc/systemd/timesyncd.conf"
         mode: "0644"
         owner: "root"
@@ -120,7 +120,7 @@
         name: "vsftpd"
         state: absent
     - name: "2.2.9 Ensure HTTP (Apache2) server is not installed (Automated) - page 253"
-      when: not ruupert_debian11_cis.special.apache2
+      when: not ruupert_debian11_cis.special.apache
       ansible.builtin.apt:
         name: "apache2"
         state: absent
