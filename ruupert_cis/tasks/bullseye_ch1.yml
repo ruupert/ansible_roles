@@ -162,7 +162,7 @@
         state: present
         src: tmpfs
         fstype: tmpfs
-      register: devshm_reg
+      register: ruupert_cis_devshm_reg
       notify:
         - remount shm
 
@@ -171,7 +171,7 @@
 
     - name: "Debug print"
       ansible.builtin.debug:
-        msg: "{{ devshm_reg }}"
+        msg: "{{ ruupert_cis_devshm_reg }}"
 
     - name: "Invoke handlers"
       ansible.builtin.meta: flush_handlers
@@ -191,17 +191,17 @@
 
 #    - name: "1.1.8.1 Ensure nodev option set on /dev/shm partition (Automated) - page 90"
 #      ansible.builtin.command: "findmnt -l --kernel /dev/shm -J"
-#      when: devshm_reg.change
+#      when: ruupert_cis_devshm_reg.change
 #      register: find_nodev_reg
 #
 #    - name: "1.1.8.2 Ensure noexec option set on /dev/shm partition (Automated) - page 92"
 #      ansible.builtin.shell: "set -o pipefail && findmnt --kernel /dev/shm|grep nodev|wc -l"
-#      when: devshm_reg.change
+#      when: ruupert_cis_devshm_reg.change
 #      register: find_noexec_reg
 #
 #    - name: "1.1.8.3 Ensure nosuid option set on /dev/shm partition (Automated) - page 94"
 #      ansible.builtin.shell: "set -o pipefail && findmnt --kernel /dev/shm|grep nodev|wc -l"
-#      when: devshm_reg.change
+#      when: ruupert_cis_devshm_reg.change
 #      register: find_nosuid_reg
 #
   rescue:

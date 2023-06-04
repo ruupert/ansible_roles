@@ -438,11 +438,12 @@
         group: root
         mode: "0644"
         backup: true
-      register: file_updated
-    - name: "Update cache" # no-handler
+      register: ruupert_cis_file_updated
+
+    - name: "Update cache" # noqa: no-handler
       ansible.builtin.apt:
         update_cache: true
-      when: file_updated.changed
+      when: ruupert_cis_file_updated.changed
   rescue:
     - name: 'Send failure message'
       ansible.builtin.debug:
@@ -469,13 +470,14 @@
 - name: '1.3.1 Ensure AIDE is installed (Automated) ... 73'
   tags:
     - cis
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04" and enable_aide == true
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04" and enable_aide
   block:
     - name: 'Ensure AIDE is installed'
       ansible.builtin.apt:
         name: aide
         state: present
       register: aide_presence
+
     - name: 'Copy aide.conf to remote with /mnt/prometheus ignored'
       ansible.builtin.copy:
         src: files/{{ ansible_distribution_release }}/1.3.1/aide.conf
@@ -485,11 +487,13 @@
         mode: "0644"
         backup: true
       register: aide_copy_conf
+
     - name: 'Check /var/lib/aide/aide.db existence'
       ansible.builtin.stat:
         path: /var/lib/aide/aide.db
       register: aide_db_presence
-    - name: 'Initialize AIDE local database' # no-handler
+
+    - name: 'Initialize AIDE local database' # noqa: no-changed-when
       ansible.builtin.command: aideinit
       when: aide_db_presence.stat.exists
   rescue:
@@ -503,7 +507,7 @@
 - name: '1.3.1 Ensure AIDE is not installed. Disabled as AIDE should be configured too (Automated) ... 73'
   tags:
     - cis
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04" and enable_aide == false
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04" and not enable_aide
   block:
     - name: 'Ensure AIDE is not installed'
       ansible.builtin.apt:
@@ -523,7 +527,7 @@
 - name: '1.3.2 Ensure filesystem integrity is regularly checked (Automated) .... 75'
   tags:
     - cis
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04" and enable_aide == true
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04" and enable_aide
   block:
     - name: 'Check that /etc/cron.daily/aide path exists - crude solution, may need attention'
       ansible.builtin.stat:
