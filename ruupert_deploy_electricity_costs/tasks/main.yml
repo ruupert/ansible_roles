@@ -12,6 +12,8 @@
       ansible.builtin.apt:
         pkg:
           - "git"
+          - "python3"
+          - "virtualenv"
           - "python3-virtualenv"
           - "sqlite3"
         state: "present"
@@ -42,6 +44,14 @@
       become_user: "{{ electricity_costs_user }}"
       become: true
 
+    - name: "Ensure virtualenv dir is present"
+      ansible.builtin.file:
+        name: "{{ electricity_costs_home }}/venv"
+        mode: "0700"
+        owner: "{{ electricity_costs_user }}"
+        group: "{{ electricity_costs_user }}"
+        state: directory
+
     - name: "Install python-venv"
       ansible.builtin.pip:
         requirements: "{{ electricity_costs_home }}/app/requirements.txt"
@@ -66,6 +76,14 @@
         owner: "{{ electricity_costs_user }}"
         group: "{{ electricity_costs_user }}"
 
+    - name: "Create run.sh"
+      ansible.builtin.template:
+        src: "templates/run.sh.j2"
+        dest: "{{ electricity_costs_home }}/run.sh"
+        mode: "0700"
+        owner: "{{ electricity_costs_user }}"
+        group: "{{ electricity_costs_user }}"
+
     - name: "Add cronjob"
       ansible.builtin.cron:
         name: Fetch electricity_costs
@@ -73,7 +91,7 @@
         minute: "5"
         hour: "15"
         user: "{{ electricity_costs_user }}"
-        job: "cd {{ electricity_costs_home }}/app && {{ electricity_costs_home }}/venv/bin/{{ electricity_costs_pyver }} main.py --config {{ electricity_costs_home }}/app/.config.yaml"
+        job: "{{ electricity_costs_home }}/run.sh"
         cron_file: electricity_costs_cron
 
   rescue:
