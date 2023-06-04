@@ -2,6 +2,8 @@
 # tasks file for ruupert_iptables
 
 - name: "TCP: Allow established, related and inbound traffic"
+  tags:
+    - firewall
   block:
     - name: "Allow related and established connections"
       ansible.builtin.iptables:
@@ -19,8 +21,8 @@
         syn: match
         jump: ACCEPT
         comment: "Accept new connections to port {{ item.port }}."
-      with_items: "{{ hostvars[inventory_hostname]['host_vars_iptables'] }}"
-      when: hostvars[inventory_hostname]['host_vars_iptables'] is defined
+      with_items: "{{ hostvars[inventory_hostname]['allow_iptables'] }}"
+      when: hostvars[inventory_hostname]['allow_iptables'] is defined
 
   rescue:
     - name: "Feil"
@@ -31,6 +33,8 @@
         - send failed message
 
 - name: "Set default INPUT chain policy to DROP"
+  tags:
+    - firewall
   block:
     - name: "Allow management IP"
       ansible.builtin.iptables:
@@ -42,14 +46,14 @@
         syn: match
         jump: ACCEPT
         comment: Accept management SSH connections.
-      register: reg_mgmt
+      register: ruupert_iptables_reg_mgmt
       with_items: "{{ hostvars[inventory_hostname]['mgmt_iptables'] }}"
 
     - name: "Set the policy for the INPUT chain to DROP"
       ansible.builtin.iptables:
         chain: INPUT
         policy: DROP
-      when: not reg_mgmt.results[0].failed
+      when: not ruupert_iptables_reg_mgmt.results[0].failed
   rescue:
     - name: "Feil"
       ansible.builtin.debug:

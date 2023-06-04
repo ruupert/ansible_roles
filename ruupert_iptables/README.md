@@ -34,7 +34,7 @@ Override default mgmt ip in host_vars/<host>.yml
 
 And then per host allows in similarly in host_vars/<host>.yml:
 ```
-host_vars_iptables:
+allow_iptables:
   allow:
     tcp:
       - port: 22
