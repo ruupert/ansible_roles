@@ -245,7 +245,7 @@
   block:
     - name: 'Copy modprobe blacklist file over'
       ansible.builtin.copy:
-        src: "files/{{ ansible_distribution_release }}3.4/uncommon.conf"
+        src: "files/{{ ansible_distribution_release }}/3.4/uncommon.conf"
         dest: /etc/modprobe.d/uncommon.conf
         owner: root
         group: root
