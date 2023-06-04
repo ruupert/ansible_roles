@@ -36,6 +36,7 @@
       changed_when: true
       notify:
         - send failed message
+
 - name: "3.2 Network Parameters (Host Only) - page 309"
   tags:
     - cis
@@ -63,6 +64,7 @@
       changed_when: true
       notify:
         - send failed message
+
 - name: "3.3 Network Parameters (Host and Router) - page 320"
   tags:
     - cis
@@ -150,6 +152,7 @@
       changed_when: true
       notify:
         - send failed message
+
 # # 3.5 Firewall Configuration - page 363
 # - name: "3.5.1 Configure UncomplicatedFirewall - page 364"
 #   tags:
@@ -176,6 +179,7 @@
 #       changed_when: true
 #       notify:
 #         - send failed message
+
 # - name: "3.5.2 Configure nftables - page 380"
 #   tags:
 #     - cis
@@ -208,6 +212,7 @@
 #       notify:
 #         - send failed message
 
+
 # # 3.5.3 Configure iptables - page 405
 
 # - name: "3.5.3.1 Configure iptables software - page 406"
@@ -228,6 +233,7 @@
 #       notify:
 #         - send failed message
 
+
 # - name: "3.5.3.2 Configure IPv4 iptables - page 413"
 #   tags:
 #     - cis
@@ -247,6 +253,7 @@
 #       changed_when: true
 #       notify:
 #         - send failed message
+
 
 # - name: "3.5.3.3 Configure IPv6 ip6tables - page 423"
 #   tags:

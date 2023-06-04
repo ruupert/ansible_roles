@@ -245,10 +245,10 @@
     # This is using my hello module at the moment.
     # Problem: Supposedly manually check apt-cache policy repos for unapproved domains
     # Solve: By regex matching all domains found in apt-cache policy output for any repo that is not ending debian.org.
-   # - name: "Ensure software update policies are set"
-   #   my_info:
-   #     apt_policy: "check"
-   #     new: false
+    # - name: "Ensure software update policies are set"
+    #   my_info:
+    #     apt_policy: "check"
+    #     new: false
   rescue:
     - name: "Fail"
       ansible.builtin.debug:
@@ -271,8 +271,8 @@
       when: "'debian' in group_names"
       notify: update apt cache
 
-   # - name: "1.2.2 Ensure GPG keys are configured (Manual) - page 105"
-   #   ansible:
+    # - name: "1.2.2 Ensure GPG keys are configured (Manual) - page 105"
+    #   ansible:
 
   rescue:
     - name: "Fail"

@@ -48,7 +48,6 @@
         name: rtorrent
       when: systemd_unit_reg.changed or rtorrentrc_reg.changed
 
-
   rescue:
     - name: "Fail"
       ansible.builtin.debug:

@@ -18,6 +18,7 @@
       changed_when: true
       notify:
         - send failed message
+
 # - name: "5.1.2 Ensure permissions on /etc/crontab are configured (Automated) . 354"
 #   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:

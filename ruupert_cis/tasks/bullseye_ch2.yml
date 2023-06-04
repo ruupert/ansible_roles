@@ -16,6 +16,7 @@
 #       changed_when: true
 #       notify:
 #         - send failed message
+
 # - name: "2.1.2 Configure chrony - page 209"
 #   tags:
 #     - cis
@@ -33,6 +34,7 @@
 #       changed_when: true
 #       notify:
 #         - send failed message
+
 - name: "2.1.3 Configure systemd-timesyncd - page 217"
   tags:
     - cis
@@ -56,6 +58,7 @@
       changed_when: true
       notify:
         - send failed message
+
 # - name: "2.1.4 Configure ntp - page 225"
 #   tags:
 #     - cis
@@ -75,6 +78,7 @@
 #       changed_when: true
 #       notify:
 #         - send failed message
+
 - name: "2.2 Special Purpose Services - page 237"
   tags:
     - cis
@@ -180,6 +184,7 @@
       changed_when: true
       notify:
         - send failed message
+
 - name: "2.3 Service Clients - page 269"
   tags:
     - cis
