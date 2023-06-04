@@ -1,99 +1,94 @@
 ---
 # tasks file for ruupert.ansible-bootstrap
-- name: Test for ansible
-  ignore_errors: yes
-  local_action: shell ssh -o PasswordAuthentication=no -o StrictHostKeyChecking=no ansible@{{ ansible_host }} "echo success"
+- name: "Test for ansible" # noqa: no-changed-when
+  ansible.builtin.command:
+    cmd: shell ssh -o PasswordAuthentication=no -o StrictHostKeyChecking=no ansible@{{ ansible_host }} "echo success"
+  delegate_to: localhost
+  ignore_errors: true
   register: ansible_enabled
 
-## Is this Ubuntu?
-- name: Test for ubuntu
-  ignore_errors: yes
-  local_action: shell ssh -o PasswordAuthentication=no -o StrictHostKeyChecking=no ubuntu@{{ ansible_host }} "echo success"
+- name: "Test for ubuntu" # noqa: no-changed-when
+  ansible.builtin.command:
+    cmd: shell ssh -o PasswordAuthentication=no -o StrictHostKeyChecking=no ubuntu@{{ ansible_host }} "echo success"
+  delegate_to: localhost
+  ignore_errors: true
   register: ubuntu_enabled
 
-
-## Is this Centos? 
-- name: Test for centos
-  ignore_errors: yes
-  local_action: shell ssh -o PasswordAuthentication=no -o StrictHostKeyChecking=no centos@{{ ansible_host }} "echo success"
+- name: "Test for centos" # noqa: no-changed-when
+  ansible.builtin.command:
+    cmd: shell ssh -o PasswordAuthentication=no -o StrictHostKeyChecking=no centos@{{ ansible_host }} "echo success"
+  delegate_to: localhost
+  ignore_errors: true
   register: centos_enabled
-
-
-## Ubuntu specific
 
 - name: "Ubuntu host ansible user creation"
   when: (ansible_enabled.stdout.find("success") != 0) and (ubuntu_enabled.stdout.find("success") != -1)
   block:
-  - name: "Ubuntu: Create ansible account"
-    remote_user: ubuntu
-    become: True
-    ansible.builtin.user:
-      name: ansible
-      groups: "adm"
-      shell: /bin/bash
-  
-  - name: "Ubuntu: Allow admin users to sudo without a password"
-    remote_user: ubuntu
-    become: True
-    lineinfile:
-      dest: "/etc/sudoers" 
-      state: "present"
-      regexp: "^%adm"
-      line: "%adm ALL=(ALL) NOPASSWD: ALL"
-  
-  - name: "Ubuntu: Set authorized key taken from file for ansible user"
-    remote_user: ubuntu
-    become: True
-    ansible.posix.authorized_key:
-      exclusive: yes
-      user: ansible
-      state: present
-      key: "{{ ansible_public_key }}"
-  
+    - name: "Ubuntu: Create ansible account"
+      remote_user: ubuntu
+      become: true
+      ansible.builtin.user:
+        name: ansible
+        groups: "adm"
+        shell: /bin/bash
+
+    - name: "Ubuntu: Allow admin users to sudo without a password"
+      remote_user: ubuntu
+      become: true
+      ansible.builtin.lineinfile:
+        dest: "/etc/sudoers"
+        state: "present"
+        regexp: "^%adm"
+        line: "%adm ALL=(ALL) NOPASSWD: ALL"
+
+    - name: "Ubuntu: Set authorized key taken from file for ansible user"
+      remote_user: ubuntu
+      become: true
+      ansible.posix.authorized_key:
+        exclusive: true
+        user: ansible
+        state: present
+        key: "{{ ansible_public_key }}"
+
   rescue:
-  - name: "Send failure message"
-    debug:
-      msg: "fail"
-    changed_when: True
-    notify: send failed message
-  
-
-
-## Centos specific
+    - name: "Send failure message"
+      ansible.builtin.debug:
+        msg: "fail"
+      changed_when: true
+      notify: send failed message
 
 - name: "Centos host ansible user creation"
   when: (ansible_enabled.stdout.find("success") != 0) and (centos_enabled.stdout.find("success") != -1)
   block:
-  - name: "Centos: Create ansible account"
-    remote_user: centos
-    become: True
-    ansible.builtin.user:
-      name: ansible
-      groups: "adm"
-      shell: /bin/bash
-  
-  - name: "Centos: Allow admin users to sudo without a password"
-    remote_user: centos
-    become: True
-    lineinfile:
-      dest: "/etc/sudoers"
-      state: "present"
-      regexp: "^%adm"
-      line: "%adm ALL=(ALL) NOPASSWD: ALL"
-  
-  - name: "Centos: Set authorized key taken from file for ansible user"
-    remote_user: centos
-    become: True
-    ansible.posix.authorized_key:
-      exclusive: yes
-      user: ansible
-      state: present
-      key: "{{ ansible_public_key }}"
+    - name: "Centos: Create ansible account"
+      remote_user: centos
+      become: true
+      ansible.builtin.user:
+        name: ansible
+        groups: "adm"
+        shell: /bin/bash
+
+    - name: "Centos: Allow admin users to sudo without a password"
+      remote_user: centos
+      become: true
+      ansible.builtin.lineinfile:
+        dest: "/etc/sudoers"
+        state: "present"
+        regexp: "^%adm"
+        line: "%adm ALL=(ALL) NOPASSWD: ALL"
+
+    - name: "Centos: Set authorized key taken from file for ansible user"
+      remote_user: centos
+      become: true
+      ansible.posix.authorized_key:
+        exclusive: true
+        user: ansible
+        state: present
+        key: "{{ ansible_public_key }}"
 
   rescue:
-  - name: "Send failure message"
-    debug:
-      msg: "fail"
-    changed_when: True
-    notify: send failed message
-
+    - name: "Send failure message"
+      ansible.builtin.debug:
+        msg: "fail"
+      changed_when: true
+      notify: send failed message
