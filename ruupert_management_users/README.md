@@ -15,7 +15,7 @@ Role Variables
 
     users: [{username:"",public_key:""},...]
     remove_users: ["username", ...]
-    root_password: "<password hash>"
+    root_password_hash: "<password hash>"
 
 Dependencies
 ------------

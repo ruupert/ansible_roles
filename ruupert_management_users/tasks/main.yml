@@ -2,53 +2,53 @@
 # tasks file for ruupert.management-users
 
 - name: "Management users"
-  when: ansible_distribution_d == "Ubuntu" and ansible_distribution_version_d == "18.04"
+  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
   block:
+    - name: "Ensure adm group exists"
+      ansible.builtin.group:
+        name: "adm"
+        state: "present"
 
-   - name: "Ensure adm group exists"
-     ansible.builtin.group:
-      name: "adm"
-      state: "present"
+    - name: "Create user accounts"
+      ansible.builtin.user:
+        name: "{{ item['username'] }}"
+        groups:
+          - "adm"
+        shell: /bin/bash
+      with_items: "{{ users | list }}"
 
-   - name: "Create user accounts"
-     ansible.builtin.user:
-      name: "{{ item['username'] }}"
-      groups:
-       - "adm"
-      shell: /bin/bash
-     with_items: "{{ users | list }}"
+    - name: "Add authorized keys"
+      ansible.posix.authorized_key:
+        user: "{{ item['username'] }}"
+        key: "{{ item['public_key'] }}"
+        state: present
+        exclusive: true
+      with_items: "{{ users | list }}"
 
-   - name: "Add authorized keys"
-     ansible.posix.authorized_key:
-      user: "{{ item['username'] }}"
-      key: "{{ item['public_key'] }}"
-      state: present
-      exclusive: true
-     with_items: "{{ users | list }}"
+    - name: "Allow adm users to sudo without a password"
+      ansible.builtin.lineinfile:
+        dest: "/etc/sudoers" # path: in version 2.3
+        state: "present"
+        regexp: "^%adm"
+        line: "%adm ALL=(ALL) NOPASSWD: ALL"
 
-   - name: "Allow adm users to sudo without a password"
-     ansible.builtin.lineinfile:
-      dest: "/etc/sudoers" # path: in version 2.3
-      state: "present"
-      regexp: "^%adm"
-      line: "%adm ALL=(ALL) NOPASSWD: ALL"
+    - name: "Remove old user accounts in remove_users"
+      ansible.builtin.user:
+        name: "{{ item }}"
+        state: "absent"
+      with_items: "{{ remove_users }}"
 
-   - name: "Remove old user accounts in remove_users"
-     ansible.builtin.user:
-      name: "{{ item }}"
-      state: "absent"
-     with_items: "{{ remove_users }}"
-
-   - name: "Change root password"
-     ansible.builtin.user:
-      name: root
-      update_password: always
-      password: "{{ root_password }}"
+    - name: "Change root password"
+      ansible.builtin.user:
+        name: root
+        update_password: always
+        password: "{{ root_password_hash }}"
+      when: root_password_hash is defined
 
   rescue:
-   - name: "Feil"
-     ansible.builtin.debug:
-      msg: "Something went wrong"
-     changed_when: true
-     notify:
-      - send failed message
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
