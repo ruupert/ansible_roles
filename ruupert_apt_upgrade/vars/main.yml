@@ -1,4 +1,4 @@
 ---
-# vars file for ruupert.apt_dist_upgrade
+# vars file for ruupert_apt_dist_upgrade
 ansible_distribution_d: "{{ ansible_distribution | default('Undefined') }}"
 ansible_distribution_version_d: "{{ ansible_distribution_version | default('Undefined') }}"

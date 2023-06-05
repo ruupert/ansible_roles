@@ -1,5 +1,5 @@
 ---
-# handlers file for ruupert.reusable-handlers
+# handlers file for ruupert_reusable_handlers
 
 - name: "Save result stdout to file"
   ansible.builtin.copy:

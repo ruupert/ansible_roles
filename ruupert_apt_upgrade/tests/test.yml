@@ -2,4 +2,4 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - ruupert.apt_dist_upgrade
+    - ruupert_apt_dist_upgrade

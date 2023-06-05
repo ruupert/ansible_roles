@@ -1,5 +1,5 @@
-ruupert.reusable-handlers
-=========
+ruupert_reusable_handlers
+=========================
 
 Provides reusable handlers for sending error messages to slack and teams. 
 
@@ -29,7 +29,7 @@ Example usage in a role:
 Set dependency in your role (meta/main.yml) as follows:
 
     dependencies:
-      - { role: ruupert.reusable-handlers }
+      - { role: ruupert_reusable_handlers }
 
 In your role tasks do a block-rescue where in your rescue in case of failure:
 

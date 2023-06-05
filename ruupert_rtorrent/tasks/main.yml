@@ -1,5 +1,5 @@
 ---
-# tasks file for ruupert.rtorrent
+# tasks file for ruupert_rtorrent
 
 - name: "Install and configure rtorrent"
   block:
@@ -25,7 +25,7 @@
         owner: "ruupert"
         group: "ruupert"
         mode: "0600"
-      register: rtorrentrc_reg
+      register: ruupert_rtorrent_rc_reg
 
     - name: "Write or update systemd rtorrent.service unit file"
       ansible.builtin.template:
@@ -34,7 +34,7 @@
         owner: "root"
         group: "root"
         mode: "0755"
-      register: systemd_unit_reg
+      register: ruupert_rtorrent_systemd_unit_reg
 
     - name: "Start service rtorrent.service"
       ansible.builtin.systemd:
@@ -46,7 +46,7 @@
       ansible.builtin.systemd:
         state: restarted
         name: rtorrent
-      when: systemd_unit_reg.changed or rtorrentrc_reg.changed
+      when: ruupert_rtorrent_systemd_unit_reg.changed or ruupert_rtorrent_rc_reg.changed
 
   rescue:
     - name: "Fail"

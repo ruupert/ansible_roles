@@ -494,7 +494,7 @@
         group: root
         mode: "0644"
         backup: true
-      register: aide_copy_conf
+      register: ruupert_cis_aide_copy_conf
 
     - name: 'Check /var/lib/aide/aide.db existence'
       ansible.builtin.stat:

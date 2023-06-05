@@ -1,4 +1,4 @@
-ruupert.management-users
+ruupert_management_users
 ========================
 
 Ensures that local management users are added with their public keys and ensures other usesrs are not present. Also sets root password.
@@ -20,7 +20,7 @@ Role Variables
 Dependencies
 ------------
 
-    ruupert.reusable-handlers
+    ruupert_reusable_handlers
 
 Example
 -------
@@ -28,7 +28,7 @@ Example
 In your role meta/main.yml:
 
     dependencies:
-      - { role: ruupert.reusable-handlers }
+      - { role: ruupert_reusable_handlers }
 
 Variables for adding management users and ensuring other management users are not present anymore:
 

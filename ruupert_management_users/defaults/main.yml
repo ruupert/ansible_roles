@@ -1,4 +1,4 @@
 ---
-# defaults file for ruupert.management-users
+# defaults file for ruupert_management_users
 users: []
 remove_users: []

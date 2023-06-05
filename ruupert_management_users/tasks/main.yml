@@ -1,5 +1,5 @@
 ---
-# tasks file for ruupert.management-users
+# tasks file for ruupert_management_users
 
 - name: "Management users"
   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"

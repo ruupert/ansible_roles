@@ -1,5 +1,5 @@
 ---
-# defaults file for ruupert.cis
+# defaults file for ruupert_cis
 ruupert_debian11_cis_def:
   ## 1.1 Filesystem Configuration - page 21
   # enable aide

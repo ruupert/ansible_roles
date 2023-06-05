@@ -1,5 +1,5 @@
 ---
-# defaults file for ruupert.rtorrent
+# defaults file for ruupert_rtorrent
 rtorrent:
   user: "rtorrent"
   home: "/opt/rtorrent"

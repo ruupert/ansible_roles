@@ -1,5 +1,5 @@
 ---
-# tasks file for ruupert.ansible-bootstrap
+# tasks file for ruupert_ansible_bootstrap
 - name: "Test for ansible" # noqa: no-changed-when
   ansible.builtin.command:
     cmd: shell ssh -o PasswordAuthentication=no -o StrictHostKeyChecking=no ansible@{{ ansible_host }} "echo success"

@@ -1,5 +1,5 @@
 ---
-# tasks file for ruupert.apt_dist_upgrade
+# tasks file for ruupert_apt_dist_upgrade
 
 - name: "Update packages and reboot if needed."
   tags:

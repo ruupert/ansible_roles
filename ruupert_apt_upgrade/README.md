@@ -1,4 +1,4 @@
-ruupert.apt_dist_upgrade
+ruupert_apt_dist_upgrade
 ========================
 
 Upgrades Ubuntu 18.04 packages and reboots the hosts if needed.
@@ -17,7 +17,7 @@ None at the moment
 Dependencies
 ------------
 
-    ruupert.reusable-handlers
+    ruupert_reusable_handlers
 
 Example
 -------

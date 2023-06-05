@@ -1,4 +1,4 @@
-ruupert.ansible-bootstrap
+ruupert_ansible_bootstrap
 =========================
 
 A slightly naive role for creating the ansible user for the standard cloud image based Ubuntu and Centos servers.
@@ -18,7 +18,7 @@ Role Variables
 Dependencies
 ------------
 
-    ruupert.reusable-handlers
+    ruupert_reusable_handlers
 
 Example
 -------
@@ -26,5 +26,5 @@ Example
 In your role meta/main.yml:
 
     dependencies:
-      - { role: ruupert.reusable-handlers }
+      - { role: ruupert_reusable_handlers }
 
