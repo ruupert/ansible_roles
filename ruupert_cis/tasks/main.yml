@@ -46,12 +46,6 @@
 
 - name: "1. Initial setup"
   tags:
-    - cis_audit
-  ansible.builtin.include_tasks:
-    file: "tasks/{{ ansible_distribution_release }}_audit_ch1.yml"
-
-- name: "1. Initial setup"
-  tags:
     - cis
   ansible.builtin.include_tasks:
     file: "tasks/{{ ansible_distribution_release }}_ch1.yml"
