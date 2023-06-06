@@ -19,6 +19,24 @@
       notify:
         - send failed message
 
+- name: "Time"
+  tags:
+    - defaults
+  when: "'linux' in group_names"
+  block:
+    - name: "Set timezone"
+      community.general.timezone:
+        name: "{{ timezone }}"
+
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "FeilFail"
+      changed_when: true
+      notify:
+        - send failed message
+
+
 - name: "Configure sshd"
   tags:
     - defaults
@@ -33,12 +51,13 @@
         group: "root"
       register: ruupert_irb_sshd_config_reg
 
-    - name: "Check verify sshd_config_tmp"
+    - name: "Check verify sshd_config_tmp" # noqa: no-handler
       ansible.builtin.command:
         cmd: "sshd -t -f /etc/ssh/sshd_config_tmp"
-      failed_when: ruupert_irb_sshd_config_reg.rc != 0
+      when: ruupert_irb_sshd_config_reg.changed
+      failed_when: ruupert_irb_sshd_config_tmp_reg.rc != 0
       changed_when: ruupert_irb_sshd_config_reg.changed
-      register: ruupert_irb_sshd_config_reg
+      register: ruupert_irb_sshd_config_tmp_reg
 
     - name: "Copy tmp file over current sshd_config" # noqa: no-handler
       ansible.builtin.copy:
@@ -48,7 +67,9 @@
         mode: "0644"
         owner: "root"
         group: "root"
-      when: ruupert_irb_sshd_config_reg.changed
+      when:
+        - ruupert_irb_sshd_config_reg.changed
+        - ruupert_irb_sshd_config_tmp_reg.rc != 0
       notify:
         - restart sshd
   rescue:
