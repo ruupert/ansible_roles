@@ -1,2 +1,7 @@
 ---
 # handlers file for irb_defaults
+- name: "Restart sshd server"
+  ansible.builtin.service:
+    name: sshd
+    state: restarted
+  listen: restart sshd

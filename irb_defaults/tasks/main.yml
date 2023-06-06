@@ -1,6 +1,8 @@
 ---
 # tasks file for irb_defaults
 - name: "Install packages"
+  tags:
+    - defaults
   when: "'linux' in group_names"
   block:
     - name: "Install"
@@ -9,6 +11,46 @@
         state: present
       with_items: "{{ packages }}"
 
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "FeilFail"
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: "Configure sshd"
+  tags:
+    - defaults
+  when: "'linux' in group_names"
+  block:
+    - name: "Write templated sshd_config_tmp"
+      ansible.builtin.template:
+        src: "templates/sshd_config.j2"
+        dest: "/etc/ssh/sshd_config_tmp"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      register: ruupert_irb_sshd_config_reg
+
+    - name: "Check verify sshd_config_tmp"
+      ansible.builtin.command:
+        cmd: "sshd -t -f /etc/ssh/sshd_config_tmp"
+      failed_when: ruupert_irb_sshd_config_reg.rc != 0
+      changed_when: ruupert_irb_sshd_config_reg.changed
+      register: ruupert_irb_sshd_config_reg
+
+    - name: "Copy tmp file over current sshd_config" # noqa: no-handler
+      ansible.builtin.copy:
+        src: "/etc/ssh/sshd_config_tmp"
+        dest: "/etc/ssh/sshd_config"
+        remote_src: true
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      when: ruupert_irb_sshd_config_reg.changed
+      notify:
+        - restart sshd
   rescue:
     - name: "Feil"
       ansible.builtin.debug:
