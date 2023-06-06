@@ -169,13 +169,6 @@
     - name: "Invoke handlers"
       ansible.builtin.meta: flush_handlers
 
-    - name: "Debug print"
-      ansible.builtin.debug:
-        msg: "{{ ruupert_cis_devshm_reg }}"
-
-    - name: "Invoke handlers"
-      ansible.builtin.meta: flush_handlers
-
     # - name: "Findmnt findmnt -l --kernel /dev/shm -J"
     #   ansible.builtin.command: "findmnt -l --kernel /dev/shm -J"
     #   changed_when: findmnt_reg.rc == -1
