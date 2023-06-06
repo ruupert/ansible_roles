@@ -2,3 +2,4 @@
 # defaults file for ruupert_management_users
 users: []
 remove_users: []
+use_sudo: false

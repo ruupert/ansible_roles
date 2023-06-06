@@ -2,7 +2,9 @@
 # tasks file for ruupert_management_users
 
 - name: "Management users"
-  when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
+  tags:
+    - mgmt_users
+  when: ansible_distribution_release == "bionic" or ansible_distribution_release or "bullseye"
   block:
     - name: "Ensure adm group exists"
       ansible.builtin.group:
@@ -12,6 +14,7 @@
     - name: "Create user accounts"
       ansible.builtin.user:
         name: "{{ item['username'] }}"
+        password: "{{ item['password_hash'] }}"
         groups:
           - "adm"
         shell: /bin/bash
@@ -31,6 +34,7 @@
         state: "present"
         regexp: "^%adm"
         line: "%adm ALL=(ALL) NOPASSWD: ALL"
+      when: use_sudo
 
     - name: "Remove old user accounts in remove_users"
       ansible.builtin.user:
@@ -41,7 +45,6 @@
     - name: "Change root password"
       ansible.builtin.user:
         name: root
-        update_password: always
         password: "{{ root_password_hash }}"
       when: root_password_hash is defined
 
