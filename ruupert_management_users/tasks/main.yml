@@ -12,6 +12,7 @@
         state: "present"
 
     - name: "Create user accounts"
+      no_log: true
       ansible.builtin.user:
         name: "{{ item['username'] }}"
         password: "{{ item['password_hash'] }}"
@@ -21,6 +22,7 @@
       with_items: "{{ users | list }}"
 
     - name: "Add authorized keys"
+      no_log: true
       ansible.posix.authorized_key:
         user: "{{ item['username'] }}"
         key: "{{ item['public_key'] }}"
@@ -55,3 +57,6 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
