@@ -1,2 +1,18 @@
 ---
 # handlers file for ruupert_apt_dist_upgrade
+
+- name: "Save result stdout to file"
+  ansible.builtin.copy:
+    content: "{{ result.stdout }}"
+    dest: "{{ reusable_handlers_logdir }}/{{ ansible_hostname }}.update.log"
+    mode: "0755"
+  delegate_to: localhost
+  listen: "save result stdout to file"
+
+- name: "Save package_list stdout to file"
+  ansible.builtin.copy:
+    content: "{{ result.stdout }}"
+    dest: "{{ reusable_handlers_logdir }}/{{ ansible_hostname }}.package_list.log"
+    mode: "0755"
+  delegate_to: localhost
+  listen: "save package_list stdout to file"
