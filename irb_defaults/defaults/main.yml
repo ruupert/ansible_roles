@@ -2,3 +2,4 @@
 # defaults file for irb_defaults
 sshd_password_authentication: true
 timezone: "Europe/Helsinki"
+apt_debian: "http://ftp.debian.org"

@@ -1,5 +1,32 @@
 ---
 # tasks file for irb_defaults
+
+- name: "Configure APT sources.list"
+  tags:
+    - cis
+  block:
+    - name: "Configure APT sources.list | Write templated file"
+      ansible.builtin.template:
+        src: "files//apt.sources.list.j2"
+        dest: "/etc/apt/sources.list"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      when: "'debian' in group_names"
+      notify: update apt cache
+
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Something went wrong"
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
+
+
 - name: "Install packages"
   tags:
     - defaults
@@ -19,6 +46,9 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
+
 - name: "Time"
   tags:
     - defaults
@@ -36,6 +66,9 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
+
 
 - name: "Configure sshd"
   tags:
@@ -49,15 +82,15 @@
         mode: "0644"
         owner: "root"
         group: "root"
-      register: ruupert_irb_sshd_config_reg
+      register: irb_defaults_sshd_config_reg
 
     - name: "Check verify sshd_config_tmp" # noqa: no-handler
       ansible.builtin.command:
         cmd: "sshd -t -f /etc/ssh/sshd_config_tmp"
-      when: ruupert_irb_sshd_config_reg.changed
-      failed_when: ruupert_irb_sshd_config_tmp_reg.rc != 0
-      changed_when: ruupert_irb_sshd_config_reg.changed
-      register: ruupert_irb_sshd_config_tmp_reg
+      when: irb_defaults_sshd_config_reg.changed
+      failed_when: irb_defaults_sshd_config_tmp_reg.rc != 0
+      changed_when: irb_defaults_sshd_config_reg.changed
+      register: irb_defaults_sshd_config_tmp_reg
 
     - name: "Copy tmp file over current sshd_config" # noqa: no-handler
       ansible.builtin.copy:
@@ -68,8 +101,8 @@
         owner: "root"
         group: "root"
       when:
-        - ruupert_irb_sshd_config_reg.changed
-        - ruupert_irb_sshd_config_tmp_reg.rc != 0
+        - irb_defaults_sshd_config_reg.changed
+        - irb_defaults_sshd_config_tmp_reg.rc != 0
       notify:
         - restart sshd
   rescue:
@@ -79,3 +112,6 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers

@@ -5,3 +5,8 @@
     name: sshd
     state: restarted
   listen: restart sshd
+
+- name: "APT update"
+  ansible.builtin.apt:
+    update_cache: true
+  listen: update apt cache
