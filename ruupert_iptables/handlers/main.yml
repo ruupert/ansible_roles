@@ -1,2 +1,7 @@
 ---
 # handlers file for ruupert_iptables
+
+- name: "IPtables-save" # noqa: no-changed-when
+  ansible.builtin.command:
+    cmd: "/sbin/iptables-save"
+  listen: iptables-save

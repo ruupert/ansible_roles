@@ -1,6 +1,15 @@
 ---
 # tasks file for ruupert_iptables
 
+- name: "Dependencies"
+  tags:
+    - firewall
+  ansible.builtin.apt:
+    pkg:
+      - iptables
+      - iptables-persistent
+    state: present
+
 - name: "TCP: Allow established, related and inbound traffic"
   tags:
     - firewall
@@ -10,6 +19,8 @@
         chain: INPUT
         ctstate: ESTABLISHED,RELATED
         jump: ACCEPT
+      register: ruupert_iptables_reg_related
+      notify: iptables-save
 
     - name: "Allow new incoming SYN packets TCP"
       ansible.builtin.iptables:
@@ -22,6 +33,8 @@
         jump: ACCEPT
         comment: "Accept new connections to port {{ item.port }}."
       with_items: "{{ hostvars[inventory_hostname]['allow_iptables'] }}"
+      register: ruupert_iptables_reg_allows
+      notify: iptables-save
       when: hostvars[inventory_hostname]['allow_iptables'] is defined
 
   rescue:
@@ -31,6 +44,9 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
 
 - name: "Set default INPUT chain policy to DROP"
   tags:
@@ -47,13 +63,16 @@
         jump: ACCEPT
         comment: Accept management SSH connections.
       register: ruupert_iptables_reg_mgmt
+      notify: iptables-save
       with_items: "{{ hostvars[inventory_hostname]['mgmt_iptables'] }}"
 
     - name: "Set the policy for the INPUT chain to DROP"
       ansible.builtin.iptables:
         chain: INPUT
         policy: DROP
+      notify: iptables-save
       when: not ruupert_iptables_reg_mgmt.results[0].failed
+
   rescue:
     - name: "Feil"
       ansible.builtin.debug:
@@ -61,3 +80,6 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
