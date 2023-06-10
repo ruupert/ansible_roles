@@ -1,2 +1,31 @@
 ---
 # handlers file for ruupert_cis
+- name: "Restart systemd timesynchd service"
+  ansible.builtin.service:
+    name: "systemd-timesyncd"
+    state: restarted
+  listen: restart timesyncd-service
+
+- name: "Unmount shm"
+  ansible.posix.mount:
+    path: /dev/shm
+    opts: "nodev,noexec,nosuid"
+    state: unmounted
+    src: tmpfs
+    fstype: tmpfs
+  notify: mount shm
+  listen: remount shm
+
+- name: "Mount shm"
+  ansible.posix.mount:
+    path: /dev/shm
+    opts: "nodev,noexec,nosuid"
+    state: mounted
+    src: tmpfs
+    fstype: tmpfs
+  listen: mount shm
+
+- name: "APT update"
+  ansible.builtin.apt:
+    update_cache: true
+  listen: update apt cache
