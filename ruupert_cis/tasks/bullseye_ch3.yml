@@ -5,14 +5,14 @@
   tags:
     - cis
   block:
-    - name: "3.1.1 Ensure system is checked to determine if IPv6 is enabled (Manual) - page 286"
-      ansible.builtin.debug:
-        msg: "------------Unimplemented--------------"
-      changed_when: true
-    - name: "3.1.2 Ensure wireless interfaces are disabled (Automated) - page 290"
-      ansible.builtin.debug:
-        msg: "------------Unimplemented--------------"
-      changed_when: true
+#    - name: "3.1.1 Ensure system is checked to determine if IPv6 is enabled (Manual) - page 286"
+#      ansible.builtin.debug:
+#        msg: "------------Unimplemented--------------"
+#      changed_when: true
+#    - name: "3.1.2 Ensure wireless interfaces are disabled (Automated) - page 290"
+#      ansible.builtin.debug:
+#        msg: "------------Unimplemented--------------"
+#      changed_when: true
     - name: "3.1.3 Ensure DCCP is disabled (Automated) - page 293"
       community.general.modprobe:
         name: dccp
@@ -37,6 +37,9 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
+
 - name: "3.2 Network Parameters (Host Only) - page 309"
   tags:
     - cis
@@ -53,6 +56,8 @@
       ansible.posix.sysctl:
         name: "net.ipv4.ip_forward"
         value: "0"
+      when: "not 'linux_router' in group_names"
+
     - name: "3.2.2 Ensure IP forwarding is disabled (Automated) - page 314 - net.ipv6.conf.all.forwarding=0"
       ansible.posix.sysctl:
         name: "net.ipv6.conf.all.forwarding"
@@ -64,6 +69,9 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
 
 - name: "3.3 Network Parameters (Host and Router) - page 320"
   tags:
@@ -109,14 +117,14 @@
       ansible.posix.sysctl:
         name: "net.ipv4.conf.all.secure_redirects"
         value: "0"
-    - name: "3.3.4 Ensure suspicious packets are logged (Automated) - page 337 - net.ipv4.conf.all.log_martians=1"
-      ansible.posix.sysctl:
-        name: "net.ipv4.conf.all.log_martians"
-        value: "1"
-    - name: "3.3.4 Ensure suspicious packets are logged (Automated) - page 337 - net.ipv4.conf.default.log_martians=1"
-      ansible.posix.sysctl:
-        name: "net.ipv4.conf.default.log_martians"
-        value: "1"
+#    - name: "3.3.4 Ensure suspicious packets are logged (Automated) - page 337 - net.ipv4.conf.all.log_martians=1"
+#      ansible.posix.sysctl:
+#        name: "net.ipv4.conf.all.log_martians"
+#        value: "1"
+#    - name: "3.3.4 Ensure suspicious packets are logged (Automated) - page 337 - net.ipv4.conf.default.log_martians=1"
+#      ansible.posix.sysctl:
+#        name: "net.ipv4.conf.default.log_martians"
+#        value: "1"
     - name: "3.3.5 Ensure broadcast ICMP requests are ignored (Automated) - page 341 - net.ipv4.icmp_echo_ignore_broadcasts=1"
       ansible.posix.sysctl:
         name: "net.ipv4.icmp_echo_ignore_broadcasts"
@@ -152,6 +160,9 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
 
 # # 3.5 Firewall Configuration - page 363
 # - name: "3.5.1 Configure UncomplicatedFirewall - page 364"

@@ -35,6 +35,9 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
 # - name: "1.1.2 Configure /tmp - page 35"
 #   tags:
 #     - cis
@@ -205,6 +208,9 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
+
 - name: "1.1.9 and 1.1.10 - page 96-98"
   tags:
     - cis
@@ -213,10 +219,10 @@
       ansible.builtin.apt:
         name: autofs
         state: absent
-    - name: "1.1.10 Disable USB Storage (Automated) - page 98"
-      ansible.builtin.debug:
-        msg: "Unimplemented - perhaps instead use USBGuard here"
-      changed_when: true
+#    - name: "1.1.10 Disable USB Storage (Automated) - page 98"
+#      ansible.builtin.debug:
+#        msg: "Unimplemented - perhaps instead use USBGuard here"
+#      changed_when: true
 
   rescue:
     - name: "Fail"
@@ -226,54 +232,61 @@
       notify:
         - send failed message
 
-- name: "1.2 Configure Software Updates - page 102"
-  tags:
-    - cis
-  block:
-    - name: "Ensure software update policies are set"
-      ansible.builtin.debug:
-        msg: "------------Unimplemented--------------"
-      changed_when: true
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
 
-    # This is using my hello module at the moment.
-    # Problem: Supposedly manually check apt-cache policy repos for unapproved domains
-    # Solve: By regex matching all domains found in apt-cache policy output for any repo that is not ending debian.org.
-    # - name: "Ensure software update policies are set"
-    #   my_info:
-    #     apt_policy: "check"
-    #     new: false
-  rescue:
-    - name: "Fail"
-      ansible.builtin.debug:
-        msg: "Something went wrong"
-      changed_when: true
-      notify:
-        - send failed message
+# - name: "1.2 Configure Software Updates - page 102"
+#   tags:
+#     - cis
+#   block:
+#     - name: "Ensure software update policies are set"
+#       ansible.builtin.debug:
+#         msg: "------------Unimplemented--------------"
+#       changed_when: true#
 
-- name: "1.2 Configure Software Updates - page 102"
-  tags:
-    - cis
-  block:
-    - name: "1.2.1 Ensure package manager repositories are configured (Manual) - page 103"
-      ansible.builtin.template:
-        src: "files/{{ ansible_distribution_release }}/1.2.1/apt.sources.list.j2"
-        dest: "/etc/apt/sources.list"
-        mode: "0644"
-        owner: "root"
-        group: "root"
-      when: "'debian' in group_names"
-      notify: update apt cache
+#     # This is using my hello module at the moment.
+#     # Problem: Supposedly manually check apt-cache policy repos for unapproved domains
+#     # Solve: By regex matching all domains found in apt-cache policy output for any repo that is not ending debian.org.
+#     # - name: "Ensure software update policies are set"
+#     #   my_info:
+#     #     apt_policy: "check"
+#     #     new: false
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
 
-    # - name: "1.2.2 Ensure GPG keys are configured (Manual) - page 105"
-    #   ansible:
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
 
-  rescue:
-    - name: "Fail"
-      ansible.builtin.debug:
-        msg: "Something went wrong"
-      changed_when: true
-      notify:
-        - send failed message
+# - name: "1.2 Configure Software Updates - page 102"
+#   tags:
+#     - cis
+#   block:
+#     - name: "1.2.1 Ensure package manager repositories are configured (Manual) - page 103"
+#       ansible.builtin.template:
+#         src: "files/{{ ansible_distribution_release }}/1.2.1/apt.sources.list.j2"
+#         dest: "/etc/apt/sources.list"
+#         mode: "0644"
+#         owner: "root"
+#         group: "root"
+#       when: "'debian' in group_names"
+#       notify: update apt cache
+#     # - name: "1.2.2 Ensure GPG keys are configured (Manual) - page 105"
+#     #   ansible:
+#   rescue:
+#     - name: "Fail"
+#       ansible.builtin.debug:
+#         msg: "Something went wrong"
+#       changed_when: true
+#       notify:
+#         - send failed message
+
+# - name: "Flush handlers"
+#   ansible.builtin.meta: flush_handlers
 
 # - name: "1.3 Filesystem Integrity Checking - page 107"
 #   tags:
@@ -340,6 +353,9 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
+
 - name: "1.6 Mandatory Access Control - page 132"
   tags:
     - cis
@@ -350,18 +366,18 @@
           - apparmor
           - apparmor-utils
         state: "present"
-    - name: "1.6.1.2 Ensure AppArmor is enabled in the bootloader configuration (Automated) - page 136"
-      ansible.builtin.debug:
-        msg: "------------Unimplemented--------------"
-      changed_when: true
-    - name: "1.6.1.3 Ensure all AppArmor Profiles are in enforce or complain mode (Automated) - page 138"
-      ansible.builtin.debug:
-        msg: "------------Unimplemented--------------"
-      changed_when: true
-    - name: "1.6.1.4 Ensure all AppArmor Profiles are enforcing (Automated) - page 140"
-      ansible.builtin.debug:
-        msg: "------------Unimplemented--------------"
-      changed_when: true
+#    - name: "1.6.1.2 Ensure AppArmor is enabled in the bootloader configuration (Automated) - page 136"
+#      ansible.builtin.debug:
+#        msg: "------------Unimplemented--------------"
+#      changed_when: true
+#    - name: "1.6.1.3 Ensure all AppArmor Profiles are in enforce or complain mode (Automated) - page 138"
+#      ansible.builtin.debug:
+#        msg: "------------Unimplemented--------------"
+#      changed_when: true
+#    - name: "1.6.1.4 Ensure all AppArmor Profiles are enforcing (Automated) - page 140"
+#      ansible.builtin.debug:
+#        msg: "------------Unimplemented--------------"
+#      changed_when: true
   rescue:
     - name: "Fail"
       ansible.builtin.debug:
@@ -369,6 +385,9 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
 
 - name: "1.7 Command Line Warning Banners - page 142"
   tags:
@@ -415,6 +434,9 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
+
 - name: "1.8 GNOME Display Manager - page 155"
   tags:
     - cis
@@ -448,3 +470,6 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers

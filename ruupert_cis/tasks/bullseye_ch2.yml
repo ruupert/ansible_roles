@@ -59,6 +59,9 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
+
 # - name: "2.1.4 Configure ntp - page 225"
 #   tags:
 #     - cis
@@ -167,11 +170,11 @@
       ansible.builtin.apt:
         name: "nis"
         state: absent
-    - name: "2.2.15 Ensure mail transfer agent is configured for local-only mode (Automated) - page 265"
-      when: not ruupert_debian11_cis.special.mta_local_mode
-      ansible.builtin.debug:
-        msg: "------------Unimplemented--------------"
-      changed_when: true
+#    - name: "2.2.15 Ensure mail transfer agent is configured for local-only mode (Automated) - page 265"
+#      when: not ruupert_debian11_cis.special.mta_local_mode
+#      ansible.builtin.debug:
+#        msg: "------------Unimplemented--------------"
+#      changed_when: true
     - name: "2.2.16 Ensure rsync service is either not installed or masked (Automated) - page 267"
       when: not ruupert_debian11_cis.special.rsync
       ansible.builtin.apt:
@@ -184,6 +187,9 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
 
 - name: "2.3 Service Clients - page 269"
   tags:
@@ -220,3 +226,6 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
