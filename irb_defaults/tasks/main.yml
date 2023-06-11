@@ -70,6 +70,39 @@
   ansible.builtin.meta: flush_handlers
 
 
+- name: "Hostname"
+  tags:
+    - defaults
+  when: "'linux' in group_names"
+  block:
+    - name: "Hostname: Install dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - dbus
+          - libpam-systemd
+        state: present
+
+    - name: "Hostname: Service dbus started"
+      ansible.builtin.service:
+        name: dbus
+        state: started
+
+    - name: "Hostname: Set hostname"
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "FeilFail"
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
+
+
 - name: "Configure sshd"
   tags:
     - defaults
