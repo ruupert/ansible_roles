@@ -3,7 +3,7 @@
 
 - name: "Configure APT sources.list"
   tags:
-    - cis
+    - defaults
   block:
     - name: "Configure APT sources.list | Write templated file"
       ansible.builtin.template:
@@ -26,6 +26,46 @@
 - name: "Flush handlers"
   ansible.builtin.meta: flush_handlers
 
+
+- name: "Sysctl"
+  tags:
+    - defaults
+  when: "'linux' in group_names"
+  block:
+    - name: "Sysctl | Set defaults"
+      ansible.posix.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: "present"
+        reload: true
+      with_items: "{{ sysctl }}"
+
+    - name: "Sysctl | IP forwarding enabled"
+      ansible.posix.sysctl:
+        name: "net.ipv4.ip_forward"
+        value: "1"
+        state: "present"
+        reload: true
+      when: "'linux_router' in group_names"
+
+    - name: "Sysctl | IP forwarding disabled"
+      ansible.posix.sysctl:
+        name: "net.ipv4.ip_forward"
+        value: "0"
+        state: "present"
+        reload: true
+      when: "not 'linux_router' in group_names"
+
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "FeilFail"
+      changed_when: true
+      notify:
+        - send failed message
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers
 
 - name: "Install packages"
   tags:
