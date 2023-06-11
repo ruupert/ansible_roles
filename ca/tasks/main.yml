@@ -1,0 +1,58 @@
+---
+# tasks file for ca
+- name: "Debug"
+  ansible.builtin.debug:
+    msg: "System {{ inventory_hostname }} has uuid {{ ansible_product_uuid }}"
+- name: "Create private key with password protection"
+  community.crypto.openssl_privatekey:
+    path: /etc/ssl/private/{{ ca_name }}.key
+    cipher: "auto"
+    passphrase: "{{ secret_ca_passphrase }}"
+
+- name: "Check CA .pem"
+  ansible.builtin.stat:
+    path: "/etc/ssl/certs/{{ ca_name }}.pem"
+  register: cacertificate_stat
+
+- name: Create certificate signing request (CSR) for CA certificate # noqa: run-once[task]
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: /etc/ssl/private/{{ ca_name }}.key
+    privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    common_name: "{{ ca_name }}"
+    use_common_name_for_san: false
+    basic_constraints:
+      - 'CA:TRUE'
+    basic_constraints_critical: true
+    key_usage:
+      - keyCertSign
+      - cRLSign
+    key_usage_critical: true
+  when: not cacertificate_stat.stat.exists
+  register: ca_csr
+  run_once: true
+
+- name: Create self-signed CA certificate from CSR
+  community.crypto.x509_certificate:
+    path: /etc/ssl/certs/{{ ca_name }}.pem
+    csr_content: "{{ ca_csr.csr }}"
+    privatekey_path: /etc/ssl/private/{{ ca_name }}.key
+    privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    provider: selfsigned
+  when: not cacertificate_stat.stat.exists
+
+- name: "Check CA .crl"
+  ansible.builtin.stat:
+    path: "/etc/ssl/{{ ca_name }}.crl"
+  register: myca_crl_reg
+
+- name: Generate a CRL
+  community.crypto.x509_crl:
+    path: "/etc/ssl/{{ ca_name }}.crl"
+    privatekey_path: /etc/ssl/private/{{ ca_name }}.key
+    privatekey_passphrase: "{{ secret_ca_passphrase }}"
+    issuer:
+      CN: "{{ ca_name }}"
+    last_update: "+0s"
+    next_update: "+7d"
+    revoked_certificates: []
+  when: not myca_crl_reg.stat.exists

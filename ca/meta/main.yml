@@ -1,0 +1,15 @@
+galaxy_info:
+  author: Raul Becker
+  namespace: ruupert
+  description: Private CA
+  license: "MIT"
+  min_ansible_version: "2.1"
+  # min_ansible_container_version:
+  platforms:
+    - name: "Debian"
+      versions:
+        - "bullseye"
+  galaxy_tags:
+    - certificate
+    - authority
+dependencies: []

@@ -1,0 +1,10 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    ca_name: "localCA"
+    secret_ca_passphrase: "Qwerty12345"
+  tasks:
+    - name: "Include ruupert.ca"
+      ansible.builtin.include_role:
+        name: "ruupert.ca"

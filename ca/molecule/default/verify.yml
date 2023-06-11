@@ -1,0 +1,45 @@
+---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+  vars:
+    ca_name: "localCA"
+    secret_ca_passphrase: "Qwerty12345"
+  gather_facts: false
+  tasks:
+    - name: Example assertion
+      ansible.builtin.assert:
+        that: true
+
+    - name: "Test cert"
+      community.crypto.x509_certificate_info:
+        path: "/etc/ssl/certs/{{ ca_name }}.pem"
+      register: ca_cert_reg
+
+    - name: "Debug"
+      ansible.builtin.debug:
+        msg: "{{ ca_cert_reg }}"
+
+    - name: "Assert commonName attribute is localCA"
+      ansible.builtin.assert:
+        that: "'localCA' in ca_cert_reg.issuer.commonName"
+
+    - name: "Assert commonName attribute"
+      ansible.builtin.assert:
+        that: "'localCA' in ca_cert_reg.issuer.commonName"
+
+    - name: "Assert CA:TRUE"
+      ansible.builtin.assert:
+        that: "'CA:TRUE' in ca_cert_reg.basic_constraints"
+
+    - name: "Assert key_usage"
+      ansible.builtin.assert:
+        that: "'{{ item }}' in ca_cert_reg.key_usage"
+      with_items:
+        - "CRL Sign"
+        - "Certificate Sign"
+
+    - name: "Assert extended_key_usage"
+      ansible.builtin.assert:
+        that: ca_cert_reg.key_usage_critical
