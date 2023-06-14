@@ -1,0 +1,29 @@
+# {{ ansible_managed }}
+
+default-lease-time {{ dhcp_default_lease}};
+max-lease-time {{ dhcp_max_lease }};
+ddns-update-style none;
+authoritative;
+
+{% for no_service in dhcpd_no_service %}
+subnet {{ no_service.subnet }} netmask {{ no_service.netmask }} {
+}
+{% endfor %}
+
+{% for service in dhcpd_subnets %}
+subnet {{ service.subnet }} netmask {{ service.netmask }} {
+  range {{ service.start }} {{ service.stop }};
+  option routers {{ service.gateway }};
+  option broadcast-address {{ service.broadcast }};
+  option domain-name-servers {{ service.nameserver }};
+}
+{% endfor %}
+
+
+{% for fixed_addr in dhcpd_fixed_addresses %}
+host {{ fixed_addr.name}} {
+  hardware ethernet {{ fixed_addr.hw }};
+  fixed-address {{ fixed_addr.ip }};
+}
+
+{% endfor %}

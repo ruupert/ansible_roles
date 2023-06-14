@@ -1,0 +1,40 @@
+---
+# tasks file for dhcpd
+- name: "ISC DHCPD"
+  tags:
+    - dhcpd
+  block:
+
+    - name: "Install dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - isc-dhcp-server
+        state: present
+        update_cache: true
+
+    - name: "DHCP service started"
+      ansible.builtin.service:
+        name: "isc-dhcp-server"
+        state: started
+
+    - name: "Write /etc/default/isc-dhpc-server"
+      ansible.builtin.template:
+        src: "templates/etc-default-isc-dhcp-server.j2"
+        dest: "/etc/default/isc-dhcp-server"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+
+    - name: "Write /etc/dhcp/dhcpd.conf"
+      ansible.builtin.template:
+        src: "templates/etc-dhcp-dhcpd.conf.j2"
+        dest: "/etc/dhcp/dhcpd.conf"
+        mode: "0600"
+        owner: "root"
+        group: "root"
+      notify: restart dhcpd
+
+  rescue:
+    - name: "Error"
+      ansible.builtin.debug:
+        msg: "Error"

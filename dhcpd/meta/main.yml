@@ -1,0 +1,14 @@
+galaxy_info:
+  author: Raul Becker
+  namespace: ruupert
+  description: ISC DHCP Server
+  license: "MIT"
+  min_ansible_version: "2.1"
+  # min_ansible_container_version:
+  platforms:
+    - name: "Debian"
+      versions:
+        - "bullseye"
+  galaxy_tags:
+    - dhcpd
+dependencies: []
