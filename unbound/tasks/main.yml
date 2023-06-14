@@ -1,0 +1,58 @@
+---
+# tasks file for unbound
+- name: "Unbound"
+  tags:
+    - dns
+  block:
+
+    - name: "Install dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - unbound
+        state: present
+        update_cache: true
+
+    - name: "Unbound service started"
+      ansible.builtin.service:
+        name: "unbound"
+        state: started
+
+    - name: "Appparmor"
+      ansible.builtin.template:
+        dest: "/etc/apparmor.d/usr.sbin.unbound"
+        src: "templates/usr.sbin.unbound.j2"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      register: unbound_apparmor_conf
+
+    - name: "Reload apparmor profile" # noqa: no-handler
+      ansible.builtin.command:
+        cmd: "apparmor_parser -r /etc/apparmor.d/usr.sbin.unbound"
+      when: unbound_apparmor_conf.changed
+      register: unbound_reload_apparmor_profile
+      changed_when: unbound_reload_apparmor_profile.rc == 0
+      notify: restart unbound
+
+    - name: "Root hints"
+      ansible.builtin.template:
+        dest: "/var/lib/unbound/root.hints"
+        src: "templates/root.hints.j2"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify: restart unbound
+
+    - name: "Write /etc/unbound/unbound.conf.d/server.conf"
+      ansible.builtin.template:
+        src: "templates/server.conf.j2"
+        dest: "/etc/unbound/unbound.conf.d/server.conf"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify: restart unbound
+
+  rescue:
+    - name: "Error"
+      ansible.builtin.debug:
+        msg: "Error"
