@@ -10,6 +10,28 @@
       - iptables-persistent
     state: present
 
+# iptables-save ? or iptables-persistent
+
+- name: "Accept in on lo from 127.0.0.1"
+  tags:
+    - firewall
+  block:
+    - name: "Accept local source"
+      ansible.builtin.iptables:
+        in_interface: "lo"
+        source: "127.0.0.1"
+        destination: "127.0.0.1"
+        jump: ACCEPT
+        chain: INPUT
+        comment: "Allow local traffic"
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "Failfail"
+      changed_when: true
+      notify:
+        - send failed message
+
 - name: "TCP: Allow established, related and inbound traffic"
   tags:
     - firewall
@@ -25,17 +47,31 @@
     - name: "Allow new incoming SYN packets TCP"
       ansible.builtin.iptables:
         chain: INPUT
-        protocol: "{{ item.proto }}"
+        protocol: "tcp"
         destination_port: "{{ item.port }}"
         source: "{{ item.src }}"
         ctstate: NEW
         syn: match
         jump: ACCEPT
         comment: "Accept new connections to port {{ item.port }}."
-      with_items: "{{ hostvars[inventory_hostname]['allow_iptables'] }}"
-      register: ruupert_iptables_reg_allows
+      with_items: "{{ hostvars[inventory_hostname]['allow_tcp_iptables'] }}"
+      register: ruupert_iptables_reg_allows_tcp
       notify: iptables-save
-      when: hostvars[inventory_hostname]['allow_iptables'] is defined
+      when: hostvars[inventory_hostname]['allow_tcp_iptables'] is defined
+
+    - name: "Allow new incoming UDP"
+      ansible.builtin.iptables:
+        chain: INPUT
+        protocol: "udp"
+        destination_port: "{{ item.port }}"
+        source: "{{ item.src }}"
+        ctstate: NEW
+        jump: ACCEPT
+        comment: "Accept new connections to port {{ item.port }}."
+      with_items: "{{ hostvars[inventory_hostname]['allow_udp_iptables'] }}"
+      register: ruupert_iptables_reg_allows_udp
+      notify: iptables-save
+      when: hostvars[inventory_hostname]['allow_udp_iptables'] is defined
 
   rescue:
     - name: "Feil"
