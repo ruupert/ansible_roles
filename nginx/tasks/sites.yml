@@ -1,0 +1,60 @@
+- name: "Site SSL certs"
+  tags:
+    - nginx
+  when:
+    - loop_site.ssl is defined
+    - loop_site.ssl is not empty
+  block:
+    - name: "Print"
+      ansible.builtin.debug:
+        msg: "yes"
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Fail"
+
+- name: "Configure sites"
+  tags:
+    - nginx
+  ansible.builtin.template:
+    src: "templates/site.conf.j2"
+    dest: "/etc/nginx/sites-available/{{ loop_site.name }}"
+    mode: "0600"
+    owner: "root"
+    group: "root"
+  register: nginx_site_conf_reg
+
+- name: "Enable site"
+  tags:
+    - nginx
+  ansible.builtin.file:
+    path: "/etc/nginx/sites-enabled/{{ loop_site.name }}"
+    src: "/etc/nginx/sites-available/{{ loop_site.name }}"
+    state: link
+    mode: "0600"
+    owner: "root"
+    group: "root"
+  when: loop_site.enabled | default(false)
+  register: nginx_enable_site_reg
+
+- name: "Disable site"
+  tags:
+    - nginx
+  ansible.builtin.file:
+    path: "/etc/nginx/sites-enabled/{{ loop_site.name }}"
+    state: absent
+  when: not loop_site.enabled | default(true)
+  register: nginx_disable_site_reg
+
+- name: "Check config"
+  ansible.builtin.command:
+    cmd: "nginx -t"
+  register: nginx_conf_check
+  changed_when: true
+  when: >
+      nginx_site_conf_reg.changed or
+      nginx_enable_site_reg.changed or
+      nginx_disable_site_reg.changed
+  failed_when:
+    - nginx_conf_check.rc != 0
+  notify: "reload nginx"
