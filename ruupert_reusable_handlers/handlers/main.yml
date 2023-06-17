@@ -2,7 +2,9 @@
 # handlers file for ruupert_reusable_handlers
 
 - name: "Send failed message to slack"
-  when: not disable_slack_handlers
+  when:
+    - not disable_slack_handlers
+    - ansible_failed_task is defined
   community.general.slack:
     token: "{{ slack_token }}"
     msg: "Ansible failed on *{{ ansible_hostname }} ({{ ansible_host }})* \n
@@ -17,14 +19,16 @@
   community.general.slack:
     token: "{{ slack_token }}"
     msg: "Unreachable hosts* \n
-        *Task*: Update \n
+        *Task*: {{ ansible_play_name }} \n
         *Action*: Connect \n
         *Error*: Unreachable hosts: {{ ansible_play_hosts_all | difference(ansible_play_hosts) }}"
   delegate_to: localhost
   listen: "send failed unreachable"
 
 - name: "Send failed message to teams"
-  when: not disable_teams_handlers
+  when:
+    - not disable_teams_handlers
+    - ansible_failed_task is defined
   ansible.builtin.uri:
     url: "{{ teams_webhook }}"
     method: POST
@@ -67,7 +71,7 @@
       "sections": [{
         "facts": [{
           "name": "Task",
-          "value": "Update"
+          "value": "{{ ansible_play_name }}"
         },{
           "name": "Action",
           "value": "Connect"
