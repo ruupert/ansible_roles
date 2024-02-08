@@ -1,0 +1,9 @@
+---
+# defaults file for handlers
+handlers_teams_disabled: true
+handlers_slack_disabled: true
+handlers_discord_disabled: true
+handlers_slack_token:
+handlers_teams_webhook:
+handlers_discord_webhook_id:
+handlers_discord_webhook_token:

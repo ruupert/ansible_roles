@@ -1,7 +1,0 @@
----
-# defaults file for ruupert_reusable_handlers
-reusable_handlers_logdir: "/usr/local/etc/ansible/log"
-disable_teams_handlers: true
-disable_slack_handlers: true
-slack_token:
-teams_webhook:

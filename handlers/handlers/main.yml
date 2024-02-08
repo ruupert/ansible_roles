@@ -1,12 +1,12 @@
 ---
-# handlers file for ruupert_reusable_handlers
+# handlers file for handlers
 
-- name: "Send failed message to slack"
+- name: "Send failed message to Slack"
   when:
-    - not disable_slack_handlers
+    - not handlers_slack_disabled
     - ansible_failed_task is defined
   community.general.slack:
-    token: "{{ slack_token }}"
+    token: "{{ handlers_slack_token }}"
     msg: "Ansible failed on *{{ ansible_hostname }} ({{ ansible_host }})* \n
         *Task*: {{ ansible_failed_task.name }} \n
         *Action*: {{ ansible_failed_task.action }} \n
@@ -14,10 +14,10 @@
   delegate_to: localhost
   listen: "send failed message"
 
-- name: "Send failed unreachable message to slack"
-  when: not disable_slack_handlers
+- name: "Send failed unreachable message to Slack"
+  when: not handlers_slack_disabled
   community.general.slack:
-    token: "{{ slack_token }}"
+    token: "{{ handlers_slack_token }}"
     msg: "Unreachable hosts* \n
         *Task*: {{ ansible_play_name }} \n
         *Action*: Connect \n
@@ -25,12 +25,40 @@
   delegate_to: localhost
   listen: "send failed unreachable"
 
+
+- name: "Send failed message to Discord"
+  when:
+    - not handlers_discord_disabled
+    - ansible_failed_task is defined
+  community.general.discord:
+    webhook_id: "{{ handlers_discord_webhook_id }}"
+    webhook_token: "{{ handlers_discord_webhook_token }}"
+    content: "Ansible failed on *{{ ansible_hostname }} ({{ ansible_host }})* \n
+        *Task*: {{ ansible_failed_task.name }} \n
+        *Action*: {{ ansible_failed_task.action }} \n
+        *Error*: {{ ansible_failed_result.msg }}"
+  delegate_to: localhost
+  listen: "send failed message"
+
+- name: "Send failed unreachable message to Discord"
+  when: not handlers_discord_disabled
+  community.general.discord:
+    webhook_id: "{{ handlers_discord_webhook_id }}"
+    webhook_token: "{{ handlers_discord_webhook_token }}"
+    content: "Unreachable hosts* \n
+        *Task*: {{ ansible_play_name }} \n
+        *Action*: Connect \n
+        *Error*: Unreachable hosts: {{ ansible_play_hosts_all | difference(ansible_play_hosts) }}"
+  delegate_to: localhost
+  listen: "send failed unreachable"
+
+
 - name: "Send failed message to teams"
   when:
-    - not disable_teams_handlers
+    - not handlers_teams_disabled
     - ansible_failed_task is defined
   ansible.builtin.uri:
-    url: "{{ teams_webhook }}"
+    url: "{{ handlers_teams_webhook }}"
     method: POST
     return_content: true
     body: '{
@@ -57,9 +85,9 @@
   listen: "send failed message"
 
 - name: "Send failed unreachable message to teams"
-  when: not disable_teams_handlers
+  when: not handlers_teams_disabled
   ansible.builtin.uri:
-    url: "{{ teams_webhook }}"
+    url: "{{ handlers_teams_webhook }}"
     method: POST
     return_content: true
     body: '{
