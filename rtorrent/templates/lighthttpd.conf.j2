@@ -1,0 +1,15 @@
+server.modules += ( "mod_scgi" )
+server.document-root = "{{ rtorrent_home }}/.lighthttpdroot"
+server.port = "{{ rtorrent_scgi_port }}"
+server.bind = "127.0.0.1"
+scgi.server = (
+                "/RPC2" =>
+                  ( "127.0.0.1:{{ rtorrent_scgi_port }}" =>
+                    (
+                      "socket" => "{{ rtorrent_home }}/.rtorrentrpc.socket",
+                      "check-local" => "disable",
+                      "disable-time" => 0,  # don't disable SCGI if connection fails
+                    )
+                    # I MUST ADD SOME KIND OF AUTH
+                  )
+              )

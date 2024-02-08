@@ -2,16 +2,16 @@
 # Ansible managed #
 ###################
 
-
-## Instance layout (base paths) #/home/ruupert/rtorrent/
-method.insert = cfg.basedir,  private|const|string, (cat,"{{ rtorrent.dir }}/")
+## Instance layout (base paths)
+method.insert = cfg.basedir,  private|const|string, (cat,"{{ rtorrent_dir }}/")
 method.insert = cfg.download, private|const|string, (cat,(cfg.basedir),"download/")
 method.insert = cfg.logs,     private|const|string, (cat,(cfg.basedir),"log/")
 method.insert = cfg.logfile,  private|const|string, (cat,(cfg.logs),"rtorrent-",(system.time),".log")
 method.insert = cfg.session,  private|const|string, (cat,(cfg.basedir),".session/")
 method.insert = cfg.watch,    private|const|string, (cat,(cfg.basedir),"watch/")
-
-
+{% if rtorrent_webhook_url is defined %}
+method.set_key=event.download.finished,filebot,"execute.throw.bg={\ {{ rtorrent_dir }}/rtorrent_notify.sh,$d.base_path=,$d.name=,$d.custom1=}"
+{% endif %}
 ## Create instance directories
 execute.throw = sh, -c, (cat,\
     "mkdir -p \"",(cfg.download),"\" ",\
@@ -22,12 +22,12 @@ execute.throw = sh, -c, (cat,\
 
 
 ## Listening port for incoming peer traffic (fixed; you can also randomize it)
-network.port_range.set = {{ rtorrent.port_range }}
+network.port_range.set = {{ rtorrent_port_range }}
 network.port_random.set = no
 
 ## Tracker-less torrent and UDP tracker support
 ## (conservative settings for 'private' trackers, change for 'public')
-dht.mode.set = {{ rtorrent.dht }}
+dht.mode.set = {{ rtorrent_dht }}
 protocol.pex.set = no
 
 trackers.use_udp.set = no
@@ -36,6 +36,9 @@ trackers.use_udp.set = no
 ## Peer settings
 throttle.max_uploads.set = 100
 throttle.max_uploads.global.set = 250
+
+download_rate = {{ rtorrent_dl_rate_kb }}
+upload_rate = {{ rtorrent_ul_rate_kb }}
 
 throttle.min_peers.normal.set = 20
 throttle.max_peers.normal.set = 60
@@ -104,6 +107,13 @@ schedule2 = watch_start, 10, 10, ((load.start_verbose, (cat, (cfg.watch), "start
 #network.scgi.open_local = (cat,(session.path),rpc.socket)
 #execute.nothrow = chmod,770,(cat,(session.path),rpc.socket)
 
+network.scgi.open_local = {{ rtorrent_home }}/.rtorrentrpc.socket
+
+# Set correct access rights to the socket file ----------+
+# so both rTorrent & your reverse proxy can performed    |
+# read-write operations                                  |
+# but most users on the system can not                   v
+schedule2 = scgi_permission,0,0,"execute.nothrow=chmod,\"g+w,o=\",{{ rtorrent_home }}/.rtorrentrpc.socket"
 
 ## Logging:
 ##   Levels = critical error warn notice info debug

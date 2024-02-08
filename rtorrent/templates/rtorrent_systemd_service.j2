@@ -6,11 +6,11 @@ After=network.target local-fs.target
 [Service]
 Type=oneshot
 KillMode=none
-User={{ rtorrent.user}}
+User={{ rtorrent_user}}
 RemainAfterExit=yes
-ExecStart=/usr/bin/tmux -S /tmp/rtorrent.sock new-session -d -s rtorrent 'rtorrent -n -O import={{ rtorrent.home }}/.rtorrent.rc'
+ExecStart=/usr/bin/tmux -S /tmp/rtorrent.sock new-session -d -s rtorrent 'rtorrent -b {{ ansible_host }} -n -O import={{ rtorrent_home }}/.rtorrent.rc'
 ExecStop=/usr/bin/tmux -S /tmp/rtorrent.sock send-keys -t rtorrent C-q
-WorkingDirectory={{ rtorrent.home }}
+WorkingDirectory={{ rtorrent_home }}
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

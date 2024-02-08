@@ -1,0 +1,15 @@
+[Unit]
+Description=Lighttpd Rtorrent Daemon
+After=network-online.target
+
+[Service]
+Type=simple
+User={{ rtorrent_user}}
+PIDFile={{ rtorrent_home }}/.rtorrent_lighttpd.pid
+ExecStartPre=/usr/sbin/lighttpd -tt -f "{{ rtorrent_home }}/.rtorrent_lighthttpd.conf"
+ExecStart=/usr/sbin/lighttpd -D -f "{{ rtorrent_home }}/.rtorrent_lighthttpd.conf"
+ExecReload=/bin/kill -USR1 $MAINPID
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
