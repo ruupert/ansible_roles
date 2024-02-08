@@ -1,0 +1,106 @@
+---
+# tasks file for base
+
+- name: "Debian | Configure APT sources.list"
+  tags:
+    - base
+  block:
+    - name: "Configure APT sources.list | Write templated file"
+      ansible.builtin.template:
+        src: "templates/apt.sources.list.j2"
+        dest: "/etc/apt/sources.list"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify: update apt cache
+
+  rescue:
+    - name: Debian | Configure APT sources.list | Failed
+      ansible.builtin.debug:
+        msg: "{{ ansible_failed_task }}: {{ ansible_failed_result.msg }}"
+      notify: 
+        - send failed message 
+
+- name: "Debian | Flush handlers"
+  tags:
+    - base
+  ansible.builtin.meta: flush_handlers
+
+- name: "Debian | Hostname"
+  tags:
+    - base
+  block:
+    - name: "Debian | Hostname | Install dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - dbus
+          - libpam-systemd
+        state: present
+
+    - name: "Debian | Hostname | Service dbus started"
+      ansible.builtin.service:
+        name: dbus
+        state: started
+
+    - name: "Debian | Hostname | Set hostname"
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+
+  rescue:
+    - name: Debian | Hostname | Failed
+      ansible.builtin.debug:
+        msg: "{{ ansible_failed_task }}: {{ ansible_failed_result.msg }}"
+      notify: 
+        - send failed message 
+
+- name: "Debian | Flush handlers"
+  tags:
+    - base
+  ansible.builtin.meta: flush_handlers
+
+
+- name: "Debian | SSHd"
+  tags:
+    - base
+  block:
+    - name: "Debian | SSHd | Write templated sshd_config_tmp"
+      ansible.builtin.template:
+        src: "templates/sshd_config.j2"
+        dest: "/etc/ssh/sshd_config_tmp"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      register: base_sshd_config_reg
+
+    - name: "Debian | SSHd | Check verify sshd_config_tmp" # noqa: no-handler
+      ansible.builtin.command:
+        cmd: "sshd -t -f /etc/ssh/sshd_config_tmp"
+      when: base_sshd_config_reg.changed
+      failed_when: base_sshd_config_tmp_reg.rc != 0
+      changed_when: base_sshd_config_reg.changed
+      register: base_sshd_config_tmp_reg
+
+    - name: "Debian | SSHd | Copy tmp file over current sshd_config" # noqa: no-handler
+      ansible.builtin.copy:
+        src: "/etc/ssh/sshd_config_tmp"
+        dest: "/etc/ssh/sshd_config"
+        remote_src: true
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      when:
+        - base_sshd_config_reg.changed
+        - base_sshd_config_tmp_reg.rc == 0
+      notify:
+        - restart sshd
+  rescue:
+    - name: Failed
+      ansible.builtin.debug:
+        msg: "{{ ansible_failed_task }}: {{ ansible_failed_result.msg }}"
+      notify: 
+        - send failed message 
+
+- name: "Debian | Flush handlers"
+  tags:
+    - base
+  ansible.builtin.meta: flush_handlers

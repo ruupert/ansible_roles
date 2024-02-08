@@ -1,12 +1,15 @@
 galaxy_info:
   author: Raul Becker
-  description: Installs default packages
+  description: Base role
   license: "MIT"
   min_ansible_version: "2.1"
   platforms:
     - name: "Debian"
       versions:
-        - "bullseye"
+        - "bookworm"
+    - name: "FreeBSD"
+      versions:
+        - all
   galaxy_tags: []
 dependencies:
-  - { role: ruupert_reusable_handlers }
+  - { role: handlers }

@@ -1,0 +1,4 @@
+---
+# defaults file for base
+base_sshd_password_authentication: false
+base_apt_debian: "http://www.nic.funet.fi"

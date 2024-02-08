@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+deb {{ base_apt_debian }}/debian/ bookworm main contrib non-free non-free-firmware
+deb-src {{ base_apt_debian }}/debian/ bookworm main contrib non-free non-free-firmware
+
+deb {{ base_apt_debian }}/debian/ bookworm-backports main contrib non-free non-free-firmware
+deb-src {{ base_apt_debian }}/debian/ bookworm-backports main contrib non-free non-free-firmware
+
+deb {{ base_apt_debian }}/debian/ bookworm-updates main contrib non-free non-free-firmware
+deb-src {{ base_apt_debian }}/debian/ bookworm-updates main contrib non-free non-free-firmware

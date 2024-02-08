@@ -1,0 +1,17 @@
+---
+# tasks file for base
+- name: "Debian"
+  tags:
+    - base
+  ansible.builtin.include_tasks:
+    file: "Debian.yml"
+  when:
+    - ansible_distribution == "Debian"
+
+- name: "FreeBSD"
+  tags:
+    - base
+  ansible.builtin.include_tasks:
+    file: "Freebsd.yml"
+  when:
+    - ansible_distribution == "FreeBSD"

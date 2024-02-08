@@ -57,12 +57,13 @@
 #IgnoreRhosts yes
 
 # To disable tunneled clear text passwords, change to no here!
-{% if sshd_password_authentication %}
+{% if base_sshd_password_authentication %}
 PasswordAuthentication yes
+KbdInteractiveAuthentication yes
 {% else %}
 PasswordAuthentication no
+KbdInteractiveAuthentication no
 {% endif %}
-#PermitEmptyPasswords no
 
 # Change to yes to enable challenge-response passwords (beware issues with
 # some PAM modules and threads)

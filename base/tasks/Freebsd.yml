@@ -1,0 +1,24 @@
+- name: "FreeBSD"
+  tags:
+    - base
+  block:
+    - name: "FreeBSD | resolvconf"
+      ansible.builtin.template:
+        src: "templates/freebsd-resolvconf.conf.j2"
+        dest: "/etc/resolvconf.conf"
+        mode: "0600"
+        owner: "root"
+        group: "wheel"
+      when: base_freebsd_resolvconf_prepend_dns is defined
+
+    - name: "FreeBSD | hostname"
+      ansible.builtin.hostname:
+        name: "{{ inventory_hostname }}"
+      notify:
+        - restart freebsd resolv service
+  rescue:
+    - name: Failed
+      ansible.builtin.debug:
+        msg: "{{ ansible_failed_task }}: {{ ansible_failed_result.msg }}"
+      notify: 
+        - send failed message 
