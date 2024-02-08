@@ -1,0 +1,22 @@
+---
+# tasks file for sysctl
+- name: "Debian"
+  tags:
+    - sysctl
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml" # .{{ ansible_distribution_major_version }}
+  when:
+    - ansible_distribution == "Debian"
+
+- name: "FreeBSD"
+  tags:
+    - sysctl
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml"
+  when:
+    - ansible_distribution == "FreeBSD"
+
+- name: "Flush handlers"
+  tags:
+    - sysctl
+  ansible.builtin.meta: flush_handlers

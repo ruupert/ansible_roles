@@ -1,0 +1,36 @@
+---
+- name: "Sysctl | FreeBSD"
+  tags:
+    - sysctl
+  block:
+    - name: "Sysctl | FreeBSD | Set defaults"
+      ansible.posix.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: "present"
+        reload: true
+      with_items: "{{ sysctl_freebsd }}"
+
+    - name: "Sysctl | FreeBSD | IP forwarding enabled"
+      ansible.posix.sysctl:
+        name: "net.inet.ip.forwarding"
+        value: "1"
+        state: "present"
+        reload: true
+      when: "'router' in group_names"
+
+    - name: "Sysctl | FreeBSD | IP forwarding disabled"
+      ansible.posix.sysctl:
+        name: "net.inet.ip.forwarding"
+        value: "0"
+        state: "present"
+        reload: true
+      when: "not 'router' in group_names"
+
+  rescue:
+    - name: "Sysctl | FreeBSD | Fail"
+      ansible.builtin.debug:
+        msg: "Sysctl | FreeBSD | Fail"
+      changed_when: true
+      notify:
+        - send failed message

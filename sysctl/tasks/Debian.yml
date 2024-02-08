@@ -1,0 +1,36 @@
+---
+- name: "Sysctl | Debian"
+  tags:
+    - sysctl
+  block:
+    - name: "Sysctl | Debian | Set defaults"
+      ansible.posix.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: "present"
+        reload: true
+      with_items: "{{ sysctl_debian }}"
+
+    - name: "Sysctl | Debian | IP forwarding enabled"
+      ansible.posix.sysctl:
+        name: "net.ipv4.ip_forward"
+        value: "1"
+        state: "present"
+        reload: true
+      when: "'router' in group_names"
+
+    - name: "Sysctl | Debian | IP forwarding disabled"
+      ansible.posix.sysctl:
+        name: "net.ipv4.ip_forward"
+        value: "0"
+        state: "present"
+        reload: true
+      when: "not 'router' in group_names"
+
+  rescue:
+    - name: "Sysctl | Debian | Fail"
+      ansible.builtin.debug:
+        msg: "Sysctl | Debian | Fail"
+      changed_when: true
+      notify:
+        - send failed message
