@@ -1,7 +1,17 @@
 ---
 # handlers file for unbound
+
+- name: "Checkconf unbound"
+  ansible.builtin.command:
+    cmd: "/usr/sbin/unbound-checkconf"
+  changed_when: false
+  failed_when: unbound_checkconf_reg.rc != 0
+  register: unbound_checkconf_reg
+  listen: restart unbound
+
 - name: "Restart unbound"
   ansible.builtin.service:
     name: unbound
     state: restarted
   listen: restart unbound
+  when: unbound_checkconf_reg.rc == 0

@@ -1,8 +1,13 @@
 ---
 # tasks file for unbound
+- name: "Assert that unbound_keys is defined"
+  ansible.builtin.assert:
+    that:
+      - unbound_keys is defined
+
 - name: "Unbound"
   tags:
-    - dns
+    - unbound
   block:
 
     - name: "Install dependencies"
@@ -11,11 +16,6 @@
           - unbound
         state: present
         update_cache: true
-
-    - name: "Unbound service started"
-      ansible.builtin.service:
-        name: "unbound"
-        state: started
 
     - name: "Appparmor"
       ansible.builtin.template:
@@ -34,10 +34,31 @@
       changed_when: unbound_reload_apparmor_profile.rc == 0
       notify: restart unbound
 
+    - name: "Unbound keys"
+      no_log: true
+      ansible.builtin.copy:
+        content: "{{ item.data | b64decode }}"
+        dest: "/etc/unbound/{{ item.name }}"
+        mode: "0600"
+        owner: "root"
+        group: "root"
+      with_items:
+        - "{{ unbound_keys }}"
+      when: unbound_keys | length > 0
+
     - name: "Root hints"
       ansible.builtin.template:
-        dest: "/var/lib/unbound/root.hints"
+        dest: "{{ unbound_root_hints }}"
         src: "templates/root.hints.j2"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify: restart unbound
+
+    - name: "Write /etc/unbound/unbound.conf"
+      ansible.builtin.template:
+        src: "templates/unbound.conf.j2"
+        dest: "/etc/unbound/unbound.conf"
         mode: "0644"
         owner: "root"
         group: "root"
@@ -52,7 +73,27 @@
         group: "root"
       notify: restart unbound
 
+    - name: "TODO: https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
+      ansible.builtin.debug:
+        msg: "awk 'BEGIN { OFS = \"\" } NF == 2 && $1 == \"0.0.0.0\" { print \"local-zone: \"\", $2, \"\" static\"}' $tmpdir/* > /var/unbound/etc/adblock.conf"
+
+    - name: "Write static blocklist (for now) to /etc/unbound/adblock.conf"
+      ansible.builtin.copy:
+        src: "files/adblock-hosts"
+        dest: "/etc/unbound/adblock.conf"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify: restart unbound
+
+    - name: "Unbound service started"
+      ansible.builtin.service:
+        name: "unbound"
+        state: started
   rescue:
     - name: "Error"
       ansible.builtin.debug:
-        msg: "Error"
+        msg: "Error {{ ansible_failed_task }}"
+      changed_when: true
+      notify:
+        - send failed message

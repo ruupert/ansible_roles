@@ -1,2 +1,41 @@
 ---
 # defaults file for unbound
+unbound_control_port: 8953
+unbound_port: 5333
+# two below for unbound_exporter 
+unbound_extended_stats: true
+unbound_remote_control: true
+# when left unset syslog will handle logging
+unbound_logfile_path: ""
+unbound_verbosity: 0
+# log lines to inform about local zone actions
+unbound_log_local: false
+unbound_log_queries: false
+unbound_log_replies: false
+unbound_log_servfail: false
+unbound_cache_min_ttl: 300
+unbound_cache_max_ttl: 86400
+unbound_qname_minimization: true
+# when left unset identity is hidden
+unbound_identity: ""
+unbound_hide_version: true
+unbound_rrset_roundrobin: true
+unbound_interface: 127.0.0.1
+unbound_outgoing_interface: "{{ ansible_host }}"
+unbound_do_ip4: true
+unbound_do_udp: true
+unbound_do_tcp: true
+unbound_do_ip6: true
+unbound_prefer_ip6: false
+unbound_harden_glue: true
+unbound_harden_dnssec_stripped: true
+unbound_use_caps_for_id: false
+unbound_edns_buffer_size: 1232
+unbound_prefetch: true
+unbound_prefetch_key: true
+unbound_num_threads: 1
+unbound_so_rcvbuf: "1m"
+unbound_private_domain: "{{ domain | default('example.com') }}"
+unbound_adblock: true
+unbound_root_hints: "/var/lib/unbound/root.hints"
+unbound_keys: ""

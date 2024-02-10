@@ -1,68 +1,152 @@
 server:
-    # If no logfile is specified, syslog is used
-    # logfile: "/var/log/unbound.log"
-    verbosity: 4
+{% if unbound_extended_stats %}
+    # for unbound exporter
+    extended-statistics: yes
+{% endif %}
 
-    interface: 127.0.0.1
-    outgoing-interface: 192.168.1.121
-    port: 5335
+{% if unbound_logfile_path | length > 0 %}
+    logfile: "{{ unbound_logfile_path }}"
+{% endif %}
+
+    verbosity: {{ unbound_verbosity}}
+
+{% if unbound_log_local %}
+    log-local-actions: yes
+{% else %}
+    log-local-actions: no
+{% endif %}
+
+{% if unbound_log_queries %}
+    log-queries: yes
+{% else %}
+    log-queries: no
+{% endif %}
+
+{% if unbound_log_replies %}
+    log-replies: yes
+{% else %}
+    log-replies: no
+{% endif %}
+
+{% if unbound_log_servfail %}
+    log-servfail: yes
+{% else %}
+    log-servfail: no
+{% endif %}
+
+    cache-min-ttl: {{ unbound_cache_min_ttl }}
+    cache-max-ttl: {{ unbound_cache_max_ttl }}
+
+{% if unbound_qname_minimization %}
+    qname-minimisation: yes
+{% else %}
+    qname-minimisation: no
+{% endif %}
+
+{% if unbound_hide_version %}
+    hide-version: yes
+{% else %}
+    hide-version: no
+{% endif %}
+
+{% if unbound_identity | length > 0 %}
+    identity: "{{ unbound_identity}}"
+    hide-identity: no
+{% else %}
+    hide-identity: yes
+{% endif %}
+
+{% if unbound_rrset_roundrobin %}
+    rrset-roundrobin: yes
+{% else %}
+    rrset-roundrobin: no
+{% endif %}
+
+    interface: {{ unbound_interface }}
+    outgoing-interface: {{ unbound_outgoing_interface }}
+    port: {{ unbound_port }}
+
+{% if unbound_do_ip4 %}
     do-ip4: yes
+{% else %}
+    do-ip4: no
+{% endif %}
+
+
+{% if unbound_do_udp %}
     do-udp: yes
+{% else %}
+    do-udp: no
+{% endif %}
+
+{% if unbound_do_tcp %}
     do-tcp: yes
+{% else %}
+    do-tcp: no
+{% endif %}
 
-    # May be set to yes if you have IPv6 connectivity
+{% if unbound_do_ip6 %}
+    do-ip6: yes
+{% else %}
     do-ip6: no
+{% endif %}
 
-    # You want to leave this to no unless you have *native* IPv6. With 6to4 and
-    # Terredo tunnels your web browser should favor IPv4 for the same reasons
+{% if unbound_prefer_ip6 %}
+    prefer-ip6: yes
+{% else %}
     prefer-ip6: no
+{% endif %}
 
-    # Use this only when you downloaded the list of primary root servers!
-    # If you use the default dns-root-data package, unbound will find it automatically
-    root-hints: "/var/lib/unbound/root.hints"
+    root-hints: "{{ unbound_root_hints }}"
 
-    # Trust glue only if it is within the server's authority
+{% if unbound_harden_glue %}
     harden-glue: yes
+{% else %}
+    harden-glue: no
+{% endif %}
 
-    # Require DNSSEC data for trust-anchored zones, if such data is absent, the zone becomes BOGUS
+{% if unbound_harden_dnssec_stripped %}
     harden-dnssec-stripped: yes
+{% else %}
+    harden-dnssec-stripped: no
+{% endif %}
 
-    # Don't use Capitalization randomization as it known to cause DNSSEC issues sometimes
-    # see https://discourse.pi-hole.net/t/unbound-stubby-or-dnscrypt-proxy/9378 for further details
+{% if unbound_use_caps_for_id %}
     use-caps-for-id: no
+{% else %}
+    use-caps-for-id: no
+{% endif %}
 
-    # Reduce EDNS reassembly buffer size.
-    # IP fragmentation is unreliable on the Internet today, and can cause
-    # transmission failures when large DNS messages are sent via UDP. Even
-    # when fragmentation does work, it may not be secure; it is theoretically
-    # possible to spoof parts of a fragmented DNS message, without easy
-    # detection at the receiving end. Recently, there was an excellent study
-    # >>> Defragmenting DNS - Determining the optimal maximum UDP response size for DNS <<<
-    # by Axel Koolhaas, and Tjeerd Slokker (https://indico.dns-oarc.net/event/36/contributions/776/)
-    # in collaboration with NLnet Labs explored DNS using real world data from the
-    # the RIPE Atlas probes and the researchers suggested different values for
-    # IPv4 and IPv6 and in different scenarios. They advise that servers should
-    # be configured to limit DNS messages sent over UDP to a size that will not
-    # trigger fragmentation on typical network links. DNS servers can switch
-    # from UDP to TCP when a DNS response is too big to fit in this limited
-    # buffer size. This value has also been suggested in DNS Flag Day 2020.
-    edns-buffer-size: 1232
+    edns-buffer-size: {{ unbound_edns_buffer_size }}
 
-    # Perform prefetching of close to expired message cache entries
-    # This only applies to domains that have been frequently queried
+{% if unbound_prefetch %}
     prefetch: yes
+{% else %}
+    prefetch: no
+{% endif %}
 
-    # One thread should be sufficient, can be increased on beefy machines. In reality for most users running on small networks or on a single machine, it should be unnecessary to seek performance enhancement by increasing num-threads above 1.
-    num-threads: 1
+{% if unbound_prefetch_key %}
+    prefetch-key: yes
+{% else %}
+    prefetch-key: no
+{% endif %}
 
-    # Ensure kernel buffer is large enough to not lose messages in traffic spikes
-    so-rcvbuf: 1m
-
-    # Ensure privacy of local IP ranges
+    num-threads: {{ unbound_num_threads }}
+    so-rcvbuf: {{ unbound_so_rcvbuf }}
     private-address: 192.168.0.0/16
     private-address: 169.254.0.0/16
     private-address: 172.16.0.0/12
     private-address: 10.0.0.0/8
     private-address: fd00::/8
     private-address: fe80::/10
+    private-domain: {{ unbound_private_domain }}
 
+{% if unbound_adblock %}
+    include: /etc/unbound/adblock.conf 
+{% endif %}
+
+{% if unbound_remote_control %}
+remote-control:
+    control-enable: yes
+    control-interface: /run/unbound.ctl
+{% endif %}
