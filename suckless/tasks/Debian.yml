@@ -1,0 +1,41 @@
+- name: "Xorg | Suckless"
+  tags:
+    - suckless
+  block:
+    - name: "Xorg | Suckless | Create {{ suckless_src_dir }}"
+      ansible.builtin.file:
+        name: "{{ suckless_src_dir }}"
+        state: directory
+        mode: "0700"
+        owner: "root"
+        group: "root"
+
+    - name: "Xorg | Suckless | Dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - xorg
+          - patch
+          - git
+          - make
+          - libx11-6
+          - libx11-xcb1
+          - libx11-dev
+          - libxft-dev
+          - libxinerama-dev
+          - libgcr-3-dev
+          - libwebkit2gtk-4.0-dev
+          - libglib2.0-dev
+        state: present
+
+    - name: "Xorg | Suckless | Compile"
+      tags:
+        - desktop
+      ansible.builtin.include_tasks: suckless.yml
+      loop: "{{ suckless_apps | dict2items }}"
+  rescue:
+    - name: "Compile suckless software: Fail"
+      ansible.builtin.debug:
+        msg: "Fail"
+      changed_when: true
+      # notify:
+      #   - send failed message

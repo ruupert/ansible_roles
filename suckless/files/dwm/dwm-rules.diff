@@ -1,0 +1,12 @@
+--- dwm/config.def.h	2023-06-02 18:29:55.476658218 +0300
++++ b/config.def.h	2023-06-02 17:40:43.557858968 +0300
+@@ -28,7 +28,7 @@
+ 	 */
+ 	/* class      instance    title       tags mask     isfloating   monitor */
+ 	{ "Gimp",     NULL,       NULL,       0,            1,           -1 },
+-	{ "Firefox",  NULL,       NULL,       1 << 8,       0,           -1 },
++	{ "mpv",     NULL,       NULL,       0,            1,           -1 },
++	{ "Firefox",     NULL,       "Picture-in-Picture",       0,            0,           -1 },
+ };
+ 
+ /* layout(s) */

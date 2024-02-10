@@ -1,0 +1,65 @@
+---
+# defaults file for suckless
+suckless_recompile: false
+suckless_src_dir: "/root/src"
+suckless_apps:
+  dwm:
+    src_dir: "{{ suckless_src_dir }}"
+    name: "dwm"
+    repo: "https://git.suckless.org/dwm"
+    branch: "6.2"
+    patches:
+      - "files/dwm/dwm-pertag-6.2.diff"
+      - "files/dwm/dwm-canfocusfloating-20210724-b914109.diff"
+      - "files/dwm/dwm-dragmfact-6.2.diff"
+      - "files/dwm/dwm-tilewide-6.3.diff"
+      - "files/dwm/dwm-rules.diff"
+    patch: true
+  st:
+    src_dir: "{{ suckless_src_dir }}"
+    name: "st"
+    repo: "https://git.suckless.org/st"
+    branch: "0.8.5"
+    patches:
+      - "files/st/st-xresources-20200604-9ba7ecf.diff"
+      - "files/st/st-scrollback-0.8.5.diff"
+      - "files/st/st-scrollback-mouse-20191024-a2c479c.diff"
+      - "files/st/st-scrollback-mouse-altscreen-20200416-5703aa0.diff"
+      - "files/st/st-clipboard-0.8.3.diff"
+    patch: true
+  surf:
+    src_dir: "{{ suckless_src_dir }}"
+    name: "surf"
+    repo: "https://git.suckless.org/surf"
+    branch: "surf-webkit2"
+    patches:
+    patch: false
+  dmenu:
+    src_dir: "{{ suckless_src_dir }}"
+    name: "dmenu"
+    repo: "https://git.suckless.org/dmenu"
+    branch: "master"
+    patches:
+    patch: false
+  dwmstatus:
+    src_dir: "{{ suckless_src_dir }}"
+    name: "dwmstatus"
+    repo: "https://github.com/ruupert/dwmstatus.git"
+    branch: "main"
+    patches:
+    patch: false
+  slstatus:
+    src_dir: "{{ suckless_src_dir }}"
+    name: "slstatus"
+    repo: "https://git.suckless.org/slstatus"
+    branch: "master"
+    patches:
+      # - "/sys/class/power_supply/BAT0/capacity"
+    patch: false
+  slock:
+    src_dir: "{{ suckless_src_dir }}"
+    name: "slock"
+    repo: "https://git.suckless.org/slock"
+    branch: "master"
+    patches:
+    patch: false

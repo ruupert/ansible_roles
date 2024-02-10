@@ -1,0 +1,91 @@
+- name: "Suckless | Compile | {{ item.value.name }}"
+  tags:
+    - suckless
+  block:
+    - name: "Suckless | Compile | Remove hidden {{ item.value.name }}"
+      ansible.builtin.file:
+        path: "{{ item.value.src_dir }}/.{{ item.value.name }}"
+        state: absent
+      when: suckless_recompile
+
+    - name: "Suckless | Compile | Git clone (hidden) - {{ item.value.name }}"
+      ansible.builtin.git:
+        repo: "{{ item.value.repo }}"
+        version: "{{ item.value.branch }}"
+        force: true
+        dest: "{{ item.value.src_dir }}/.{{ item.value.name }}"
+      register: git_reg
+
+    - name: "Suckless | Compile | Git clone - {{ item.value.name }}" # noqa: no-handler
+      ansible.builtin.git:
+        repo: "{{ item.value.repo }}"
+        version: "{{ item.value.branch }}"
+        force: true
+        dest: "{{ item.value.src_dir }}/{{ item.value.name }}"
+      when: git_reg.changed
+
+    - name: "Suckless | Compile | Make target: clean - {{ item.value.name }}" # noqa: no-handler
+      community.general.make:
+        target: "clean"
+        chdir: "/root/src/{{ item.value.name }}"
+      when: git_reg.changed
+
+    - name: "Suckless | Compile | Patch: {{ item.value.name }}" # noqa: no-handler
+      ansible.posix.patch:
+        src: "{{ itemy }}"
+        basedir: "/root/src/{{ item.value.name }}"
+        strip: 1
+      loop_control:
+        loop_var: itemy
+      with_items: "{{ item.value.patches }}"
+      when:
+        - git_reg.changed
+        - item.value.patch
+
+    - name: "Suckless stat config.def.h"
+      ansible.builtin.stat:
+        path: "/root/src/{{ item.value.name }}/config.def.h"
+      register: suckless_confdef_stat_reg
+
+    - name: "Suckless | Compile | Copy: config.def.h config.h - {{ item.value.name }}" # noqa: no-handler
+      ansible.builtin.copy:
+        src: "/root/src/{{ item.value.name }}/config.def.h"
+        dest: "/root/src/{{ item.value.name }}/config.h"
+        mode: "0744"
+        owner: "root"
+        group: "root"
+        remote_src: true
+      when:
+        - git_reg.changed
+        - suckless_confdef_stat_reg.stat.exists
+
+    # - name: "Remove: config.h - {{ item.value.name }}" # noqa: no-handler
+    #   ansible.builtin.file:
+    #     path: "/root/src/{{ item.value.name }}/config.h"
+    #     state: absent
+    #   when: git_reg.changed
+
+    # - name: "Make target: config.h - {{ item.value.name }}" # noqa: no-handler
+    #   community.general.make:
+    #     target: "config.h"
+    #     chdir: "/root/src/{{ item.value.name }}"
+    #   when: git_reg.changed
+
+    - name: "Suckless | Compile | Make - {{ item.value.name }}" # noqa: no-handler
+      community.general.make:
+        chdir: "/root/src/{{ item.value.name }}"
+      when: git_reg.changed
+      register: reg_make
+
+    - name: "Suckless | Compile | Make install - {{ item.value.name }}" # noqa: no-handler
+      community.general.make:
+        chdir: "/root/src/{{ item.value.name }}"
+        target: install
+      when: reg_make.changed
+  rescue:
+    - name: "Suckless | Compile | Error - {{ item.value.name }}"
+      ansible.builtin.debug:
+        msg: "Fail"
+      changed_when: true
+      notify:
+        - send failed message

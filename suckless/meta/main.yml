@@ -1,0 +1,16 @@
+galaxy_info:
+  author: Raul Becker
+  description: suckless
+  license: "MIT"
+  min_ansible_version: "2.1"
+  platforms:
+    - name: "Debian"
+      versions:
+        - "bullseye"
+        - "bookworm"
+    - name: "FreeBSD"
+      versions:
+        - "all"
+  galaxy_tags: []
+dependencies:
+  - { role: handlers }

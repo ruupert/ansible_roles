@@ -1,0 +1,25 @@
+---
+# tasks file for suckless
+
+- name: "Debian"
+  tags:
+    - suckless
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml" # .{{ ansible_distribution_major_version }}
+  when:
+    - ansible_distribution == "Debian"
+
+# - name: "FreeBSD"
+#   tags:
+#     - suckless
+#   ansible.builtin.include_tasks:
+#     file: "{{ ansible_distribution }}.yml"
+#   when:
+#     - ansible_distribution == "FreeBSD"
+
+# - name: "Configure"
+#   tags:
+#     - suckless
+#     - configure
+#   ansible.builtin.include_tasks:
+#     file: "configure.yml"
