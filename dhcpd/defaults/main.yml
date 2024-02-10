@@ -1,8 +1,14 @@
 ---
 # defaults file for dhcpd
-dhcpd_default_lease: "600"
-dhcpd_max_lease: "7200"
+dhcpd_default_lease: "3600"
+dhcpd_max_lease: "14400"
 dhcpd_subnets: []
 dhcpd_no_service: []
 dhcpd_fixed_addresses: []
 dhcpd_listen_interfaces: ""
+dhcpd_ha: true
+dhcpd_mclt: "3600"
+dhcpd_split: "255"
+dhcpd_authorative: true
+dhcpd_max_unacked_updates: "10"
+dhcpd_load_balance_max_seconds: "5"

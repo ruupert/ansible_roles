@@ -3,13 +3,13 @@
   hosts: all
   vars:
     dhcpd_subnets:
-      - subnet: "172.17.1.0"
+      - subnet: "10.1.1.0"
         netmask: "255.255.255.0"
-        gateway: "172.17.1.2"
-        broadcast: "172.17.1.255"
-        nameserver: "172.17.1.2"
-        start: "172.17.1.3"
-        stop: "172.17.1.200"
+        gateway: "10.1.1.2"
+        broadcast: "10.1.1.255"
+        nameserver: "10.1.1.2"
+        start: "10.1.1.3"
+        stop: "10.1.1.200"
     dhcpd_no_service:
       - subnet: "192.168.170.0"
         netmask: "255.255.255.0"

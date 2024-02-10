@@ -1,21 +1,64 @@
 # {{ ansible_managed }}
 
-default-lease-time {{ dhcp_default_lease}};
-max-lease-time {{ dhcp_max_lease }};
+default-lease-time {{ dhcpd_default_lease }};
+max-lease-time {{ dhcpd_max_lease }};
 ddns-update-style none;
+{% if dhcpd_authorative %}
 authoritative;
+{% endif %}
+
+{% if dhcpd_ha %}
+failover peer "dhcp-failover" {
+  address {{ ansible_host}};
+{% if dhcpd_primary %}
+  primary;
+  port {{ dhcpd_ha_port }};
+  peer address {{ hostvars[dhcpd_secondary_peer].ansible_host }};
+  peer port {{ dhcpd_ha_port }};
+  mclt {{ dhcpd_mclt }};
+  split {{ dhcpd_split }};
+{% else %}
+  secondary;
+  port {{ dhcpd_ha_port }};
+  peer address {{ hostvars[dhcpd_primary_peer].ansible_host }};
+  peer port {{ dhcpd_ha_port }};
+{% endif %}
+  max-unacked-updates {{ dhcpd_max_unacked_updates }};
+  load balance max seconds {{ dhcpd_load_balance_max_seconds }};
+}
+{% endif %}
 
 {% for no_service in dhcpd_no_service %}
 subnet {{ no_service.subnet }} netmask {{ no_service.netmask }} {
 }
 {% endfor %}
 
+# option rfc3442-classless-static-routes code 121 = text;
+#option ms-classless-static-routes code 249 = text;
+
+
 {% for service in dhcpd_subnets %}
 subnet {{ service.subnet }} netmask {{ service.netmask }} {
-  range {{ service.start }} {{ service.stop }};
   option routers {{ service.gateway }};
   option broadcast-address {{ service.broadcast }};
   option domain-name-servers {{ service.nameserver }};
+  
+{% if dhcpd_option121 is defined %}
+  # option rfc3442-classless-static-routes {{ dhcpd_option121 }};
+{% endif %}
+  #option rfc3442-classless-static-routes "0x{{ dhcpd_classles_static_routes | routes2classless | upper }}";
+  #option ms-classless-static-routes "0x{{ dhcpd_classles_static_routes | routes2classless | upper }}";
+
+{% if service.search is defined %}
+  option domain-search "{{ service.search }}";
+{% endif %}
+
+  pool {
+{% if dhcpd_ha %}
+    failover peer "dhcp-failover";
+{% endif %}
+    range {{ service.start }} {{ service.stop }};
+  }
 }
 {% endfor %}
 
