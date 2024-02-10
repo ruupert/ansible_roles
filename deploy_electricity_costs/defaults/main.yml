@@ -1,7 +1,11 @@
 ---
-# defaults file for ruupert_deploy_electricity_costs
+# defaults file for deploy_electricity_costs
 electricity_costs_user: "electiricity_costs"
 electricity_costs_home: "/opt/electricity_costs"
+electricity_costs_script: "{{  electricity_costs_home }}/run.sh"
 electricity_costs_repo: "https://github.com/ruupert/electricity_costs.git"
 electricity_costs_branch: "main"
 electricity_costs_pyver: "python3.9"
+electricity_costs_pyroscope_server: "http://orca.irb.fi:4040"
+electricity_costs_cron: false
+electricity_costs_timer: false

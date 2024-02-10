@@ -1,5 +1,5 @@
 ---
-# tasks file for ruupert_deploy_electricity_costs
+# tasks file for deploy_electricity_costs
 
 - name: "Deploy electricity_costs"
   when:
@@ -16,6 +16,7 @@
           - "virtualenv"
           - "python3-virtualenv"
           - "sqlite3"
+          - "python3-pip"
         state: "present"
 
     - name: "Create user"
@@ -33,6 +34,15 @@
         owner: "{{ electricity_costs_user }}"
         group: "{{ electricity_costs_user }}"
         mode: "0700"
+
+    - name: "Electricity costs | Ansible remote_tmp dir"
+      ansible.builtin.file:
+        path: "{{ electricity_costs_user }}/.ansible/tmp"
+        state: directory
+        recurse: true
+        mode: "0700"
+        owner: "{{ electricity_costs_user }}"
+        group: "{{ electricity_costs_user }}"
 
     - name: "Git pull"
       ansible.builtin.git:
@@ -56,15 +66,13 @@
       ansible.builtin.pip:
         requirements: "{{ electricity_costs_home }}/app/requirements.txt"
         virtualenv: "{{ electricity_costs_home }}/venv"
-        virtualenv_python: "{{ electricity_costs_pyver }}"
       become_user: "{{ electricity_costs_user }}"
       become: true
 
-    - name: "Install github.com/ojarva/python-helen-electricity-usage"
+    - name: "Install github.com/ruupert/python-helen-electricity-usage"
       ansible.builtin.pip:
-        name: "git+https://github.com/ojarva/python-helen-electricity-usage"
+        name: "git+https://github.com/ruupert/python-helen-electricity-usage"
         virtualenv: "{{ electricity_costs_home }}/venv"
-        virtualenv_python: "{{ electricity_costs_pyver }}"
       become: true
       become_user: "{{ electricity_costs_user }}"
 
@@ -93,6 +101,57 @@
         user: "{{ electricity_costs_user }}"
         job: "{{ electricity_costs_home }}/run.sh"
         cron_file: electricity_costs_cron
+      when: electricity_costs_cron
+
+    - name: "Remove cronjob"
+      ansible.builtin.file:
+        path: /etc/cron.d/electricity_costs_cron
+        state: absent
+      when: not electricity_costs_cron
+
+    - name: "Add service"
+      ansible.builtin.template:
+        src: "templates/electricity_costs.service.j2"
+        dest: "/etc/systemd/system/{{ electricity_costs_user }}.service"
+        mode: "0755"
+        owner: root
+        group: root
+      when: electricity_costs_timer
+
+    - name: "Add timer"
+      ansible.builtin.template:
+        src: "templates/electricity_costs.timer.j2"
+        dest: "/etc/systemd/system/{{ electricity_costs_user }}.timer"
+        mode: "0755"
+        owner: root
+        group: root
+      when: electricity_costs_timer
+
+    - name: "Enable timer"
+      ansible.builtin.systemd_service:
+        name: "{{ electricity_costs_user }}.timer"
+        enabled: true
+        daemon_reload: true
+      when: electricity_costs_timer
+
+    - name: "Disable timer"
+      ansible.builtin.systemd_service:
+        name: "{{ electricity_costs_user }}.timer"
+        enabled: false
+        daemon_reload: true
+      when: not electricity_costs_timer
+
+    - name: "Remove timer"
+      ansible.builtin.file:
+        path: "/etc/systemd/system/{{ electricity_costs_user }}.timer"
+        state: absent
+      when: not electricity_costs_timer
+
+    - name: "Remove service"
+      ansible.builtin.file:
+        path: "/etc/systemd/system/{{ electricity_costs_user }}.service"
+        state: absent
+      when: not electricity_costs_timer
 
   rescue:
     - name: "Feil"
@@ -101,3 +160,8 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - electricity_costs
+  ansible.builtin.meta: flush_handlers

@@ -1,0 +1,9 @@
+[Unit]
+Description="Run electricity_costs.service 5min after boot and every day at 15:15"
+
+[Timer]
+OnCalendar=Mon..Sun *-*-* 15:15
+Unit=electricity_costs.service
+
+[Install]
+WantedBy=multi-user.target

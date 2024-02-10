@@ -1,0 +1,6 @@
+[Unit]
+Description="Service for {{ electricity_costs_user }}"
+
+[Service]
+ExecStart={{ electricity_costs_script }}
+User={{ electricity_costs_user }}

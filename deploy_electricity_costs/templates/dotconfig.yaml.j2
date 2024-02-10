@@ -1,0 +1,13 @@
+apikey: "{{ electricity_costs_entsoe_apikey }}"
+username: "{{ electricity_costs_helen_username }}"
+password: "{{ electricity_costs_helen_password }}"
+delivery_site: "{{ electricity_costs_delivery_site }}"
+{% if electricity_costs_psql_db is defined %}
+psql_db: "{{ electricity_costs_psql_db }}"
+psql_pass: "{{ electricity_costs_psql_pass }}"
+psql_user: "{{ electricity_costs_psql_user }}"
+psql_host: "{{ electricity_costs_psql_host }}"
+{% endif %}
+{% if electricity_costs_pyroscope_server is defined %}
+pyroscope_server: "{{ electricity_costs_pyroscope_server }}"
+{% endif %}
