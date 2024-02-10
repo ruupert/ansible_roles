@@ -1,0 +1,14 @@
+---
+# handlers file for ntp
+
+- name: "Restart systemd timesynchd service"
+  ansible.builtin.service:
+    name: "systemd-timesyncd"
+    state: restarted
+  listen: restart timesyncd-service
+
+- name: "Restart freebsd ntp"
+  ansible.builtin.service:
+    name: "ntpd"
+    state: "restarted"
+  listen: restart freebsd ntp

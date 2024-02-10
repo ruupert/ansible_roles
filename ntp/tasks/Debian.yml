@@ -1,0 +1,29 @@
+- name: "Time"
+  tags:
+    - ntp
+  block:
+    - name: "Set ntp_timezone"
+      community.general.timezone:
+        name: "{{ ntp_timezone }}"
+
+    - name: "Configure timesyncd"
+      ansible.builtin.template:
+        src: "templates/Debian/timesyncd.conf.j2"
+        dest: "/etc/systemd/timesyncd.conf"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify: restart timesyncd-service
+
+    - name: "Timesynchd started"
+      ansible.builtin.service:
+        name: "systemd-timesyncd"
+        state: started
+
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "FeilFail"
+      changed_when: true
+      notify:
+        - send failed message

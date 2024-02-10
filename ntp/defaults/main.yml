@@ -1,0 +1,5 @@
+---
+# defaults file for ntp
+ntp_timezone: "Europe/Helsinki"
+ntp_server: 'time.mikes.fi'
+ntp_pool: 'fi.pool.ntp.org'

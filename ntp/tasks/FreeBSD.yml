@@ -1,0 +1,35 @@
+- name: "Time"
+  tags:
+    - ntp
+  block:
+    - name: "Set ntp_timezone"
+      community.general.timezone:
+        name: "{{ ntp_timezone }}"
+
+    - name: "Write ntp.conf"
+      ansible.builtin.template:
+        src: "templates/FreeBSD/ntp.conf.j2"
+        dest: "/etc/ntp.conf"
+        mode: "0644"
+        owner: "root"
+        group: "wheel"
+      notify: restart freebsd ntp
+
+    - name: "Enable ntpd"
+      community.general.sysrc:
+        name: "ntpd_enable"
+        value: "YES"
+        state: present
+
+    - name: "Service ntpd started"
+      ansible.builtin.service:
+        name: "ntpd"
+        state: started
+
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "FeilFail"
+      changed_when: true
+      notify:
+        - send failed message
