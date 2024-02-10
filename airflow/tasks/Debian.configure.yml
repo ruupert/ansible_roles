@@ -1,0 +1,180 @@
+---
+- name: "Debian | Airflow | Configure"
+  block:
+
+    - name: "Airflow | Create airflow dag_processor_log_target directory"
+      ansible.builtin.file:
+        path: "{{ airflow_home }}/airflow"
+        state: directory
+        owner: "{{ airflow_user }}"
+        group: "{{ airflow_group }}"
+        mode: "0755"
+
+    - name: "Airflow | Config"
+      ansible.builtin.template:
+        src: "templates/airflow.cfg.j2"
+        dest: "{{ airflow_home }}/airflow/airflow.cfg"
+        mode: "0700"
+        owner: "{{ airflow_user }}"
+        group: "{{ airflow_group }}"
+      notify:
+        - debian daemon reload
+        - debian restart airflow webserver
+        - debian restart airflow scheduler
+        # - debian restart airflow worker
+
+    - name: "Airflow | Tempfiles.d"
+      ansible.builtin.template:
+        src: "templates/tmpfiles_d_airflow.conf.j2"
+        dest: "/etc/tmpfiles.d/airflow.conf"
+        mode: "0744"
+        owner: "root"
+        group: "root"
+
+    - name: "Airflow | Create airflow dirs"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ airflow_user }}"
+        group: "{{ airflow_group }}"
+        mode: "0755"
+      with_items:
+        - "{{ airflow_home }}/plugins"
+        - "{{ airflow_logs }}"
+        - "{{ airflow_logs }}/dag_processor_manager"
+        - "{{ airflow_logs }}/scheduler"
+
+    - name: "Airflow | Write github deploy key"
+      ansible.builtin.copy:
+        content: |
+          {{ airflow_github_deploy_key | b64decode }}
+        dest: "{{ airflow_home }}/.ssh/airflow_dags_deploy_github_key"
+        mode: "0600"
+        owner: "{{ airflow_user }}"
+        group: "{{ airflow_group }}"
+
+    - name: "Airflow | Git clone or pull"
+      ansible.builtin.git:
+        accept_hostkey: true
+        clone: true
+        force: true
+        repo: "{{ airflow_dags_repo }}"
+        dest: "{{ airflow_home }}/dags"
+        version: "main"
+        key_file: "{{ airflow_home }}/.ssh/airflow_dags_deploy_github_key"
+      become: true
+      become_method: ansible.builtin.sudo
+      become_user: "{{ airflow_user }}"
+
+    - name: "Airflow | Sysconfig"
+      ansible.builtin.template:
+        src: "templates/sysconfig_airflow.j2"
+        dest: "/etc/default/airflow"
+        mode: "0744"
+        owner: "root"
+        group: "root"
+
+    - name: "Airflow | Webserver service"
+      ansible.builtin.template:
+        src: "templates/airflow_webserver.service.j2"
+        dest: "/etc/systemd/system/airflow_webserver.service"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify:
+        - debian daemon reload
+        - debian restart airflow webserver
+
+    - name: "Airflow | Webserver config"
+      ansible.builtin.template:
+        src: "templates/webserver_config.py.j2"
+        dest: "{{ airflow_home }}/airflow/webserver_config.py"
+        mode: "0644"
+        owner: "{{ airflow_user }}"
+        group: "{{ airflow_group }}"
+      notify:
+        - debian daemon reload
+        - debian restart airflow webserver
+
+    - name: "Airflow | Worker service"
+      ansible.builtin.template:
+        src: "templates/airflow_worker.service.j2"
+        dest: "/etc/systemd/system/airflow_worker.service"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+      notify:
+        - debian daemon reload
+        # - debian restart airflow worker
+
+    - name: "Airflow | Scheduler service"
+      ansible.builtin.template:
+        src: "templates/airflow_scheduler.service.j2"
+        dest: "/etc/systemd/system/airflow_scheduler.service"
+        mode: "0744"
+        owner: "root"
+        group: "root"
+      notify:
+        - debian daemon reload
+        - debian restart airflow scheduler
+
+    - name: "Airflow | Enable webserver"
+      ansible.builtin.systemd:
+        service: "airflow_webserver"
+        enabled: true
+        state: started
+
+#    - name: "Airflow | Enable worker"
+#      ansible.builtin.systemd:
+#        service: "airflow_worker"
+#        enabled: false
+#        state: stopped
+
+    - name: "Airflow | Enable scheduler"
+      ansible.builtin.systemd:
+        service: "airflow_scheduler"
+        enabled: true
+        state: started
+
+    - name: "Airflow | Init or migrate db"
+      ansible.builtin.command:
+        cmd: "{{ item }}"
+      changed_when: false
+      become: true
+      become_user: "{{ airflow_user }}"
+      become_method: ansible.builtin.sudo
+      with_items:
+        - "{{ airflow_home }}/.venv/bin/airflow db migrate"
+
+    # cmd too long
+    - name: "Airflow | Admin user"
+      ansible.builtin.command:
+        cmd: "{{ airflow_home }}/.venv/bin/airflow users create -u {{ airflow_admin_user }} -p {{ airflow_admin_pass }} -f {{ airflow_admin_firstname }} -e {{ airflow_admin_email }} -r Admin -l {{ airflow_admin_lastname }}" # noqa: yaml[line-length]
+      changed_when: false
+      become: true
+      become_user: "{{ airflow_user }}"
+      become_method: ansible.builtin.sudo
+
+    - name: "Airflow | Vars json"
+      ansible.builtin.template:
+        src: "templates/vars.json.j2"
+        dest: "{{ airflow_home }}/vars.json"
+        mode: "0700"
+        owner: "{{ airflow_user }}"
+        group: "{{ airflow_group }}"
+
+    - name: "Airflow | Conn json"
+      ansible.builtin.template:
+        src: "templates/conn.json.j2"
+        dest: "{{ airflow_home }}/conn.json"
+        mode: "0700"
+        owner: "{{ airflow_user }}"
+        group: "{{ airflow_group }}"
+
+  rescue:
+    - name: "Airflow | Debian | Failed"
+      ansible.builtin.debug:
+        msg: "Airflow | Debian | Failed"
+      changed_when: true
+      notify:
+        - send failed message

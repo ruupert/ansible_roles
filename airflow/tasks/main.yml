@@ -1,0 +1,11 @@
+---
+# tasks file for airflow
+
+- name: "Debian"
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml"
+  when:
+    - ansible_distribution == "Debian"
+
+- name: "Flush handlers"
+  ansible.builtin.meta: flush_handlers

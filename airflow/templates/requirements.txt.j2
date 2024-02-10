@@ -1,0 +1,5 @@
+apache-airflow=={{ airflow_version }}
+{% for pkg in airflow_pip_pkgs %}
+{{ pkg }}
+{% endfor %}
+-c {{ airflow_pip_constraints }}

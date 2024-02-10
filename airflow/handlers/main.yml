@@ -1,0 +1,24 @@
+---
+# handlers file for airflow
+- name: "Debian | Airflow | Reload daemon"
+  ansible.builtin.systemd:
+    daemon_reload: true
+  listen: debian daemon reload
+
+- name: "Debian | Airflow | Restart webserver"
+  ansible.builtin.service:
+    name: "airflow_webserver"
+    state: "restarted"
+  listen: debian restart airflow webserver
+
+- name: "Debian | Airflow | Restart scheduler"
+  ansible.builtin.service:
+    name: "airflow_worker"
+    state: "restarted"
+  listen: debian restart airflow worker
+
+- name: "Debian | Airflow | Restart scheduler"
+  ansible.builtin.service:
+    name: "airflow_scheduler"
+    state: "restarted"
+  listen: debian restart airflow scheduler

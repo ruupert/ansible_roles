@@ -1,0 +1,58 @@
+---
+- name: "Debian | Airflow | Preflight"
+  block:
+
+    - name: Debian | Airflow | Install tag
+      tags:
+        - install
+      ansible.builtin.set_fact:
+        airflow_install: true
+
+    - name: Debian | Airflow | Check if installed
+      ansible.builtin.stat:
+        path: "{{ airflow_home }}/.venv/bin/airflow"
+      register: airflow_bin_stat
+
+    - name: Debian | Airflow | Check version
+      ansible.builtin.command:
+        cmd: "{{ airflow_home }}/.venv/bin/airflow version"
+      register: airflow_installed_version
+      changed_when: false
+      when:
+        - airflow_bin_stat.stat.exists
+
+    - name: Debian | Airflow | If installed
+      ansible.builtin.set_fact:
+        airflow_install: false
+      when:
+        - airflow_bin_stat.stat.exists
+
+    # Assuming Python virtualenv should always match the host python version.
+    - name: "Debian | Airflow | Get Python version"
+      airflow_python_version:
+
+    - name: Debian | Airflow | Discover latest version
+      ansible.builtin.set_fact:
+        airflow_version: "{{ (lookup('url', 'https://api.github.com/repos/' + _airflow_repo + '/releases/latest', headers=_github_api_headers,
+                            split_lines=False) | from_json).get('tag_name') }}"
+      run_once: true
+      until: airflow_version is version('0.0.0', '>=')
+      retries: 10
+      when:
+        - airflow_version == "latest"
+
+    - name: "Debian | Airflow | Write out requirements.txt"
+      ansible.builtin.template:
+        src: "templates/requirements.txt.j2"
+        dest: "{{ airflow_home }}/requirements.txt"
+        mode: "0744"
+        owner: "{{ airflow_user }}"
+        group: "{{ airflow_group }}"
+
+  rescue:
+    - name: "Airflow | Debian | Failed"
+      ansible.builtin.debug:
+        msg: "Airflow | Debian | Failed"
+      changed_when: true
+      notify:
+        - send failed message

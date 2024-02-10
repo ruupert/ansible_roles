@@ -1,0 +1,5 @@
+---
+# vars file for airflow
+airflow_postgres_host: "{{ query('inventory_hostnames', 'airflow_db') | first }}"
+_airflow_repo: "apache/airflow"
+_github_api_headers: "{{ {'GITHUB_TOKEN': lookup('ansible.builtin.env', 'GITHUB_TOKEN')} if (lookup('ansible.builtin.env', 'GITHUB_TOKEN')) else {} }}" # noqa: yaml[line-length] var-naming[no-role-prefix]

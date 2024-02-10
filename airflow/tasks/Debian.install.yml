@@ -1,0 +1,61 @@
+---
+- name: "Debian | Airflow | Install"
+  block:
+
+    - name: Debian | Airflow | Install | Dependencies
+      ansible.builtin.apt:
+        pkg:
+          - sudo
+          - virtualenv
+          - libgdal-dev
+          - python3-venv
+          - git
+        state: present
+
+    - name: Debian | Airflow | Create airflow system group
+      ansible.builtin.group:
+        name: "{{ airflow_group }}"
+        system: true
+        state: present
+
+    - name: Debian | Airflow | Create airflow system user
+      ansible.builtin.user:
+        name: "{{ airflow_user }}"
+        system: true
+        shell: "/usr/sbin/nologin"
+        group: "{{ airflow_group }}"
+        createhome: true
+        home: "{{ airflow_home }}"
+
+    - name: Debian | Airflow | Create airflow data directory
+      ansible.builtin.file:
+        path: "{{ airflow_home }}"
+        state: directory
+        owner: "{{ airflow_user }}"
+        group: "{{ airflow_group }}"
+        mode: "0755"
+
+    - name: "Debian | Airflow | Write out requirements.txt"
+      ansible.builtin.template:
+        src: "templates/requirements.txt.j2"
+        dest: "{{ airflow_home }}/requirements.txt"
+        mode: "0744"
+        owner: "{{ airflow_user }}"
+        group: "{{ airflow_group }}"
+
+    - name: "Debian | Airflow | Pip packages"
+      ansible.builtin.pip:
+        state: present
+        virtualenv: "{{ airflow_venv }}"
+        requirements: "{{ airflow_home }}/requirements.txt"
+      become_user: "{{ airflow_user }}"
+      become: true
+      become_method: ansible.builtin.sudo
+
+  rescue:
+    - name: "Airflow | Debian | Failed"
+      ansible.builtin.debug:
+        msg: "Airflow | Debian | Failed"
+      changed_when: true
+      notify:
+        - send failed message

@@ -1,0 +1,34 @@
+---
+# defaults file for airflow
+airflow_user: "airflow"
+airflow_group: "{{ airflow_user }}"
+airflow_home: "/opt/airflow"
+airflow_log_filename: "airflow"
+airflow_venv: "{{ airflow_home }}/.venv"
+airflow_dag_folder: "{{ airflow_home }}/dags"
+airflow_logs: "{{ airflow_home }}/logs"
+airflow_web_server_port: 8080
+airflow_install: true
+airflow_dags_repo: "git@github.com:ruupert/dags.git"
+airflow_version: latest
+airflow_sentry_enabled: false
+airflow_pip_constraints: "https://raw.githubusercontent.com/apache/airflow/constraints-{{ airflow_version }}/constraints-{{ ansible_facts['facts']['airflow_python_version'] }}.txt"
+airflow_pip_deps:
+airflow_pip_pkgs:
+  - virtualenv
+  - psycopg2-binary
+  - ipython
+  - pandas
+  - pyarrow
+  - psycopg2-binary
+  - apache-airflow[celery]
+  - apache-airflow[postgres]
+  - apache-airflow-providers-common-sql
+  - apache-airflow-providers-postgres
+  - apache-airflow[sentry]
+  - apache-airflow[pandas]
+  - apache-airflow[virtualenv]
+  - apache-airflow[github]
+  - airflow-exporter
+  - SQLAlchemy
+  - virtualenv

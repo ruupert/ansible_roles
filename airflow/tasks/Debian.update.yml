@@ -1,0 +1,70 @@
+---
+- name: "Debian | Airflow | Update"
+  block:
+
+    - name: Debian | Airflow | List and register unpaused dags
+      airflow_list_jobs_helper:
+        airflow_bin_path: "{{ airflow_home }}/.venv/bin/airflow"
+      become: true
+      become_method: ansible.builtin.sudo
+      become_user: "{{ airflow_user }}"
+
+    - name: Debian | Airflow | Pause unpaused dags
+      airflow_job_control:
+        airflow_pause: True
+        airflow_bin_path: "{{ airflow_home }}/.venv/bin/airflow"
+        airflow_dag_id: "{{ item['dag_id'] }}"
+      with_items:
+        - "{{ ansible_facts['facts']['airflow_dags'] }}"
+      become: true
+      become_method: ansible.builtin.sudo
+      become_user: "{{ airflow_user }}"
+
+    - name: "Debian | Airflow | Write out requirements.txt"
+      ansible.builtin.template:
+        src: "templates/requirements.txt.j2"
+        dest: "{{ airflow_home }}/requirements.txt"
+        mode: "0744"
+        owner: "{{ airflow_user }}"
+        group: "{{ airflow_group }}"
+
+    - name: "Debian | Airflow | Pip packages"
+      ansible.builtin.pip:
+        state: present
+        virtualenv: "{{ airflow_venv }}"
+        requirements: "{{ airflow_home }}/requirements.txt"
+      become_user: "{{ airflow_user }}"
+      become: true
+      become_method: ansible.builtin.sudo
+      notify:
+        - debian restart airflow webserver
+        - debian restart airflow scheduler
+
+    - name: Debian | Airflow | DB migrate
+      airflow_db_migrate:
+        airflow_bin_path: "{{ airflow_home }}/.venv/bin/airflow"
+      become: true
+      become_method: ansible.builtin.sudo
+      become_user: "{{ airflow_user }}"
+      notify:
+        - debian restart airflow webserver
+        - debian restart airflow scheduler
+
+    - name: Debian | Airflow | Resume paused dags
+      airflow_job_control:
+        airflow_pause: False
+        airflow_bin_path: "{{ airflow_home }}/.venv/bin/airflow"
+        airflow_dag_id: "{{ item['dag_id'] }}"
+      with_items:
+        - "{{ ansible_facts['facts']['airflow_dags'] }}"
+      become: true
+      become_method: ansible.builtin.sudo
+      become_user: "{{ airflow_user }}"
+      
+  rescue:
+    - name: "Airflow | Debian | Failed"
+      ansible.builtin.debug:
+        msg: "Airflow | Debian | Failed"
+      changed_when: true
+      notify:
+        - send failed message
