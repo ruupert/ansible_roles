@@ -1,0 +1,34 @@
+-- {{ ansible_managed }}
+
+{% set dnsdist_version = hostvars[inventory_hostname]['packages']['dnsdist'][0]['version'] %}
+setLocal("127.0.0.1:{{ dnsdist_port }}")
+{% for address in ansible_all_ipv4_addresses %}
+addLocal("{{ address }}:{{ dnsdist_port }}")
+{% endfor %}
+{% for acl in dnsdist_aclss %}
+addACL("{{ acl }}")
+{% endfor %}
+addACL("127.0.0.1/32")
+{% if dnsdist_version | regex_search("^1.5") %}
+{% for server in dnsdist_serverss %}
+newServer({ address='{{ server }}', order={{loop.index}} })
+{% endfor %}
+{% else %}
+{% for server in dnsdist_serverss %}
+newServer({address='{{ server }}', healthCheckMode='lazy', checkInterval=1, lazyHealthCheckFailedInterval=30, rise=2, maxCheckFailures=3, lazyHealthCheckThreshold=30, lazyHealthCheckSampleSize=100,  lazyHealthCheckMinSampleCount=10, lazyHealthCheckMode='TimeoutOnly'})
+{% endfor %}
+{% endif %}
+controlSocket("{{ dnsdist_controlsocket }}")
+setKey("{{ dnsdist_control_key | b64decode }}")
+{% if not dnsdist_version | regex_search("^1.5") %}
+pc = newPacketCache(10000, {maxTTL=86400, minTTL=0, temporaryFailureTTL=60, staleTTL=60, dontAge=false})
+getPool(""):setCache(pc)
+{% endif %}
+{% if dnsdist_configss is defined %}
+{{ dnsdist_configs }}
+{% endif %}
+{% set dnsdist_prometheus_hosts = query('inventory_hostnames', 'prometheus') %}
+{% if dnsdist_prometheus_hosts | length > 0 %}
+webserver("0.0.0.0:{{ dnsdist_exporter_port }}", "{{ dnsdist_exporter_password }}")
+setWebserverConfig({password="{{ dnsdist_service_password }}", apiKey="{{ dnsdist_service_password }}", acl="{{ hostvars[dnsdist_prometheus_hosts[0]]['private_ip']}}"})
+{% endif %}

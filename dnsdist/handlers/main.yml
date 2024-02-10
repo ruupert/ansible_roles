@@ -1,0 +1,8 @@
+---
+# handlers file for dnsdist
+- name: "Debian | dnsdist | Restart"
+  ansible.builtin.systemd:
+    name: "dnsdist"
+    state: "restarted"
+    daemon_reload: true
+  listen: restart dnsdist

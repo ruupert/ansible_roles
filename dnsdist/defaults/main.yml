@@ -1,0 +1,9 @@
+---
+# defaults file for dnsdist
+dnsdist_service: "dnsdist.service"
+dnsdist_port: 53
+dnsdist_exporter_port: 8083
+dnsdist_controlsocket: "127.0.0.1"
+dnsdist_service_state: "started"
+dnsdist_service_enabled: "yes"
+dnsdist_conf_path: "/etc/dnsdist"

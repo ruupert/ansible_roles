@@ -1,0 +1,39 @@
+---
+# tasks file for dnsdist
+- name: "Debian preflight"
+  tags:
+    - always
+    - dnsdist
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.preflight.yml" # .{{ ansible_distribution_major_version }}
+  when:
+    - ansible_distribution == "Debian"
+
+- name: "Debian install"
+  tags:
+    - dnsdist
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.install.yml" # .{{ ansible_distribution_major_version }}
+#  when:
+#    - ansible_distribution == "Debian" and not dnsdist_installed
+
+- name: "Debian configure"
+  tags:
+    - dnsdist
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.configure.yml" # .{{ ansible_distribution_major_version }}
+#  when:
+#    - ansible_distribution == "Debian" and dnsdist_installed
+
+# - name: "FreeBSD"
+#   tags:
+#     - dnsdist
+#   ansible.builtin.include_tasks:
+#     file: "{{ ansible_distribution }}.yml"
+#   when:
+#     - ansible_distribution == "FreeBSD"
+
+- name: "Flush handlers"
+  tags:
+    - dnsdist
+  ansible.builtin.meta: flush_handlers

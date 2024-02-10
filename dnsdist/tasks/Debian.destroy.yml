@@ -1,0 +1,22 @@
+---
+# tasks file for ebpf_exporter
+- name: Stop and disable service
+  ansible.builtin.service:
+    name: "dnsdist"
+    enabled: false
+    state: stopped
+
+- name: "Remove service"
+  ansible.builtin.file:
+    path: /etc/systemd/system/dnsdist.service
+    state: absent
+
+- name: "Remove home dir"
+  ansible.builtin.file:
+    path: "{{ dnsdist_conf_path }}"
+    state: absent
+
+- name: "Reminder"
+  ansible.builtin.debug:
+    msg: "Remove hosts from the group and reconfigure monitoring"
+  run_once: true

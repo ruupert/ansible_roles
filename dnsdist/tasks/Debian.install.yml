@@ -1,0 +1,33 @@
+---
+- name: "Debian | Dnsdist"
+  tags:
+    - dnsdist
+  block:
+
+    - name: "Dnsdist | Debian | Dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - dnsdist
+        state: present
+
+    - name: "Ensure config dir exists"
+      ansible.builtin.file:
+        path: "{{ dnsdist_conf_path }}"
+        state: directory
+        mode: "0755"
+        owner: "root"
+        group: "root"
+
+    - name: "Is installed"
+      ansible.builtin.set_fact:
+        dnsdist_installed: true
+      when:
+        - "'dnsdist' in ansible_facts.packages"
+
+  rescue:
+    - name: "Dnsdist | Debian | Failed"
+      ansible.builtin.debug:
+        msg: "dnsdist | Debian | Failed"
+      changed_when: true
+      notify:
+        - send failed message

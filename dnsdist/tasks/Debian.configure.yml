@@ -1,0 +1,91 @@
+---
+- name: "Debian | Dnsdist"
+  tags:
+    - dnsdist
+  block:
+
+    - name: "Template dnsdsist.service"
+      ansible.builtin.template:
+        src: "templates/dnsdist.service.j2"
+        dest: "/lib/systemd/system/dnsdist.service"
+        mode: "0644"
+        owner: root
+        group: root
+      notify:
+        - restart dnsdist
+
+    - name: "Stat control.key"
+      ansible.builtin.stat:
+        path: "{{ dnsdist_conf_path }}/control.key"
+      register: dnsdist_control_key
+
+    - name: Generate encryption key  # noqa no-changed-when
+      ansible.builtin.shell:
+        cmd: "head -c 32 /dev/urandom | base64"
+      delegate_to: localhost
+      register: dnsdist_setkey_cmd
+      when:
+        - not dnsdist_control_key.stat.exists
+      changed_when: true
+
+    - name: Base64 encode encyption key # noqa: no-handler
+      ansible.builtin.copy:
+        dest: "{{ dnsdist_conf_path }}/control.key"
+        mode: "0640"
+        owner: "root"
+        group: "root"
+        content: "{{ dnsdist_setkey_cmd.stdout }}"
+      when: dnsdist_setkey_cmd.changed
+
+    - name: "Slurp control.key"
+      ansible.builtin.slurp:
+        path: "{{ dnsdist_conf_path }}/control.key"
+      register: dnsdist_slurp
+
+    - name: "Set dnsdist_control_key fact"
+      ansible.builtin.set_fact:
+        dnsdist_control_key: "{{ dnsdist_slurp['content'] }}"
+
+    - name: "Template dnsdist.conf"
+      ansible.builtin.template:
+        src: "templates/dnsdist.conf.j2"
+        dest: "{{ dnsdist_conf_path }}/dnsdist_temp.conf"
+        mode: "0640"
+        owner: "root"
+        group: "root"
+      register: dnsdist_config_change
+
+    - name: "Check config" # noqa: no-handler
+      ansible.builtin.command:
+        cmd: dnsdist -C {{ dnsdist_conf_path }}/dnsdist_temp.conf --check-config
+      register: dnsdist_config_check
+      changed_when: dnsdist_config_check.rc == 0
+      failed_when: dnsdist_config_check.rc != 0
+      when: dnsdist_config_change.changed
+
+    - name: "Copy dnsdist_temp.conf over dnsdist.conf" # noqa: no-handler
+      ansible.builtin.copy:
+        src: "{{ dnsdist_conf_path }}/dnsdist_temp.conf"
+        dest: "{{ dnsdist_conf_path }}/dnsdist.conf"
+        mode: "0640"
+        owner: "root"
+        group: "_dnsdist"
+        remote_src: true
+      when:
+        - dnsdist_config_check.changed
+      notify:
+        - restart dnsdist
+
+    - name: "Dnsdist Service"
+      ansible.builtin.systemd:
+        service: dnsdist
+        state: started
+        enabled: true
+
+  rescue:
+    - name: "Dnsdist | Debian | Failed"
+      ansible.builtin.debug:
+        msg: "dnsdist | Debian | Failed"
+      changed_when: true
+      notify:
+        - send failed message

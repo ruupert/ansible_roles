@@ -1,0 +1,35 @@
+---
+- name: Gather installed
+  ansible.builtin.package_facts:
+    manager: auto
+  when: "ansible_facts.packages is undefined"
+
+- name: Gather installed
+  ansible.builtin.package_facts:
+    manager: auto
+  when:
+    - "'dnsdist' not in ansible_facts.packages"
+
+- name: "Is installed"
+  ansible.builtin.set_fact:
+    dnsdist_installed: true
+  when:
+    - "'dnsdist' in ansible_facts.packages"
+
+- name: "Is not installed"
+  ansible.builtin.set_fact:
+    dnsdist_installed: false
+  when:
+    - "'dnsdist' not in ansible_facts.packages"
+
+- name: "Var: dnsdist_key"
+  ansible.builtin.fail:
+    msg: "dnsdist_key is not set"
+  when:
+    - "dnsdist_key is undefined"
+
+- name: "Var: dnsdist_service_password"
+  ansible.builtin.fail:
+    msg: "dnsdist_service_password is not set"
+  when:
+    - "dnsdist_service_password is undefined"
