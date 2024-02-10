@@ -1,0 +1,15 @@
+#!/bin/bash
+# {{ ansible_managed }}
+{% if xorg_secondary_display %}
+if [ "$1" == "enable" ]; then
+    xrandr --output {{ xorg_xrandr_primary_display.name }} --scale 1x1
+    xrandr --output {{ xorg_xrandr_secondary_display.name }} --mode {{ xorg_xrandr_secondary_display.resolution }} --above {{ xorg_xrandr_primary_display.name }}
+    xrandr --output {{ xorg_xrandr_primary_display.name }} --scale {{ xorg_xrandr_primary_display.scale }}
+elif [ "$1" == "disable" ]; then
+    xrandr --output {{ xorg_xrandr_secondary_display.name }} --off
+    xrandr --output {{ xorg_xrandr_primary_display.name }} --mode {{ xorg_xrandr_primary_display.resolution }} --scale {{ xorg_xrandr_primary_display.scale }}
+elif [ "$1" == "only" ]; then
+    xrandr --output {{ xorg_xrandr_secondary_display.name }} --mode {{ xorg_xrandr_secondary_display.resolution }} --above {{ xorg_xrandr_primary_display.name }}
+    xrandr --output {{ xorg_xrandr_primary_display.name }} --off
+fi
+{% endif %}

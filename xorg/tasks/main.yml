@@ -1,0 +1,60 @@
+---
+# tasks file for vscode
+- name: "ThinkPad X1 Carbon Gen 8 vars"
+  tags:
+    - xorg
+    - configure
+  ansible.builtin.include_vars:
+    hash_behaviour: replace
+    file: defaults/x1carbongen8.yml
+  when: ansible_product_version == "ThinkPad X1 Carbon Gen 8"
+
+- name: "ThinkPad X1 Carbon Gen 8 vars"
+  tags:
+    - xorg
+    - configure
+  ansible.builtin.include_vars:
+    hash_behaviour: replace
+    file: defaults/x570aorusultra.yml
+  when:
+    - ansible_product_version == "X570 AORUS ULTRA"
+    - ansible_product_uuid == "03c00218-044d-0583-1b06-a70700080009"
+
+- name: "Debian"
+  tags:
+    - xorg
+    - configure
+  ansible.builtin.include_tasks:
+    file: "preflight.yml"
+
+- name: "Debian"
+  tags:
+    - xorg
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml" # .{{ ansible_distribution_major_version }}
+  when:
+    - ansible_distribution == "Debian"
+
+- name: "Debian"
+  tags:
+    - xorg
+  ansible.builtin.include_tasks:
+    file: "x1carbongen8.yml" # .{{ ansible_distribution_major_version }}
+  when:
+    - ansible_distribution == "Debian"
+    - ansible_product_version == "ThinkPad X1 Carbon Gen 8"
+
+# - name: "FreeBSD"
+#   tags:
+#     - xorg
+#   ansible.builtin.include_tasks:
+#     file: "{{ ansible_distribution }}.yml"
+#   when:
+#     - ansible_distribution == "FreeBSD"
+
+- name: "Configure"
+  tags:
+    - xorg
+    - configure
+  ansible.builtin.include_tasks:
+    file: "configure.yml"

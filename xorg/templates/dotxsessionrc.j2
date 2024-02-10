@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+{% if xorg_secondary_display %}
+xrandr --output {{ xorg_xrandr_secondary_display.name }} --off &
+{% endif %}
+{% if xorg_xrandr_primary_display is defined %}
+xrandr --output {{ xorg_xrandr_primary_display.name }} --scale {{ xorg_xrandr_primary_display.scale }} &
+{% if xorg_xbindkeys %}
+xbindkeys &
+{% endif %}
+{% endif %}
+{{ xorg_status_prog }} &
+exec dwm

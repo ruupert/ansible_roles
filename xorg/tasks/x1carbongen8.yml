@@ -1,0 +1,66 @@
+- name: "Firmware"
+  ansible.builtin.apt:
+    pkg:
+      - firmware-iwlwifi
+      - firmware-intel-sound
+      - firmware-intelwimax
+      - firmware-sof-signed
+    state: present
+
+- name: "X1 Carbon Gen 8 | Brightness and volume"
+  tags:
+    - xorg
+    - configure
+  block:
+    - name: "X1 Carbon Gen 8 | Brightness and volume | Dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - xbindkeys
+          - bc
+        state: present
+
+    - name: "Copy 90-backlight.rules into /etc/udev/rules.d"
+      ansible.builtin.copy:
+        content: |
+          SUBSYSTEM=="backlight", ACTION=="add",
+          RUN+="/bin/chgrp video /sys/class/backlight/intel_backlight/brightness",
+          RUN+="/bin/chmod g+w /sys/class/backlight/intel_backlight/brightness"
+        dest: "/etc/udev/rules.d/90-backlight.rules"
+        mode: "0755"
+        owner: "root"
+        group: "root"
+
+    - name: "X1 Carbon Gen 8 | Brightness and volume | Write ~/.xbindkeysrc"
+      ansible.builtin.copy:
+        content: |
+          # Ansible managed
+          "echo $( cat /sys/class/backlight/intel_backlight/brightness ) + 10|bc > /sys/class/backlight/intel_backlight/brightness"
+            XF86MonBrightnessUp
+          "echo $( cat /sys/class/backlight/intel_backlight/brightness ) - 10 |bc > /sys/class/backlight/intel_backlight/brightness"
+            XF86MonBrightnessDown
+          # Increase volume
+          "pactl set-sink-volume @DEFAULT_SINK@ +1000"
+            XF86AudioRaiseVolume
+          # Decrease volume
+          "pactl set-sink-volume @DEFAULT_SINK@ -1000"
+            XF86AudioLowerVolume
+          # Mute volume
+          "pactl set-sink-mute @DEFAULT_SINK@ toggle"
+            XF86AudioMute
+          # Mute microphone
+          "pactl set-source-mute @DEFAULT_SOURCE@ toggle"
+            XF86AudioMicMute
+        dest: "{{ home }}/.xbindkeysrc"
+        mode: "0600"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+
+#### /sys/class/power_supply/BAT0 script ...
+
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Fail"
+      changed_when: true
+      notify:
+        - send failed message

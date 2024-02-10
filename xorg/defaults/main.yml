@@ -1,0 +1,6 @@
+---
+# defaults file for xorg
+xorg_status_prog: "dwmstatus"
+# or status: slstatus
+xorg_secondary_display: false
+xorg_xresources_font_size: 14

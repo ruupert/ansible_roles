@@ -1,0 +1,11 @@
+xorg_secondary_display: true
+xorg_xbindkeys: true
+xorg_xrandr_primary_display:
+  name: "eDP-1"
+  resolution: "3840x2160"
+  scale: "0.50x0.50"
+xorg_xrandr_secondary_display:
+  name: "HDMI-1"
+  resolution: "2560x1440"
+  scale: "1x1"
+xorg_xresources_font_size: "14"
