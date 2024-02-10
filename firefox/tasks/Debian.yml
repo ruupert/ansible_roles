@@ -1,0 +1,48 @@
+---
+- name: "Install | firefox"
+  tags:
+    - firefox
+  block:
+    - name: "Install | firefox | Dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - apt-transport-https
+          - sudo
+          - gnupg
+        state: present
+
+    - name: Priority
+      ansible.builtin.copy:
+        content: |
+          Package: *
+          Pin: origin packages.mozilla.org
+          Pin-Priority: 1000
+        dest: /etc/apt/preferences.d/mozilla
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: "Install | firefox | Add Mozilla GPG keys"
+      ansible.builtin.apt_key:
+        keyring: "/etc/apt/trusted.gpg.d/firefox.gpg"
+        url: https://packages.mozilla.org/apt/repo-signing-key.gpg
+        state: present
+
+    - name: "Install | firefox | Add Mozilla APT repo"
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/trusted.gpg.d/firefox.gpg] https://packages.mozilla.org/apt mozilla main"
+        state: present
+        update_cache: true
+
+    - name: "Install | firefox | apt-get install firefox"
+      ansible.builtin.apt:
+        name: firefox
+        state: present
+
+  rescue:
+    - name: "Install | firefox | Error"
+      ansible.builtin.debug:
+        msg: "Fail firefox install and config"
+      changed_when: true
+      notify:
+        - send failed message

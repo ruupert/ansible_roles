@@ -1,0 +1,56 @@
+- name: "Install | Idafree"
+  tags:
+    - idafree
+  block:
+    - name: "Install | Idafree | Download idafree82_linux.run"
+      ansible.builtin.get_url:
+        url: "https://out7.hex-rays.com/files/idafree82_linux.run"
+        dest: "/opt/idafree82_linux.run"
+        mode: "0755"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+      register: local_download_idafree82_reg
+
+    - name: "Install | Idafree | Stat /opt/idafree82_linux.run"
+      ansible.builtin.stat:
+        path: "/opt/idafree82_linux.run"
+        checksum_algorithm: "sha256"
+      register: local_idafree82_stat_reg
+
+    - name: "Install | Idafree | Install idafree82"
+      # become_user: "{{ username }}"
+      # become: true
+      ansible.builtin.command:
+        cmd: "/opt/idafree82_linux.run --mode unattended"
+      changed_when:
+        - local_download_idafree82_reg.changed
+      when:
+        - local_idafree82_stat_reg.stat.checksum == "a5cc9bf0cdfd14956c594010897cb5ee73ad55484f90fb04db862a84af6b2b9f"
+        - local_download_idafree82_reg.changed
+
+    - name: "Install | Idafree | Ensure HOME/.local/bin exists"
+      ansible.builtin.file:
+        path: "{{ home }}/.local/bin"
+        state: directory
+        mode: "0700"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+
+    - name: "Install | Idafree | Bash wrapper ida64 in ~/.local/bin"
+      ansible.builtin.copy:
+        dest: "{{ home }}/.local/bin/ida64"
+        content: |
+          #!/bin/bash
+          # Asnible managed
+          /opt/idafree-8.2/ida64
+        mode: "0755"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+
+  rescue:
+    - name: "Install | Idafree | Fail"
+      ansible.builtin.debug:
+        msg: "Fail"
+      changed_when: true
+      notify:
+        - send failed message

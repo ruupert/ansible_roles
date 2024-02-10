@@ -1,0 +1,32 @@
+---
+# tasks file for firefox
+- name: "Debian"
+  tags:
+    - always
+  ansible.builtin.include_tasks:
+    file: "preflight.yml"
+
+- name: "Debian"
+  tags:
+    - firefox
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml" # .{{ ansible_distribution_major_version }}
+  when:
+    - ansible_distribution == "Debian"
+
+- name: "FreeBSD"
+  tags:
+    - firefox
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml"
+  when:
+    - ansible_distribution == "FreeBSD"
+
+- name: "Configure"
+  tags:
+    - firefox
+    - configure
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.configure.yml"
+  when:
+    - ansible_distribution == "Debian"

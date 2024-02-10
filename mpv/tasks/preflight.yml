@@ -1,0 +1,8 @@
+- name: Assert username is set
+  ansible.builtin.assert:
+    that: username is defined
+    msg: "Username not defined"
+- name: Assert home is set
+  ansible.builtin.assert:
+    that: home is defined
+    msg: "Home not defined"

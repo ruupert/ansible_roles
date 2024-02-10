@@ -1,0 +1,7 @@
+---
+# vars file for firefox
+firefox_bin_path_map:
+  FreeBSD: '/usr/local/bin/firefox'
+  Debian: '/usr/bin/firefox'
+
+firefox_bin_path: "{{ firefox_bin_path_map[ansible_distribution] | default('/usr/bin/firefox') }}"

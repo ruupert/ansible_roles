@@ -1,0 +1,19 @@
+---
+- name: "Install | arduino"
+  tags:
+    - arduino
+  block:
+    - name: "Install | arduino | Dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - arduino
+          - wmname
+        state: present
+
+  rescue:
+    - name: "Install | arduino | Error"
+      ansible.builtin.debug:
+        msg: "Fail arduino install and config"
+      changed_when: true
+      notify:
+        - send failed message

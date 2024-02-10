@@ -1,0 +1,27 @@
+---
+- name: "Debian"
+  tags:
+    - pkg
+  block:
+
+    - name: "Debian | Install pkgs"
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ lookup('community.general.merge_variables', '^.+_common_pkglist$', initial_value=pkg_default_debian_pkglist) }}"
+        - "{{ pkg_desktop | default(omit) }}"
+
+    - name: "Debian | Remove pkgs"
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: absent
+      with_items: "{{ pkg_default_debian_absent }}"
+
+  rescue:
+    - name: "Debian | Failed"
+      ansible.builtin.debug:
+        msg: "Debian | Failed"
+      changed_when: true
+      notify:
+        - send failed message

@@ -1,0 +1,31 @@
+---
+# tasks file for mpv
+- name: "Debian"
+  tags:
+    - mpv
+    - configure
+  ansible.builtin.include_tasks:
+    file: "preflight.yml"
+
+- name: "Debian"
+  tags:
+    - mpv
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml" # .{{ ansible_distribution_major_version }}
+  when:
+    - ansible_distribution == "Debian"
+
+# - name: "FreeBSD"
+#   tags:
+#     - mpv
+#   ansible.builtin.include_tasks:
+#     file: "{{ ansible_distribution }}.yml"
+#   when:
+#     - ansible_distribution == "FreeBSD"
+
+# - name: "Configure"
+#   tags:
+#     - mpv
+#     - configure
+#   ansible.builtin.include_tasks:
+#     file: "configure.yml"

@@ -1,0 +1,18 @@
+---
+# tasks file for discord
+- name: "Debian"
+  tags:
+    - discord
+    - configure
+  ansible.builtin.include_tasks:
+    file: "preflight.yml"
+
+- name: "Debian"
+  tags:
+    - discord
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml" # .{{ ansible_distribution_major_version }}
+  when:
+    - ansible_distribution == "Debian"
+
+# https://wiki.freebsd.org/Discord

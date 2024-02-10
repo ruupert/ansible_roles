@@ -1,0 +1,59 @@
+---
+- name: "Install | discord"
+  tags:
+    - discord
+  block:
+
+    - name: "Discord | Dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - sudo
+        state: present
+
+    - name: "Discord | Ensure HOME/.local/bin exists"
+      ansible.builtin.file:
+        path: "{{ home }}/.local/bin"
+        state: directory
+        mode: "0700"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+
+    - name: "Discord | Download tar.gz"
+      ansible.builtin.get_url:
+        url: "{{ discord_url }}"
+        dest: "{{ home }}/.local/discord.tar.gz"
+        mode: "0640"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+      register: discord_download
+      become: true
+      become_user: "{{ username }}"
+      become_method: ansible.builtin.sudo
+
+    - name: "Discord | Unpack" # noqa: no-handler
+      ansible.builtin.unarchive:
+        src: "{{ home }}/.local/discord.tar.gz"
+        dest: "{{ home }}/.local/"
+        remote_src: true
+      become: true
+      become_user: "{{ username }}"
+      become_method: ansible.builtin.sudo
+      when:
+        - discord_download.changed
+
+    - name: "Discord | Symlink"
+      ansible.builtin.file:
+        src: "{{ home }}/.local/Discord/Discord"
+        dest: "{{ home }}/.local/bin/discord"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: "0700"
+        state: link
+
+  rescue:
+    - name: "Install | discord | Error"
+      ansible.builtin.debug:
+        msg: "Fail discord install and config"
+      changed_when: true
+      notify:
+        - send failed message

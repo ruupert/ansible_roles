@@ -1,0 +1,50 @@
+---
+- name: "Configure | Firefox"
+  tags:
+    - firefox
+    - configure
+  block:
+    - name: Configure | Firefox | Mozilla certs dir
+      ansible.builtin.file:
+        path: "/home/{{ username }}/.mozilla/certificates"
+        state: directory
+        recurse: true
+        mode: "0755"
+        owner: root
+        group: root
+
+    - name: Configure | Firefox | Copy cacert
+      ansible.builtin.copy:
+        src: "/etc/ssl/certs/{{ domain }}.pem"
+        dest: "/home/{{ username }}/.mozilla/certificates/{{ domain }}.pem"
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: "Configure | Firefox | Autoconfig.js"
+      ansible.builtin.copy:
+        content: |
+          pref("general.config.filename", "firefox.cfg");
+          pref("general.config.obscure_value", 0);
+        dest: /usr/lib/firefox/defaults/pref/autoconfig.js
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: "Configure | Firefox | firefox.cfg"
+      ansible.builtin.copy:
+        content: |
+          lockPref("pref.privacy.disable_button.view_passwords",true);
+          perf("security.enterprise_roots.enabled",true);
+        dest: /home/{{ username }}/.mozilla/firefox.cfg
+        mode: "0644"
+        owner: root
+        group: root
+
+  rescue:
+    - name: "Configure | Firefox | Error"
+      ansible.builtin.debug:
+        msg: "Fail Firefox Configure and config"
+      changed_when: true
+      notify:
+        - send failed message

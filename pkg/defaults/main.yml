@@ -1,0 +1,26 @@
+---
+# defaults file for pkg
+# merge
+pkg_default_common_pkglist:
+  - emacs-nox
+  - htop
+  - lsof
+  - curl
+  - tmux
+pkg_default_debian_pkglist:
+  - iproute2
+  - iputils-ping
+  - net-tools
+  - netcat-openbsd
+  - python3.11-venv
+  - sudo
+  - traceroute
+  - tshark
+pkg_default_freebsd_pkglist:
+  - smartmontools
+pkg_default_debian_absent:
+  - avahi-daemon
+  - avahi-utils
+  - dnsmasq
+  - ibavahi-common-data
+  - libavahi-core7

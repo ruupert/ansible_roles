@@ -1,0 +1,38 @@
+---
+- name: "Install | arduino"
+  tags:
+    - arduino
+    - configure
+  block:
+
+    - name: "Install | arduino | Configure arduino"
+      ansible.builtin.user:
+        groups:
+          - dialout
+        append: true
+        user: "{{ username }}"
+
+    - name: "Ensure .local/bin exists"
+      ansible.builtin.file:
+        path: "{{ home }}/.local/bin"
+        state: directory
+        recurse: true
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: "0700"
+
+    - name: "Write start script wrapper"
+      ansible.builtin.template:
+        src: "templates/arduino.sh.j2"
+        dest: "{{ home }}/.local/bin/arduino"
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: "0744"
+
+  rescue:
+    - name: "Install | arduino | Error"
+      ansible.builtin.debug:
+        msg: "Fail arduino install and config"
+      changed_when: true
+      notify:
+        - send failed message

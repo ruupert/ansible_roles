@@ -1,0 +1,22 @@
+---
+# tasks file for pkg
+- name: "Debian"
+  tags:
+    - pkg
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml" # .{{ ansible_distribution_major_version }}
+  when:
+    - ansible_distribution == "Debian"
+
+- name: "FreeBSD"
+  tags:
+    - pkg
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml"
+  when:
+    - ansible_distribution == "FreeBSD"
+
+- name: "Flush handlers"
+  tags:
+    - pkg
+  ansible.builtin.meta: flush_handlers

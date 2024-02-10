@@ -1,0 +1,7 @@
+---
+# vars file for discord
+firefox_bin_path_map:
+  FreeBSD: '/usr/local/bin/discord'
+  Debian: '/usr/bin/discord'
+
+firefox_bin_path: "{{ firefox_bin_path_map[ansible_distribution] | default('/usr/bin/discord') }}"

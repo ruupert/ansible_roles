@@ -1,0 +1,20 @@
+---
+- name: "FreeBSD"
+  tags:
+    - pkg
+  block:
+
+    - name: "FreeBSD | Install pkgs"
+      community.general.pkgng:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "{{ lookup('community.general.merge_variables', '^.+_common_pkglist$', initial_value=pkg_default_freebsd_pkglist) }}"
+
+  rescue:
+    - name: "FreeBSD | Failed"
+      ansible.builtin.debug:
+        msg: "FreeBSD | Failed"
+      changed_when: true
+      notify:
+        - send failed message
