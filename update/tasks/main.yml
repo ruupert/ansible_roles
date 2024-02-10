@@ -1,0 +1,28 @@
+---
+# tasks file for update
+- name: "Logdir"
+  ansible.builtin.file:
+    path: "{{ update_logdir }}"
+    state: directory
+    mode: "0744"
+    owner: "root"
+    group: "root"
+  delegate_to: localhost
+
+- name: "Debian"
+  tags:
+    - never
+    - update
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml"
+  when:
+    - ansible_distribution == "Debian"
+
+- name: "FreeBSD"
+  tags:
+    - never
+    - update
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml"
+  when:
+    - ansible_distribution == "FreeBSD"

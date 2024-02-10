@@ -1,0 +1,29 @@
+---
+# tasks file for update
+- name: "Update packages"
+  tags:
+    - never
+    - update
+    - update_local
+  block:
+
+    - name: "Pkg update"
+      become: false
+      community.general.pkgng:
+        name: "*"
+        state: "latest"
+      register: update_result
+      notify:
+        - save result stdout to file
+
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "pkg upgrade failed"
+      changed_when: true
+      notify:
+        - save result stdout to file
+        - send failed message
+
+    - name: "Notify handlers"
+      ansible.builtin.meta: flush_handlers

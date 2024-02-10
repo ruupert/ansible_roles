@@ -1,0 +1,64 @@
+---
+# tasks file for update
+
+- name: "Update packages and reboot if needed."
+  tags:
+    - never
+    - update
+  block:
+    - name: "Update APT package manager repositories cache"
+      become: false
+      ansible.builtin.apt:
+        update_cache: true
+      register: update_apt_result
+      notify:
+        - get upgradable package list
+
+    - name: "Notify handlers"
+      ansible.builtin.meta: flush_handlers
+
+    - name: "Update all packages to the latest version" # noqa: no-handler
+      become: false
+      ansible.builtin.apt:
+        upgrade: dist
+        autoremove: false
+      register: update_result
+      # when: update_apt_result.changed
+      notify:
+        - save result stdout to file
+
+    - name: "Notify handlers"
+      ansible.builtin.meta: flush_handlers
+
+    - name: "Check if a reboot is required"
+      ansible.builtin.stat:
+        path: "/var/run/reboot-required"
+      register: update_p
+
+    - name: Reboot
+      tags:
+        - update
+        - never
+      become: false
+      ansible.builtin.reboot:
+        reboot_timeout: 600
+        reboot_command: "/usr/sbin/shutdown -r now"
+      when:
+        - update_p.stat.exists
+        - "'mgmt' not in group_names"
+
+    - name: Notify handlers
+      ansible.builtin.meta: flush_handlers
+
+  rescue:
+    - name: "Feil"
+      ansible.builtin.debug:
+        msg: "apt dist-upgrade failed"
+      changed_when: true
+      notify:
+        - save package_list stdout to file
+        - save result stdout to file
+        - send failed message
+
+    - name: "Notify handlers"
+      ansible.builtin.meta: flush_handlers

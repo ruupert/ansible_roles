@@ -1,0 +1,30 @@
+---
+# handlers file for ruupert_apt_dist_upgrade
+
+- name: "Save result stdout to file"
+  ansible.builtin.copy:
+    content: "{{ update_result.stdout }}"
+    dest: "{{ update_logdir }}/{{ ansible_hostname }}.update.log"
+    mode: "0755"
+  delegate_to: localhost
+  listen: "save result stdout to file"
+
+- name: "Save package_list stdout to file"
+  ansible.builtin.copy:
+    content: "{{ update_package_list.stdout }}"
+    dest: "{{ update_logdir }}/{{ ansible_hostname }}.package_list.log"
+    mode: "0755"
+  delegate_to: localhost
+  listen: "save package_list stdout to file"
+
+- name: "Get upgradeable packages"
+  become: false
+  ansible.builtin.shell: |
+    set -o pipefail
+    apt list --upgradeable | awk '{print $1"\t"$2"\t"$6}' | tr -d "]"|sed 's/\/[a-zA-Z0-9]*-[a-zA-Z0-9]*//g'
+  args:
+    executable: /bin/bash
+  register: update_package_list
+  notify: save package_list stdout to file
+  changed_when: update_package_list.rc == 0
+  listen: get upgradable package list

@@ -1,2 +1,3 @@
 ---
 # defaults file for ruupert_apt_dist_upgrade
+update_logdir: "/etc/ansible/log"

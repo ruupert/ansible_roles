@@ -1,6 +1,6 @@
 galaxy_info:
   author: Raul Becker
-  description: Upgrade ubuntu packages and reboot
+  description: Upgrade apt/pkng packages and reboot
   license: "MIT"
   min_ansible_version: "2.1"
   platforms:
@@ -10,6 +10,9 @@ galaxy_info:
     - name: "Debian"
       versions:
         - "bullseye"
+    - name: "FreeBSD"
+      versions:
+        - "all"
   galaxy_tags: []
 dependencies:
-  - { role: ruupert_reusable_handlers }
+  - { role: handlers }
