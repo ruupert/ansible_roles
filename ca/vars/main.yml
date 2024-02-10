@@ -1,2 +1,11 @@
 ---
 # vars file for ca
+ca_root_groups_map:
+  FreeBSD: 'wheel'
+  Debian: 'root'
+ca_www_groups_map:
+  FreeBSD: 'www'
+  Debian: 'www-data'
+
+ca_root_group: "{{ ca_root_groups_map[ansible_distribution] | default(ansible_distribution) }}"
+ca_www_group: "{{ ca_www_groups_map[ansible_distribution] | default(ansible_distribution) }}"

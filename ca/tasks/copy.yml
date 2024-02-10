@@ -1,0 +1,45 @@
+- name: "CA | Dir /etc/ssl/private exists"
+  tags:
+    - ca
+  ansible.builtin.file:
+    path: "/etc/ssl/private"
+    state: directory
+    mode: "0700"
+    owner: "root"
+  when: "'ca' not in group_names"
+
+- name: "CA | Copy cert"
+  tags:
+    - ca
+  ansible.builtin.copy:
+    src: "/etc/ssl/certs/{{ ansible_hostname }}.{{ domain }}.pem"
+    dest: "/etc/ssl/certs/{{ ansible_hostname }}.{{ domain }}.pem"
+    mode: "0660"
+    owner: "root"
+    group: "{{ ca_www_group }}"
+  when:
+    - "'ca' not in group_names"
+
+- name: "CA | Copy key"
+  tags:
+    - ca
+  ansible.builtin.copy:
+    src: "/etc/ssl/private/{{ ansible_hostname }}.{{ domain }}.key"
+    dest: "/etc/ssl/private/{{ ansible_hostname }}.{{ domain }}.key"
+    mode: "0660"
+    owner: "root"
+    group: "{{ ca_www_group }}"
+  when:
+    - "'ca' not in group_names"
+
+- name: "CA | Copy cacert"
+  tags:
+    - ca
+  ansible.builtin.copy:
+    src: "/etc/ssl/certs/{{ domain }}.pem"
+    dest: "/etc/ssl/certs/{{ domain }}.pem"
+    mode: "0655"
+    owner: "root"
+    group: "{{ ca_www_group }}"
+  when:
+    - "'ca' not in group_names"

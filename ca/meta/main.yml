@@ -12,4 +12,5 @@ galaxy_info:
   galaxy_tags:
     - certificate
     - authority
-dependencies: []
+dependencies:
+  - { role: handlers }

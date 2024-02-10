@@ -1,0 +1,88 @@
+- name: "CA | Cert"
+  tags:
+    - ca
+  block:
+
+    - name: "CA | Cert | Private key"
+      community.crypto.openssl_privatekey:
+        path: "/etc/ssl/private/{{ loop_ssl_host }}.{{ domain }}.key"
+        mode: "0600"
+        owner: "root"
+        group: "{{ ca_root_group }}"
+
+    - name: "CA | Cert | Check cert existence"
+      ansible.builtin.stat:
+        path: "/etc/ssl/certs/{{ loop_ssl_host }}.{{ domain }}.pem"
+      register: ca_cert_exists
+
+    - name: "CA | Cert | Generate CSR"
+      community.crypto.openssl_csr_pipe:
+        privatekey_path: "/etc/ssl/private/{{ loop_ssl_host }}.{{ domain }}.key"
+        use_common_name_for_san: true
+        common_name: "{{ loop_ssl_host }}.{{ domain }}"
+        organization_name: "IRB"
+        country_name: "FI"
+        basic_constraints:
+          - 'CA:FALSE'
+        basic_constraints_critical: true
+        key_usage:
+          - keyEncipherment
+          - digitalSignature
+        extended_key_usage:
+          - serverAuth
+          - clientAuth
+      when: not ca_cert_exists.stat.exists
+      register: ca_cert_csr
+
+    - name: "CA | Cert | Read existing cacert file"
+      ansible.builtin.slurp:
+        src: "/etc/ssl/certs/{{ domain }}.pem"
+      register: ca_ca_certificate_reg
+
+    - name: "CA | Cert | Sign CSR"
+      community.crypto.x509_certificate_pipe:
+        content: "{{ (ca_ca_certificate_reg.content | b64decode) if ca_cert_exists.stat.exists else omit }}"
+        csr_content: "{{ ca_cert_csr.csr }}"
+        provider: ownca
+        ownca_path: "/etc/ssl/certs/{{ domain }}.pem"
+        ownca_privatekey_path: "/etc/ssl/private/{{ domain }}.key"
+        ownca_privatekey_passphrase: "{{ secret_ca_passphrase }}"
+        ownca_not_after: +365d
+        ownca_not_before: "-1d"
+      when: not ca_cert_exists.stat.exists
+      register: ca_cert_certificate
+
+    - name: "CA | Cert | Write cert" # noqa: run-once[task] no-handler
+      ansible.builtin.copy:
+        dest: "/etc/ssl/certs/{{ loop_ssl_host }}.{{ domain }}.pem"
+        content: "{{ ca_cert_certificate.certificate }}"
+        mode: "0600"
+        owner: "root"
+        group: "{{ ca_root_group }}"
+      when: ca_cert_certificate.changed
+
+    - name: "CA | Cert | Write ca" # noqa: run-once[task] no-handler
+      ansible.builtin.copy:
+        dest: "/etc/ssl/certs/{{ domain }}.pem"
+        content: "{{ ca_ca_certificate_reg.content | b64decode }}"
+        mode: "0600"
+        owner: "root"
+        group: "{{ ca_root_group }}"
+      when: ca_cert_certificate.changed
+
+    - name: "CA | Cert | Write cert bundle" # noqa: run-once[task] no-handler
+      ansible.builtin.copy:
+        dest: "/etc/ssl/certs/{{ loop_ssl_host }}.{{ domain }}.bundle.pem"
+        content: "{{ ca_cert_certificate.certificate }}{{ ca_ca_certificate_reg.content | b64decode }}"
+        mode: "0600"
+        owner: "root"
+        group: "{{ ca_root_group }}"
+      when: ca_cert_certificate.changed
+
+  rescue:
+    - name: "CA | Cert | FAIL"
+      ansible.builtin.debug:
+        msg: "CA | Cert | FAIL"
+      changed_when: true
+      notify:
+        - send failed message
