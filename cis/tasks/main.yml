@@ -1,5 +1,5 @@
 ---
-# tasks file for ruupert_cis
+# tasks file for cis
 #
 
 ####################################
@@ -42,7 +42,7 @@
 #   tags:
 #     - cis
 #   ansible.builtin.debug:
-#     msg: "{{ ruupert_debian11_cis }}"
+#     msg: "{{ cis_debian11 }}"
 
 - name: "1. Initial setup"
   tags:

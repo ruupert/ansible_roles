@@ -1,5 +1,5 @@
 ---
-# handlers file for ruupert_cis
+# handlers file for cis
 - name: "Restart systemd timesynchd service"
   ansible.builtin.service:
     name: "systemd-timesyncd"

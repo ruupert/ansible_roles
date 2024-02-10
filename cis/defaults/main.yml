@@ -1,6 +1,6 @@
 ---
-# defaults file for ruupert_cis
-ruupert_debian11_cis_def:
+# defaults file for cis
+cis_def:
   ## 1.1 Filesystem Configuration - page 21
   # enable aide
   filesystem:
@@ -48,4 +48,4 @@ ruupert_debian11_cis_def:
     rds: false
     tipc: false
     firewall: "iptables"
-apt_debian: "http://ftp.debian.org"
+cis_apt_debian: "http://ftp.fi.debian.org"

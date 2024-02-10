@@ -38,6 +38,8 @@
         - send failed message
 
 - name: "Flush handlers"
+  tags:
+    - cis
   ansible.builtin.meta: flush_handlers
 
 - name: "3.2 Network Parameters (Host Only) - page 309"
@@ -56,7 +58,7 @@
       ansible.posix.sysctl:
         name: "net.ipv4.ip_forward"
         value: "0"
-      when: "not 'linux_router' in group_names"
+      when: "not 'router' in group_names"
 
     - name: "3.2.2 Ensure IP forwarding is disabled (Automated) - page 314 - net.ipv6.conf.all.forwarding=0"
       ansible.posix.sysctl:
@@ -71,6 +73,8 @@
         - send failed message
 
 - name: "Flush handlers"
+  tags:
+    - cis
   ansible.builtin.meta: flush_handlers
 
 - name: "3.3 Network Parameters (Host and Router) - page 320"
@@ -162,6 +166,8 @@
         - send failed message
 
 - name: "Flush handlers"
+  tags:
+    - cis
   ansible.builtin.meta: flush_handlers
 
 # # 3.5 Firewall Configuration - page 363

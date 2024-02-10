@@ -1,0 +1,4 @@
+---
+# vars file for cis
+cis_enable_aide: false
+cis_debian11: "{{ cis_def | ansible.builtin.combine(hostvars[inventory_hostname]['conf'], recursive=true) }}"

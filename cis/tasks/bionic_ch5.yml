@@ -19,6 +19,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 # - name: "5.1.2 Ensure permissions on /etc/crontab are configured (Automated) . 354"
 #   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
 #   block:

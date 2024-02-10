@@ -74,6 +74,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 - name: '2.1.3 Ensure Avahi Server is not installed (Automated) ..... 140'
   tags:
     - cis
@@ -90,6 +95,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 
 - name: '2.1.4 Ensure CUPS is not installed (Automated)  141'
   tags:
@@ -108,6 +118,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 - name: '2.1.5 Ensure DHCP Server is not installed (Automated) ..... 143'
   tags:
     - cis
@@ -125,6 +140,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 
 #
 #   Potentially issue, likelihood very low: there may be cases when LDAP server is needed.
@@ -145,6 +165,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 
 #
 #   Actually an issue because some projects use NFS.
@@ -191,6 +216,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 #
 
 #  We have nginxes nad apaches... so this one should not be done as such... except if tagging in openstack
@@ -254,6 +284,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 - name: '2.1.14 Ensure SNMP Server is not installed (Automated) .. 153'
   tags:
     - cis
@@ -270,6 +305,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 
 
 # - name: "2.1.15 Ensure mail transfer agent is configured for local-only mode (Automated) .... 155"
@@ -317,6 +357,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 # # "2.2 Service Clients .... 159"
 
 #
@@ -351,6 +396,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 - name: '2.2.3 Ensure talk client is not installed (Automated) .... 164'
   tags:
     - cis
@@ -368,6 +418,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 - name: '2.2.4 Ensure telnet client is not installed (Automated)  165'
   tags:
     - cis
@@ -384,6 +439,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 
 #
 #  Maybe in some projects in use....  so not going to be implemented at this time.

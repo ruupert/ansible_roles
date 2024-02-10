@@ -52,6 +52,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 - name: '3.2.2 Ensure IP forwarding is disabled (Automated) .... 181'
   tags:
     - cis
@@ -72,6 +77,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 
 # # "3.3 Network Parameters (Host and Router) ... 183"
 
@@ -109,6 +119,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 - name: '3.3.2 Ensure ICMP6 redirects are not accepted (Automated) .... 188'
   tags:
     - cis
@@ -127,6 +142,8 @@
       ansible.builtin.debug:
         msg: 'fail'
       changed_when: true
+      notify:
+        - send failed message
 
 - name: '3.3.3 Ensure secure ICMP redirects are not accepted (Automated) .... 191'
   tags:
@@ -148,6 +165,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 
 # - name: "3.3.4 Ensure suspicious packets are logged (Automated) .. 193"
 #   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
@@ -177,6 +199,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 - name: '3.3.6 Ensure bogus ICMP responses are ignored (Automated) ...... 197'
   tags:
     - cis
@@ -193,6 +220,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 
 #
 #   TEST THIS FIRST
@@ -224,6 +256,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 
 # - name: "3.3.9 Ensure IPv6 router advertisements are not accepted (Automated)  203"
 #   when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "18.04"
@@ -258,6 +295,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 - name: '3.4.1 Ensure DCCP is disabled (Automated)  206'
   tags:
     - cis
@@ -274,6 +316,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 
 - name: '3.4.2 Ensure SCTP is disabled (Automated) . 208'
   tags:
@@ -292,6 +339,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 - name: '3.4.3 Ensure RDS is disabled (Automated) ... 210'
   tags:
     - cis
@@ -309,6 +361,11 @@
       notify:
         - send failed message
 
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
+
 - name: '3.4.4 Ensure TIPC is disabled (Automated) .. 211'
   tags:
     - cis
@@ -325,6 +382,11 @@
       changed_when: true
       notify:
         - send failed message
+
+- name: "Flush handlers"
+  tags:
+    - cis
+  ansible.builtin.meta: flush_handlers
 
 # # "3.5 Firewall Configuration .. 212"
 

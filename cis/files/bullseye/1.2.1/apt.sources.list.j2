@@ -1,0 +1,7 @@
+# deb {{ cis_apt_debian }}/debian/ bullseye main
+
+deb {{ cis_apt_debian }}/debian/ bullseye main contrib non-free
+deb-src {{ cis_apt_debian }}/debian/ bullseye main contrib non-free
+
+deb http://security.debian.org/debian-security bullseye-security main
+deb-src http://security.debian.org/debian-security bullseye-security main
