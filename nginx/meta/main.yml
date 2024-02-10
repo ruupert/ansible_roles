@@ -9,4 +9,4 @@ galaxy_info:
         - "bullseye"
   galaxy_tags: []
 dependencies:
-  - { role: ruupert_reusable_handlers }
+  - { role: handlers }

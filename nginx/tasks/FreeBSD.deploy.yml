@@ -1,0 +1,101 @@
+---
+# tasks file for nginx
+- name: "Nginx"
+  tags:
+    - nginx
+  block:
+    - name: "Dependencies"
+      community.general.pkgng:
+        name: "nginx"
+        state: present
+
+    - name: "Service"
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+    - name: "Setfact"
+      ansible.builtin.set_fact:
+        nginx_ssl_hosts: "{{ groups['ssl'] }}"
+
+    - name: "Site dirs"
+      ansible.builtin.file:
+        path: "{{ nginx_etc_dir }}/{{ item }}"
+        state: directory
+        mode: "0744"
+        owner: "root"
+        group: "{{ nginx_root_group }}"
+      with_items:
+        - sites-enabled
+        - sites-available
+
+    - name: "Permissions /var/log/nginx"
+      ansible.builtin.file:
+        path: "/var/log/nginx"
+        mode: "0644"
+        owner: "root"
+        group: "{{ nginx_group }}"
+
+    - name: "Write nginx.conf"
+      ansible.builtin.template:
+        src: "templates/nginx.conf.j2"
+        dest: "{{ nginx_etc_dir }}/nginx.conf"
+        mode: "0600"
+        owner: "root"
+        group: "{{ nginx_root_group }}"
+      register: nginx_conf_reg
+
+    - name: "Nginx | Write default site conf"
+      ansible.builtin.template:
+        src: "templates/default.conf.j2"
+        dest: "{{ nginx_etc_dir }}/sites-available/default"
+        mode: "0600"
+        owner: "root"
+        group: "{{ nginx_root_group }}"
+
+    - name: "Nginx | Favicon"
+      ansible.builtin.copy:
+        src: "files/FreeBSD_favicon.ico"
+        dest: /usr/local/www/favicon.ico
+        mode: "0644"
+        owner: "root"
+        group: "{{ nginx_root_group }}"
+
+    - name: "Nginx | Enable default site"
+      ansible.builtin.file:
+        path: "{{ nginx_etc_dir }}/sites-enabled/default"
+        src: "{{ nginx_etc_dir }}/sites-available/default"
+        state: link
+        mode: "0600"
+        owner: "root"
+        group: "{{ nginx_root_group }}"
+
+    - name: "Config sites"
+      ansible.builtin.include_tasks:
+        file: sites.yml
+      when: nginx_sites | length > 0
+      loop: "{{ nginx_sites }}"
+      loop_control:
+        loop_var: loop_site
+      register: nginx_sites_conf
+
+    - name: "Check config"
+      ansible.builtin.command:
+        cmd: "nginx -t"
+      register: nginx_conf_check
+      changed_when: true
+      when: >
+          nginx_conf_reg.changed or
+          nginx_sites_conf.changed
+      failed_when:
+        - nginx_conf_check.rc != 0
+      notify: "reload nginx"
+
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Fail"
+      changed_when: true
+      notify:
+        - send failed message

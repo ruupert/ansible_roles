@@ -1,0 +1,39 @@
+---
+# tasks file for nginx.destroy
+- name: "Nginx Destroy"
+  tags:
+    - nginx
+  block:
+
+    - name: "Stop and disable service"
+      ansible.builtin.service:
+        name: nginx
+        state: stopped
+        enabled: false
+
+    - name: "Remove apt package"
+      ansible.builtin.apt:
+        pkg:
+          - "nginx-full"
+        state: absent
+        autoremove: true
+
+    - name: "Remove dirs"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ nginx_etc_dir }}"
+        - /var/log/nginx
+
+    - name: "Reminder"
+      ansible.builtin.debug:
+        msg: "Remove hosts from nginx group"
+
+  rescue:
+    - name: "Fail"
+      ansible.builtin.debug:
+        msg: "Fail"
+      changed_when: true
+      notify:
+        - send failed message

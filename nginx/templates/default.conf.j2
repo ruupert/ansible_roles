@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+server {
+        listen {{ nginx_http_port }};
+        #listen [::]:{{ nginx_http_port }} default_server;
+{% if nginx_htpasswd is defined %}
+        auth_basic "Authorized accss";
+        auth_basic_user_file "{{ nginx_etc_dir }}/htpasswd";
+{% endif %}
+        root /var/www/html;
+        index index.html index.htm index.nginx-debian.html;
+        server_name _;
+        location / {
+                try_files $uri $uri/ =404;
+        }
+        location /stub_status {
+                stub_status;
+                allow 127.0.0.1/32;
+                deny all;
+        }
+        location ~ /\.ht {
+                deny all;
+        }
+}

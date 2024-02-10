@@ -1,2 +1,15 @@
 ---
 # vars file for nginx
+nginx_root_groups_map:
+  FreeBSD: 'wheel'
+  Debian: 'root'
+nginx_www_groups_map:
+  FreeBSD: 'www'
+  Debian: 'www-data'
+nginx_www_etc_dir_map:
+  FreeBSD: '/usr/local/etc/nginx'
+  Debian: '/etc/nginx'
+
+nginx_etc_dir: "{{ nginx_www_etc_dir_map[ansible_distribution] | default('/etc/nginx') }}"
+nginx_root_group: "{{ nginx_root_groups_map[ansible_distribution] | default('root') }}"
+nginx_group: "{{ nginx_www_groups_map[ansible_distribution] | default('www-data') }}"
