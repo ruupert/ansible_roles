@@ -1,0 +1,18 @@
+---
+- name: "Install | Vscode"
+  tags:
+    - vscode
+  block:
+    - name: "Install | Vscode | Dependencies"
+      ansible.builtin.apt:
+        pkg:
+          - vscode
+        state: present
+
+  rescue:
+    - name: "Install | Vscode | Error"
+      ansible.builtin.debug:
+        msg: "Fail vscode install and config"
+      changed_when: true
+      notify:
+        - send failed message

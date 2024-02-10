@@ -1,0 +1,24 @@
+---
+# tasks file for vscode
+- name: "Debian"
+  tags:
+    - vscode
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml" # .{{ ansible_distribution_major_version }}
+  when:
+    - ansible_distribution == "Debian"
+
+- name: "FreeBSD"
+  tags:
+    - vscode
+  ansible.builtin.include_tasks:
+    file: "{{ ansible_distribution }}.yml"
+  when:
+    - ansible_distribution == "FreeBSD"
+
+- name: "Configure"
+  tags:
+    - vscode
+    - configure
+  ansible.builtin.include_tasks:
+    file: "configure.yml"

@@ -1,0 +1,56 @@
+---
+- name: "Install | Vscode"
+  tags:
+    - vscode
+    - configure
+  block:
+    - name: "Install | Vscode | Ensure .config/Code/User path exists"
+      ansible.builtin.file:
+        path: "{{ vscode_user_home }}/.config/Code/User"
+        state: directory
+        recurse: true
+
+    - name: "Install | Vscode | Configure vscode"
+      ansible.builtin.template:
+        src: "templates/local-vscode-settings.json.j2"
+        dest: "{{ vscode_user_home }}/.config/Code/User/settings.json"
+        mode: "0700"
+        owner: "{{ vscode_user }}"
+        group: "{{ vscode_user }}"
+
+    - name: "Install | Vscode | Sysctl: Max watch files"
+      ansible.posix.sysctl:
+        name: "fs.inotify.max_user_watches"
+        value: "524288"
+
+    - name: "Install | Vscode | Install extensions"
+      ansible.builtin.command:
+        cmd: "sudo -u {{ vscode_user }} {{ vscode_bin_path }}  --install-extension {{ item }} --user-data-dir {{ vscode_user_home }}/.vscode"
+      with_items: "{{ vscode_extensions }}"
+      become_user: "{{ vscode_user }}"
+      become_method: ansible.builtin.sudo
+      become: true
+      register: my_output
+      changed_when: my_output.rc != 0
+
+    - name: "Ensure user owns vscode dir files"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+        recurse: true
+        mode: "0700"
+        owner: "{{ vscode_user }}"
+        group: "{{ vscode_user }}"
+        follow: false
+      changed_when: false
+      with_items:
+        - "{{ vscode_user_home }}/.vscode"
+        - "{{ vscode_user_home }}/.config/Code"
+
+  rescue:
+    - name: "Install | Vscode | Error"
+      ansible.builtin.debug:
+        msg: "Fail vscode install and config"
+      changed_when: true
+      notify:
+        - send failed message

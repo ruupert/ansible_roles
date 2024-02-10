@@ -1,0 +1,32 @@
+---
+# defaults file for vscode
+vscode_user: "{{ username }}"
+vscode_user_home: "{{ home }}"
+vscode_extensions:
+  - "eamodio.gitlens"
+  - "golang.Go"
+  - "hashicorp.terraform"
+  - "mongodb.mongodb-vscode"
+  - "ms-azuretools.vscode-docker"
+  - "ms-azuretools.vscode-docker"
+  - "ms-python.python"
+  - "ms-python.vscode-pylance"
+  - "ms-vscode-remote.remote-containers"
+  - "ms-vscode-remote.remote-ssh"
+  - "ms-vscode.cpptools-extension-pack"
+  - "ms-vscode.makefile-tools"
+  - "ms-vscode.remote-explorer"
+  - "oderwat.indent-rainbow"
+  - "redhat.ansible"
+  - "redhat.vscode-yaml"
+  - "samuelcolvin.jinjahtml"
+# notes here: 
+# vscode_haskell_apt_dependencies:
+#   - build-essential
+#   - curl libffi-dev
+#   - libffi8
+#   - libgmp-dev
+#   - libgmp10
+#   - libncurses-dev
+#   - libncurses5
+#   - libtinfo5

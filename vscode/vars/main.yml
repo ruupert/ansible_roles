@@ -1,0 +1,7 @@
+---
+# vars file for vscode
+vscode_bin_path_map:
+  FreeBSD: '/usr/local/bin/code'
+  Debian: '/usr/bin/code'
+
+vscode_bin_path: "{{ vscode_bin_path_map[ansible_distribution] | default('/usr/bin/code') }}"
