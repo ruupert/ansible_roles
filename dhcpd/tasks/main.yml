@@ -1,45 +1,91 @@
 ---
-# tasks file for dhcpd
-- name: "ISC dhcpd"
-  tags:
-    - dhcpd
+- name: "{{ ansible_distribution }} | {{ role_name }}"
+  when:
+    - ansible_distribution in dhcpd_distributions
   block:
 
-    - name: "ISC dhcpd | Install dependencies"
-      ansible.builtin.apt:
-        pkg:
-          - isc-dhcp-server
-        state: present
-        # update_cache: true
+    - name: "preflight"
+      vars:
+        role_action: "preflight"
+      ansible.builtin.include_tasks:
+        file: "preflight.yml"
+      when:
+        - dhcpd_act != 'destroy'
 
-    - name: "ISC dhcpd | Write /etc/default/isc-dhpc-server"
-      ansible.builtin.template:
-        src: "templates/etc-default-isc-dhcp-server.j2"
-        dest: "/etc/default/isc-dhcp-server"
-        mode: "0644"
-        owner: "root"
-        group: "root"
+    - name: "{{ ansible_distribution }} | preflight"
+      vars:
+        role_action: "preflight"
+      tags:
+        - always
+      ansible.builtin.include_tasks:
+        file: "{{ ansible_distribution }}/preflight.yml"
+      when:
+        - dhcpd_act != 'destroy'
 
-    - name: "ISC dhcpd | Write /etc/dhcp/dhcpd.conf"
-      ansible.builtin.template:
-        src: "templates/etc-dhcp-dhcpd.conf.j2"
-        dest: "/etc/dhcp/dhcpd.conf"
-        mode: "0600"
-        owner: "root"
-        group: "root"
-      notify:
-        - check config
-        - restart dhcpd
+    - name: "{{ ansible_distribution }} | redeploy"
+      vars:
+        role_action: "{{ main_item }}"
+      ansible.builtin.include_tasks:
+        file: "{{ ansible_distribution }}/{{ main_item }}.yml"
+      with_items:
+        - "destroy"
+        - "deploy"
+        - "configure"
+      loop_control:
+        loop_var: main_item
+      when:
+        - dhcpd_act == 'redeploy'
 
-    - name: "ISC dhcpd | Service started"
-      ansible.builtin.service:
-        name: "isc-dhcp-server"
-        state: started
+    - name: "{{ ansible_distribution }} | deploy"
+      vars:
+        role_action: "{{ main_item }}"
+      ansible.builtin.include_tasks:
+        file: "{{ ansible_distribution }}/{{ main_item }}.yml"
+      with_items:
+        - "deploy"
+        - "configure"
+      loop_control:
+        loop_var: main_item
+      when:
+        - dhcpd_act == 'deploy'
+
+    - name: "{{ ansible_distribution }} | configure"
+      vars:
+        role_action: "configure"
+      ansible.builtin.include_tasks:
+        file: "{{ ansible_distribution }}/configure.yml"
+      when:
+        - dhcpd_act == 'reconfigure'
+
+    - name: "{{ ansible_distribution }} | upgrade"
+      vars:
+        role_action: "upgrade"
+      ansible.builtin.include_tasks:
+        file: "{{ ansible_distribution }}/{{ main_item }}.yml"
+      with_items:
+        - deploy
+        - configure
+      loop_control:
+        loop_var: main_item
+      when:
+        - dhcpd_act == 'upgrade'
+
+    - name: "{{ ansible_distribution }} | destroy"
+      vars:
+        role_action: "destroy"
+      ansible.builtin.include_tasks:
+        file: "{{ ansible_distribution }}/destroy.yml"
+      when:
+        - dhcpd_act == 'destroy'
+
+    - name: "Flush handlers"
+      ansible.builtin.meta: flush_handlers
+      when:
+        - dhcpd_flush_handlers
 
   rescue:
-    - name: "ISC dhcpd | Error"
+    - name: "{{ ansible_distribution }} | {{ role_name }} | failed"
       ansible.builtin.debug:
-        msg: "Error"
-      changed_when: true
+        msg: "{{ ansible_distribution }} | {{ role_name }} | failed"
       notify:
         - send failed message

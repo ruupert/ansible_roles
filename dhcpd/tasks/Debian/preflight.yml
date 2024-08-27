@@ -1,0 +1,21 @@
+---
+- name: "{{ ansible_distribution }} | {{ role_action }}"
+  block:
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | debug"
+      ansible.builtin.debug:
+        msg: "{{ role_action }}"
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | set act=deploy if not installed"
+      ansible.builtin.set_fact:
+        dhcpd_act: "deploy"
+      when:
+        - "'isc-dhcp-server' not in ansible_facts.packages"
+
+  rescue:
+    - name: "{{ ansible_distribution }} | {{ role_action }} | failed"
+      ansible.builtin.debug:
+        msg: "{{ ansible_distribution }} | {{ role_action }} | failed"
+      changed_when: true
+      notify:
+        - send failed message

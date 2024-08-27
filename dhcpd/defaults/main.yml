@@ -1,5 +1,8 @@
 ---
-# defaults file for dhcpd
+dhcpd_act: "{{ act | default('reconfigure') }}"
+dhcpd_flush_handlers: "{{ flush_handlers | default(true) }}"
+dhcpd_distributions:
+  - "Debian"
 dhcpd_default_lease: "3600"
 dhcpd_max_lease: "14400"
 dhcpd_subnets: []

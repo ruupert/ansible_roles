@@ -1,14 +1,12 @@
 ---
-# handlers file for dhcpd
-
-- name: "ISC dhcpd | Check config"
+- name: "{{ ansible_distribution }} | Check config"
   ansible.builtin.command:
     cmd: "dhcpd -t -cf /etc/dhcp/dhcpd.conf"
   register: dhcpd_check_conf_reg
   changed_when: dhcpd_check_conf_reg.rc == 0
   listen: check config
 
-- name: "ISC dhcpd | Restart DHCPD service"
+- name: "{{ ansible_distribution }} | Restart DHCPD service"
   ansible.builtin.service:
     name: "isc-dhcp-server"
     state: "restarted"

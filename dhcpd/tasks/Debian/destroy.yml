@@ -1,0 +1,36 @@
+- name: "{{ ansible_distribution }} | {{ role_action }}"
+  block:
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | debug"
+      ansible.builtin.debug:
+        msg: "{{ role_action }}"
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | Service stopped and disabled"
+      ansible.builtin.service:
+        name: "isc-dhcp-server"
+        state: stopped
+        enabled: false
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | Remove /etc/default/isc-dhpc-server"
+      ansible.builtin.file:
+        dest: "/etc/default/isc-dhcp-server"
+        state: absent
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | Remove /etc/dhcp/dhcpd.conf"
+      ansible.builtin.file:
+        dest: "/etc/dhcp/dhcpd.conf"
+        state: absent
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | Remove pkg"
+      ansible.builtin.apt:
+        pkg:
+          - isc-dhcp-server
+        state: absent
+
+  rescue:
+    - name: "{{ ansible_distribution }} | {{ role_action }} | failed"
+      ansible.builtin.debug:
+        msg: "{{ ansible_distribution }} | {{ role_action }} | failed"
+      changed_when: true
+      notify:
+        - send failed message

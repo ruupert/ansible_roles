@@ -1,0 +1,14 @@
+- name: "{{ ansible_distribution }} | {{ role_action }}"
+  block:
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | debug"
+      ansible.builtin.debug:
+        msg: "{{ role_action }}"
+
+  rescue:
+    - name: "{{ ansible_distribution }} | {{ role_action }} | failed"
+      ansible.builtin.debug:
+        msg: "{{ ansible_distribution }} | {{ role_action }} | failed"
+      changed_when: true
+      notify:
+        - send failed message

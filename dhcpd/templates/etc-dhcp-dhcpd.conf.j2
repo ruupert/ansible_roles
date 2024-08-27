@@ -33,27 +33,20 @@ subnet {{ no_service.subnet }} netmask {{ no_service.netmask }} {
 }
 {% endfor %}
 
-# option rfc3442-classless-static-routes code 121 = text;
-#option ms-classless-static-routes code 249 = text;
-
-
 {% for service in dhcpd_subnets %}
 subnet {{ service.subnet }} netmask {{ service.netmask }} {
   option routers {{ service.gateway }};
   option broadcast-address {{ service.broadcast }};
   option domain-name-servers {{ service.nameserver }};
-  
-{% if dhcpd_option121 is defined %}
-  # option rfc3442-classless-static-routes {{ dhcpd_option121 }};
-{% endif %}
-  #option rfc3442-classless-static-routes "0x{{ dhcpd_classles_static_routes | routes2classless | upper }}";
-  #option ms-classless-static-routes "0x{{ dhcpd_classles_static_routes | routes2classless | upper }}";
 
 {% if service.search is defined %}
   option domain-search "{{ service.search }}";
 {% endif %}
 
   pool {
+{% if service.class != "none" %}
+  allow members of "{{ service.class }}";
+{% endif %}
 {% if dhcpd_ha %}
     failover peer "dhcp-failover";
 {% endif %}
@@ -62,9 +55,11 @@ subnet {{ service.subnet }} netmask {{ service.netmask }} {
 }
 {% endfor %}
 
-
 {% for fixed_addr in dhcpd_fixed_addresses %}
 host {{ fixed_addr.name}} {
+{% if fixed_addr.class is defined %}
+  option dhcp-client-identifier 1:{{ fixed_addr.hw }};
+{% endif %}
   hardware ethernet {{ fixed_addr.hw }};
   fixed-address {{ fixed_addr.ip }};
 }

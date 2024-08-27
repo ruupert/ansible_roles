@@ -1,0 +1,38 @@
+- name: "{{ ansible_distribution }} | {{ role_action }}"
+  block:
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | debug"
+      ansible.builtin.debug:
+        msg: "configure"
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | Write /etc/default/isc-dhpc-server"
+      ansible.builtin.template:
+        src: "templates/etc-default-isc-dhcp-server.j2"
+        dest: "/etc/default/isc-dhcp-server"
+        mode: "0644"
+        owner: "root"
+        group: "root"
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | Write /etc/dhcp/dhcpd.conf"
+      ansible.builtin.template:
+        src: "templates/etc-dhcp-dhcpd.conf.j2"
+        dest: "/etc/dhcp/dhcpd.conf"
+        mode: "0600"
+        owner: "root"
+        group: "root"
+      notify:
+        - check config
+        - restart dhcpd
+
+    - name: "{{ ansible_distribution }} | {{ role_action }} | Service started"
+      ansible.builtin.service:
+        name: "isc-dhcp-server"
+        state: started
+        enabled: true
+
+  rescue:
+    - name: "{{ ansible_distribution }} | {{ role_action }} | failed"
+      ansible.builtin.debug:
+        msg: "{{ ansible_distribution }} | {{ role_action }} | failed"
+      notify:
+        - send failed message

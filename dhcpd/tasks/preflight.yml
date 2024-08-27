@@ -1,0 +1,5 @@
+---
+- name: "{{ ansible_distribution }} | {{ role_action }} | gather installed"
+  ansible.builtin.package_facts:
+    manager: auto
+  when: "ansible_facts.packages is undefined"
